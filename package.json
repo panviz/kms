@@ -1,0 +1,33 @@
+{
+  "name": "cms",
+  "version": "0.0.1",
+  "description": "dead simple site generator",
+  "main": "generate.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Dmitra/cms"
+  },
+  "homepage": "",
+  "keywords": [
+    "cms",
+    "blog",
+    "static website generator"
+  ],
+  "author": {
+    "name": "Dmitra",
+    "email": "k@dmitra.com",
+    "url": "http://dmitra.com/dmitra.kyianytsia"
+  },
+  "license": "MIT",
+  "scripts": {
+    "start": "static"
+  },
+  "dependencies": {
+    "lodash": "<=3.5.0",
+    "moment": "latest",
+    "js-yaml": "latest",
+    "handlebars": "latest"
+  },
+  "devDependencies": {
+  }
+}
