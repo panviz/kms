@@ -14,7 +14,6 @@ var Self = function (renderer) {
   self.renderer = renderer
   self.pages = []
   self.layouts = {}
-  self.layoutTemplates = {}
   self.readLayouts()
 
   rimraf.sync(config.output_dir)
@@ -36,17 +35,16 @@ Self.prototype.readLayouts = function () {
   _.each(files, function (filename) {
     var name = Path.basename(filename, Path.extname(filename))
     var s = fs.readFileSync(Path.join('layout', filename), 'utf8')
-    var layout = self.parse(s).content 
-    if (layout) {
+    var layout = self.parse(s)
+    if (layout.content) {
+      layout.template = self.renderer.compile(layout.content)
       self.layouts[name] = layout
-      self.layoutTemplates[name] = self.renderer.compile(layout)
     }
   })
   //TODO layout may be a partial
 }
 
 Self.prototype.processSection = function (section) {
-  if (!_.contains(['post', 'error'], section)) return //TODO remove
   var self = this
 
   var folderPath = Path.join(config.content_dir, section)
@@ -88,14 +86,22 @@ Self.prototype.parse = function (s) {
 
 Self.prototype.render = function (page) {
   var self = this
-  var layoutTemplate = self.layoutTemplates[page.layout]
-  if (!layoutTemplate) throw ('Template "' + page.layout + '" is not present')
+  , layout = self.layouts[page.layout]
+  , content
 
-  var content = page.content ? self.renderer.compile(page.content)(page) : undefined
-  page.html = layoutTemplate({
+  if (!layout) throw ('Layout "' + page.layout + '" is not present')
+
+  if (page.content)
+    content = self.renderer.compile(page.content)(page)
+
+  page.html = layout.template({
     page: page
   , content: content
   })
+    
+  var parentLayout = self.layouts[layout.layout]
+  if (parentLayout)
+    page.html = parentLayout.template({page: page, content: page.html})
 }
 
 Self.prototype.write = function (page) {
