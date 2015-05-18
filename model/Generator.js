@@ -12,9 +12,12 @@ var Page = require('./Page')
 var Self = function (renderer) {
   var self = this
   self.renderer = renderer
+  self.site = {data: {}}
   self.pages = []
   self.layouts = {}
   self.readLayouts()
+  self.readData()
+  console.log(self.site);
 
   rimraf.sync(config.output_dir)
 
@@ -31,10 +34,10 @@ var Self = function (renderer) {
 Self.prototype.readLayouts = function () {
   var self = this
 
-  var files = glob.sync('*.html', {cwd: 'layout'})
+  var files = glob.sync('layout/*.html')
   _.each(files, function (filename) {
     var name = Path.basename(filename, Path.extname(filename))
-    var s = fs.readFileSync(Path.join('layout', filename), 'utf8')
+    var s = fs.readFileSync(filename, 'utf8')
     var layout = self.parse(s)
     if (layout.content) {
       layout.template = self.renderer.compile(layout.content)
@@ -42,6 +45,19 @@ Self.prototype.readLayouts = function () {
     }
   })
   //TODO layout may be a partial
+}
+
+Self.prototype.readData = function () {
+  var self = this
+
+  var files = glob.sync(Path.join(config.content_dir, 'data/*'))
+  _.each(files, function (filename) {
+    var name = Path.basename(filename, Path.extname(filename))
+    var s = fs.readFileSync(filename, 'utf8')
+    var data = yaml.load(s, 'utf8')
+    self.site.data[name] = data
+    if (name === 'tag') self.site.tag = data
+  })
 }
 
 Self.prototype.processSection = function (section) {
