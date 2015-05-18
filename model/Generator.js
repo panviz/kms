@@ -1,11 +1,11 @@
 var fs = require('fs')
-var Path = require('path')
-var glob = require('glob')
-var _ = require('lodash')
-var yaml = require('js-yaml')
-var config = require('../config')
-var rimraf = require('rimraf')
-var mkdirp = require('mkdirp')
+, Path = require('path')
+, glob = require('glob')
+, _ = require('lodash')
+, yaml = require('js-yaml')
+, config = require('../config')
+, rimraf = require('rimraf')
+, mkdirp = require('mkdirp')
 
 var Page = require('./Page')
 

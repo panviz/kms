@@ -1,5 +1,5 @@
 var fs = require('fs')
-var yaml = require('js-yaml')
+, yaml = require('js-yaml')
 
 var app = {}
 

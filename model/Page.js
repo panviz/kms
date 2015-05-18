@@ -2,9 +2,9 @@
  * Object representing a page
  */
 var moment = require('moment')
-var _ = require('lodash')
-var Path = require('path')
-var config = require('../config')
+, _ = require('lodash')
+, Path = require('path')
+, config = require('../config')
 
 var Self = function (path, source) {
   var self = this
