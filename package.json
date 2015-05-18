@@ -23,12 +23,13 @@
     "start": "static"
   },
   "dependencies": {
-    "lodash": "<=3.5.0",
-    "moment": "latest",
+    "glob": "latest",
+    "handlebars": "latest",
     "js-yaml": "latest",
-    "handlebars": "latest"
+    "lodash": "<=3.5.0",
+    "mkdirp": "^0.5.1",
+    "moment": "latest",
+    "rimraf": "^2.3.3"
   },
-  "devDependencies": {
-    "node-static": "latest"
-  }
+  "devDependencies": {}
 }

@@ -4,11 +4,13 @@ var static = require('node-static')
 , http = require('http')
 , util = require('util')
 , fs = require('fs')
+, config = require('./config')
+, Path = require('path')
 
-var webroot = './_site',
-port = 8080;
+var port = 8080
+, root = './' + config.output_dir
 
-var fileServer = new(static.Server)(webroot, { 
+var fileServer = new(static.Server)(root, { 
   cache: 600, 
   headers: { 'X-Powered-By': 'node-static' } 
 });
@@ -17,7 +19,7 @@ require('http').createServer(function (req, response) {
   req.addListener('end', function () {
 
     if (req.url.indexOf('.') === -1) {
-      var file = webroot + req.url + '.html';
+      var file = root + req.url + '.html';
       if (fs.existsSync(file)) {
         req.url += '.html'
       }
@@ -38,3 +40,4 @@ require('http').createServer(function (req, response) {
     });
   }).resume();
 }).listen(8080);
+console.log('Server started on:8080');

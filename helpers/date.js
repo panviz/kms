@@ -7,9 +7,9 @@
 *   {{ format_date Date }}
 */
 var moment = require('moment')
-var app = require('../app')
+var config = require('../config')
 
 module.exports = function (date){
   //TODO use config setting here
-  return moment(date).format('YY MM DD')
+  return moment(date).format(config.date_format)
 }
