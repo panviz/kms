@@ -4,10 +4,9 @@ var static = require('node-static')
 , http = require('http')
 , util = require('util')
 , fs = require('fs')
-, config = require('./config')
+, config = require('./src/config')
 , Path = require('path')
-
-var port = 8080
+, port = 8080
 , root = './' + config.output_dir
 
 var fileServer = new(static.Server)(root, { 
@@ -29,7 +28,7 @@ require('http').createServer(function (req, response) {
       if (err) {
         console.error('Error serving %s - %s', req.url, err.message);
         if (err.status === 404 || err.status === 500) {
-          fileServer.serveFile(util.format('/%d.html', err.status), err.status, {}, req, response);
+          fileServer.serveFile(util.format('error/%d.html', err.status), err.status, {}, req, response);
         } else {
           response.writeHead(err.status, err.headers);
           response.end();
@@ -39,5 +38,5 @@ require('http').createServer(function (req, response) {
       }
     });
   }).resume();
-}).listen(8080);
-console.log('Server started on:8080');
+}).listen(port);
+console.log('Server started on:' + port);

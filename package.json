@@ -23,6 +23,7 @@
     "start": "static"
   },
   "dependencies": {
+    "flat": "^1.5.1",
     "glob": "latest",
     "handlebars": "latest",
     "js-yaml": "latest",

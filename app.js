@@ -1,10 +1,12 @@
-var fs = require('fs')
-, yaml = require('js-yaml')
-
 var app = {}
+, dataProcessor = require('./src/processor/Data')
+, layoutProcessor = require('./src/processor/Layout')
+, pageProcessor = require('./src/processor/Page')
+, Generator = require('./src/generator/Page')
+, Renderer = require('./src/Renderer')
+, DB = require('./src/Storage')
 
-var Generator = require('./model/Generator')
-var Renderer = require('./model/Renderer')
-
-app.r = new Renderer()
-app.g = new Generator(app.r)
+DB.getPages().forEach(function (page) {
+  Renderer.render(page)
+  Generator.write(page)
+})
