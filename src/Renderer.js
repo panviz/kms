@@ -47,9 +47,10 @@ Self.prototype.render = function (page) {
   , content: content
   })
     
-  var parentLayout = DB.getLayout[layout.layout]
-  if (parentLayout)
+  var parentLayout = DB.getLayout(layout.layout)
+  if (parentLayout) {
     page.html = parentLayout.template({page: page, content: page.html})
+  }
 }
 
 module.exports = new Self

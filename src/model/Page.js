@@ -27,7 +27,6 @@ var Self = function (path, source) {
     self.permalink = Path.join(self.tags[0] || '', self.name)
   }
 
-  console.log(self.permalink);
   self.date = moment(source.date, config.date_format).toDate()
 
   if (self.content) {

@@ -24,6 +24,7 @@ Self.prototype.read = function () {
     var layout = self.parse(s)
     if (layout.content) {
       layout.template = Renderer.compile(layout.content)
+      layout.name = name
       DB.setLayout(name, layout)
     }
   })

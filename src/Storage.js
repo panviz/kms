@@ -29,7 +29,6 @@ Self.prototype.setLayout = function (name, layout) {
 
 Self.prototype.getLayout = function (name) {
   var self = this
-  if (!name) return self._layouts
   return self._layouts[name]
 }
 
