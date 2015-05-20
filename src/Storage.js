@@ -13,7 +13,7 @@ var Self = function (renderer) {
 
 Self.prototype.setData = function (name, data) {
   var self = this
-  if (name === 'tag') Tagman.set(data)
+  if (name === 'tag') Tagman.parse(data)
     else self._data[name] = data
 }
 
@@ -35,7 +35,10 @@ Self.prototype.getLayout = function (name) {
 Self.prototype.setPage = function (page) {
   var self = this
   if (!page) return
-  Tagman.set(page.tags)
+  //TODO add link page-tag
+  page.tags.forEach(function (tag) {
+    Tagman.add(tag)
+  })
   self._pages.push(page)
 }
 

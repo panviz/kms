@@ -10,7 +10,7 @@ var fs = require('fs')
 var Self = function () {
   var self = this
 
-  self.specialSections = ['data', 'tag']
+  self.specialSections = ['data']
   self.sections = _.map(glob.sync('*/', {cwd: 'content'}), function (path) {
     return path.replace('/', '')
   })

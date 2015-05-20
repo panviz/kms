@@ -6,7 +6,7 @@ var static = require('node-static')
 , fs = require('fs')
 , config = require('./src/config')
 , Path = require('path')
-, port = 8080
+, port = 4000
 , root = './' + config.output_dir
 
 var fileServer = new(static.Server)(root, { 

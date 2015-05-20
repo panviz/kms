@@ -23,6 +23,7 @@
     "start": "static"
   },
   "dependencies": {
+    "plusjs": "https://github.com/Dmitra/plusjs.git",
     "flat": "^1.5.1",
     "glob": "latest",
     "handlebars": "latest",

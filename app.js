@@ -1,5 +1,10 @@
 var app = {}
-, dataProcessor = require('./src/processor/Data')
+, rimraf = require('rimraf')
+, config = require('./src/config')
+//ERASE output folder
+rimraf.sync(config.output_dir)
+
+var dataProcessor = require('./src/processor/Data')
 , layoutProcessor = require('./src/processor/Layout')
 , pageProcessor = require('./src/processor/Page')
 , Generator = require('./src/generator/Page')

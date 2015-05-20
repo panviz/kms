@@ -1,9 +1,9 @@
-# nodeJS static site generator
+# semantic cms
+##dead simple static site generator in nodeJS
 
 #Features
 + First page tag - is used in static permalink formation as '/:tag'
-+ Section name if mentioned in tags became the first tag of page
-
++ Section name if defined as a tag became the first tag of page
 
 
 #Roadmap

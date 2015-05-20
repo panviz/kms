@@ -1,30 +1,21 @@
 var fs = require('fs')
 , Path = require('path')
 , _ = require('lodash')
-, rimraf = require('rimraf')
 , mkdirp = require('mkdirp')
 , config = require('../config')
+, Tagman = require('../model/Tagman')
 
 var Self = function () {
   var self = this
-
-  rimraf.sync(config.output_dir)
+  Tagman.all().forEach(function (tag) {
+    mkdirp.sync(Path.join(config.output_dir, tag))
+  })
 }
 
 Self.prototype.write = function (page) {
   var self = this
-  , path
-  , filename
 
-  if (page.single) {
-    path = Path.join(config.output_dir, page.permalink, '..')
-    filename = Path.join(config.output_dir, page.permalink) + '.html'
-  } else {
-    path = Path.join(config.output_dir, page.permalink)
-    filename = Path.join(path, 'index.html')
-  }
-
-  mkdirp.sync(path)
+  var filename = Path.join(config.output_dir, page.permalink) + '.html'
   fs.writeFileSync(filename, page.html)
 }
 
