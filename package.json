@@ -1,11 +1,11 @@
 {
-  "name": "cms",
+  "name": "graphiy.cms",
   "version": "0.0.1",
   "description": "dead simple site generator",
-  "main": "generate.js",
+  "main": "app.js",
   "repository": {
     "type": "git",
-    "url": "https://github.com/Dmitra/cms"
+    "url": "https://github.com/Graphiy/cms"
   },
   "homepage": "",
   "keywords": [
@@ -24,7 +24,6 @@
   },
   "dependencies": {
     "plusjs": "https://github.com/Dmitra/plusjs.git",
-    "flat": "^1.5.1",
     "glob": "latest",
     "handlebars": "latest",
     "js-yaml": "latest",

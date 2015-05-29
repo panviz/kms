@@ -17,9 +17,13 @@ var fileServer = new(static.Server)(root, {
 require('http').createServer(function (req, response) {
   req.addListener('end', function () {
 
-    if (req.url.indexOf('.') === -1) {
+    function existsSync (d) {
+      try { fs.statSync(d); return true }
+      catch (er) { return false }
+    }
+    if (!existsSync(root + req.url)) {
       var file = root + req.url + '.html';
-      if (fs.existsSync(file)) {
+      if (existsSync(file)) {
         req.url += '.html'
       }
     }
