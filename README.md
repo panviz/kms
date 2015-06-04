@@ -7,4 +7,4 @@ The killing feature is [Graphiy](http://dmitra.com/graphiy/concept) concept at t
 
 It is now in active development.
 Fully working tool is planned to be released in version 0.1.
-This tool will be used as publication platform for next version of [Dmitra.com](dmitra.com) and [Graphiy.com](graphiy.com) websites.
+This tool will be used as publication platform for next version of [Dmitra.com](http://dmitra.com) and [Graphiy.com](http://graphiy.com) websites.

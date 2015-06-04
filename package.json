@@ -23,14 +23,13 @@
     "start": "static"
   },
   "dependencies": {
-    "plusjs": "https://github.com/Dmitra/plusjs.git",
+    "fs-extra": "^0.18.4",
     "glob": "latest",
     "handlebars": "latest",
     "js-yaml": "latest",
     "lodash": "<=3.5.0",
-    "mkdirp": "^0.5.1",
     "moment": "latest",
-    "rimraf": "^2.3.3"
+    "plusjs": "https://github.com/Dmitra/plusjs.git",
   },
   "devDependencies": {}
 }
