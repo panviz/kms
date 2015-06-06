@@ -1,8 +1,8 @@
 var app = {}
-, rimraf = require('rimraf')
+, fs = require('fs-extra')
 , config = require('./src/config')
 //ERASE output folder
-rimraf.sync(config.output_dir)
+//fs.removeSync(config.output_dir)
 
 var dataProcessor = require('./src/processor/Data')
 , layoutProcessor = require('./src/processor/Layout')

@@ -28,8 +28,9 @@
     "handlebars": "latest",
     "js-yaml": "latest",
     "lodash": "<=3.5.0",
+    "minimist": "^1.1.1",
     "moment": "latest",
-    "plusjs": "https://github.com/Dmitra/plusjs.git",
+    "plusjs": "https://github.com/Dmitra/plusjs.git"
   },
   "devDependencies": {}
 }

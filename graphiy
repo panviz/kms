@@ -1,0 +1,13 @@
+#!/usr/bin/env node
+var argv = require('minimist')(process.argv.slice(2))
+, _ = require('lodash')
+, providers = {
+  directory: require('./src/provider/directory')
+, mybase: require('./src/provider/mybase')
+}
+
+if (argv._[0] === 'import') {
+  var provider = new providers[argv.provider]({inDir: argv._[1], outDir: argv._[2]})
+} else if (argv._[0] === 'server') {
+  require('./server')
+}

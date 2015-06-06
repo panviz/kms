@@ -1,87 +1,38 @@
-#!/usr/bin/env node
 var fs = require('fs-extra')
 , Path = require('path')
-, sanitizeHtml = require('sanitize-html')
 , _ = require('lodash')
-, glob = require('glob')
+, sanitizeHtml = require('sanitize-html')
 , toMarkdown = require('to-markdown')
-, yaml = require('js-yaml')
 
-var inDir = Path.normalize(process.argv[2] || '.')
-var outDir = Path.normalize(process.argv[3] || '.')
-inDir = Path.join('content', inDir)
-outDir = Path.join('imported', outDir)
-var files = glob.sync(Path.join(inDir, '**/*'))
+var DirectoryProvider = require('./directory')
 
-var tagPaths = {}
-, items = {}
-, counter = 0
-, duplicates = {}
-, pathTags = {}
+var Self = function (p) {
+  this.init(p)
+}
+Self.prototype = Object.create(DirectoryProvider.prototype)
 
-files.forEach(findDuplicates)
-files.forEach(parseTags)
-files.forEach(parse)
-//console.log(_.keys(duplicates).sort())
-//console.log(pathTags);
-writeTags()
-
-function parse(path) {
+Self.prototype.parse = function (path) {
+  var self = this
   if (fs.lstatSync(path).isDirectory()) return
-  var relative = Path.relative(inDir, path)
-  var out = Path.join(outDir, relative)
+  var relative = Path.relative(self.inDir, path)
+  var out = Path.join(self.outDir, relative)
   if (Path.extname(path) === '.html') {
-    var content = parseContent(fs.readFileSync(path, 'utf8'))
+    var source = fs.readFileSync(path, 'utf8')
+    var content = self.parseContent(source)
     var markdown = toMarkdown(content)
-    var tags = pathTags[Path.dirname(relative)]
+    var tags = self.pathTags[Path.dirname(relative)]
     var meta = "---\ntags:\n- " + tags.join('\n- ') + "\n---\n"
     var output = meta + markdown
-    write(Path.dirname(out), output)
+    self.write(Path.dirname(out), output)
   } else {
     //move asset without change
-    //console.log('In: ' + path);
-    //fs.copySync(path, out)
-    //console.log('Out: ' + out);
+    console.log('In: ' + path);
+    fs.copySync(path, out)
+    console.log('Out: ' + out);
   }
 }
 
-function findDuplicates(path) {
-  if (!fs.lstatSync(path).isDirectory()) return
-  var relative = Path.relative(inDir, path)
-  var tags = relative.split(Path.sep)
-
-  var last = _.last(tags)
-  if (tagPaths[last]) {
-    if (!duplicates[last]) duplicates[last] = []
-    if (!_.contains(duplicates[last], tagPaths[last])) duplicates[last].push(tagPaths[last])
-    duplicates[last].push(relative)
-  }
-  tagPaths[last] = relative
-}
-
-function parseTags(path) {
-  if (!fs.lstatSync(path).isDirectory()) return
-  var relative = Path.relative(inDir, path)
-  var folders = relative.split(Path.sep)
-  var tags = []
-
-  folders.forEach(function (folder) {
-    if (_.contains(_.keys(duplicates), folder)) {
-      tags[tags.length -1] = tags[tags.length -1] + '.' + folder
-    } else tags.push(folder)
-  })
-
-  pathTags[relative] = tags
-
-  tags.forEach(function (tag, index) {
-    if (tags[index + 1]) {
-      if (!items[tag]) items[tag] = []
-      items[tag].push(tags[index + 1])
-    }
-  })
-}
-
-function parseContent(content) {
+Self.prototype.parseContent = function (content) {
   content = content
     .replace(/^\uFEFF/, '')
     .replace(/\r/gm, '')
@@ -156,17 +107,12 @@ function parseContent(content) {
   return content
 }
 
-function write(path, content) {
+Self.prototype.write = function (path, content) {
+  var self = this
   fs.mkdirpSync(path)
   filepath = Path.join(path, 'index.md')
   console.log('Write: ' + filepath);
   fs.writeFileSync(filepath, content)
 }
 
-function writeTags() {
-  _.keys(items).forEach(function (tag) {
-    items[tag] = _.uniq(items[tag])
-  })
-  var yml = yaml.dump(items)
-  fs.writeFileSync(Path.join(outDir, 'data.yml'), yml)
-}
+module.exports = Self

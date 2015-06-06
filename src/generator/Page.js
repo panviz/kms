@@ -1,14 +1,13 @@
-var fs = require('fs')
+var fs = require('fs-extra')
 , Path = require('path')
 , _ = require('lodash')
-, mkdirp = require('mkdirp')
 , config = require('../config')
 , Tagman = require('../model/Tagman')
 
 var Self = function () {
   var self = this
   Tagman.all().forEach(function (tag) {
-    mkdirp.sync(Path.join(config.output_dir, tag))
+    fs.mkdirpSync(Path.join(config.output_dir, tag))
   })
 }
 

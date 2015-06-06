@@ -1,9 +1,7 @@
-#!/usr/bin/env node
-
 var static = require('node-static')
 , http = require('http')
 , util = require('util')
-, fs = require('fs')
+, fs = require('fs-extra')
 , config = require('./src/config')
 , Path = require('path')
 , port = 4000
