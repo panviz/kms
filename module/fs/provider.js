@@ -71,7 +71,7 @@ Self.prototype.parse = function (path) {
 
   names.forEach(function (name) {
     if (_.contains(_.keys(self.duplicates), name)) {
-      items[items.length -1] = items[items.length -1] + 'ü‘„€€€' + name
+      items[items.length -1] = [items[items.length -1], name]
     } else items.push(name)
   })
 
@@ -89,16 +89,36 @@ Self.prototype.parse = function (path) {
 //Link parent-child
 Self.prototype.parseSequence = function (items) {
   var self = this
-  items.forEach(function (tag, index) {
-    self.tagIds[tag] = self.storage.setUniq(tag)
-    if (items[index -1]) {
-      self.storage.link(self.tagIds[tag], self.tagIds[items[index -1]])
+  items.forEach(function (item, index) {
+    if (_.isArray(item)) {
+      var groupedIds = self.parseGroup(item)
+      var groupId = self.storage.setUniq(groupedIds)
+      self.tagIds[groupId] = groupId
+
+      //replace array with ID
+      items[index] = groupId
+    } else {
+      self.tagIds[item] = self.storage.setUniq(item)
     }
-    var group = tag.split('ü‘„€€€')
-    if (group.length > 1) {
-      self.parseSequence(group)
+
+    //Link parent-child folders
+    if (items[index -1]) {
+      self.storage.link(self.tagIds[item], self.tagIds[items[index -1]])
     }
   })
+}
+/**
+ * save grouped Items
+ * @returns Array grouped Items ids
+ */
+Self.prototype.parseGroup = function (items) {
+  var self = this
+  var groupedItemIds = []
+  items.forEach(function (item, index) {
+    self.tagIds[item] = self.storage.setUniq(item)
+    groupedItemIds.push(self.tagIds[item])
+  })
+  return groupedItemIds
 }
 
 module.exports = Self

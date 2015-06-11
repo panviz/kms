@@ -6,10 +6,21 @@ var Self = function () {
   self._items = {}
   self._links = []
 }
-
+/**
+ * @param data String or Array
+ */
 Self.prototype.set = function (data) {
   var self = this
   , key = b()
+
+  //Create Group Item and link with children
+  if (_.isArray(data)) {
+    var groupedIds = data
+    //Link grouped Items with Group
+    groupedIds.forEach(function (groupedId) {
+      self.link(key, groupedId)
+    })
+  }
   self._items[key] = data
   return key
 }
@@ -31,7 +42,9 @@ Self.prototype.link = function (key1, key2, weight) {
   var link = self.getLink(key1, key2)
   if (link) {
     link[2] = (link[2] || 0) + (weight || 1)
-  } else self._links.push([key1, key2, weight])
+  } else {
+    self._links.push([key1, key2, weight])
+  }
 }
 
 Self.prototype.getLink = function (key0, key1) {
