@@ -1,8 +1,8 @@
 {
   "name": "graphiy.cms",
-  "version": "0.0.1",
-  "description": "dead simple site generator",
-  "main": "app.js",
+  "version": "0.0.2",
+  "description": "simple site generator",
+  "main": "graphiy",
   "repository": {
     "type": "git",
     "url": "https://github.com/Graphiy/cms"
@@ -11,7 +11,8 @@
   "keywords": [
     "cms",
     "blog",
-    "static website generator"
+    "static website generator",
+    "tags"
   ],
   "author": {
     "name": "Dmitra",
@@ -26,6 +27,7 @@
     "fs-extra": "^0.18.4",
     "glob": "latest",
     "handlebars": "latest",
+    "isbinaryfile": "^2.0.4",
     "js-yaml": "latest",
     "lodash": "<=3.5.0",
     "minimist": "^1.1.1",

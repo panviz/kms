@@ -1,13 +1,16 @@
+/**
+ * Opinionated importer for Mybase directory tree export
+ */
 var fs = require('fs-extra')
 , Path = require('path')
 , _ = require('lodash')
 , sanitizeHtml = require('sanitize-html')
 , toMarkdown = require('to-markdown')
 
-var DirectoryProvider = require('./directory')
+var DirectoryProvider = require('../fs/provider')
 
 var Self = function (p) {
-  this.init(p)
+  //this.init(p)
 }
 Self.prototype = Object.create(DirectoryProvider.prototype)
 

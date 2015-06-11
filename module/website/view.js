@@ -1,22 +1,40 @@
 var fs =  require('fs')
 , glob = require('glob')
 , Path = require('path')
+, _ = require('lodash')
+, yaml = require('js-yaml')
 , Handlebars = require('handlebars')
-, DB = require('./Storage')
 
 var Self = function () {
   var self = this
 
+  self.readLayout()
   self.engine = Handlebars
   self.compile = self.engine.compile
   self.registerHelpers()
   self.registerPartials()
 }
 
+Self.prototype.readLayout = function () {
+  var self = this
+
+  var files = glob.sync('layout/*.html')
+  _.each(files, function (filename) {
+    var name = Path.basename(filename, Path.extname(filename))
+    var s = fs.readFileSync(filename, 'utf8')
+    var layout = self.parse(s)
+    if (layout.content) {
+      layout.template = self.compile(layout.content)
+      layout.name = name
+      DB.setLayout(name, layout)
+    }
+  })
+}
+
 Self.prototype.registerHelpers = function () {
   var self = this
 
-  glob.sync('node_modules/cms/src/helper/**/*.js').forEach(function (path) {
+  glob.sync('/src/helper/**/*.js').forEach(function (path) {
     var name = Path.basename(path, Path.extname(path))
     path = Path.relative('node_modules', path)
     self.engine.registerHelper(name, require(path))
@@ -53,4 +71,4 @@ Self.prototype.render = function (page) {
   }
 }
 
-module.exports = new Self
+module.exports = Self

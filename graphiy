@@ -1,13 +1,15 @@
 #!/usr/bin/env node
 var argv = require('minimist')(process.argv.slice(2))
 , _ = require('lodash')
-, providers = {
-  directory: require('./src/provider/directory')
-, mybase: require('./src/provider/mybase')
-}
+, app = new require('./core/app')
 
-if (argv._[0] === 'import') {
-  var provider = new providers[argv.provider]({inDir: argv._[1], outDir: argv._[2]})
-} else if (argv._[0] === 'server') {
-  require('./server')
+if (!argv._[0] || argv._[0] === 'server') {
+  require('./core/server')
+} else 
+if (argv._[0] === 'convert') {
+  var config = {source: argv._[1], target: argv._[2]}
+  var source = new app.modules[argv.source].provider(config)
+  var target = new app.modules[argv.target].provider(config)
+  var data = source.read()
+  target.write(data)
 }
