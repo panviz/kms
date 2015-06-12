@@ -10,6 +10,14 @@ if (argv._[0] === 'convert') {
   var config = {source: argv._[1], target: argv._[2]}
   var source = new app.modules[argv.source].provider(config)
   var target = new app.modules[argv.target].provider(config)
-  var data = source.read()
-  target.write(data)
+  var items = source.read()
+  target.write(items)
+}
+if (argv._[0] === 'render') {
+  var config = app.getRepoConfig(argv._[1], {render: argv.website})
+  var provider = new app.modules[config['repository.type']].provider(config)
+  var view = new app.modules[config['repository.type']].view(config)
+  var items = provider.read()
+  var data = view.render(items)
+  provider.write(data)
 }

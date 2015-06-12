@@ -5,45 +5,19 @@ var fs = require('fs')
 , Path = require('path')
 , glob = require('glob')
 , _ = require('lodash')
-, DB = require('../object/provider')
+, Storage = require('../object/provider')
 
-var Self = function (config) {
-  this.config = config
-    var config
-    if (options.path) config = self.getRepoConfig(options.path)
-    config.name = config.name || config['repository.name'] || name
-    config.type = config.type || config['repository.type'] || options.type
-
-    self.repos[name] = config
-}
-
-Self.prototype.getRepoConfig = function (options) {
-  var repoConfigPath = Path.join(options.path, '_config.yml')
-
-  //Check wheather repo has it's own config
-  try {
-    fs.lstatSync(repoConfigPath)
-    return yaml.load(fs.readFileSync(repoConfigPath))
-  } catch (e) {
-    return
+var Self = function (p) {
+  if (_.isArray(_.keys(p.website)) && p.render) {
+    var siteConfig = p.website[p.render]
+    this.p =  _.extend({}, p, _.values(p.website))
   }
-}
-
-Self.prototype.parseMultiSiteConfig = function (baseConfig) {
-    if (_.isArray(config.website)) {
-      repoConfigs = _.union(repoConfigs, self.parseMultiSiteConfig(config))
-    } else {
-      repoConfigs.push(config)
-    }
-  return _.map(baseConfig.website, function (config) {
-    return _.extend({}, baseConfig, _.values(config)[0], {name: _.keys(config)[0]})
-  })
 }
 
 Self.prototype.read = function () {
   var self = this
 
-  if (config.exclude_dir) {
+  if (self.p.exclude_dir) {
   }
   self.sections = _.map(glob.sync('*/', {cwd: 'content'}), function (path) {
     return path.replace('/', '')
@@ -57,7 +31,7 @@ Self.prototype.read = function () {
 Self.prototype.processSection = function (section) {
   var self = this
 
-  var folderPath = Path.join(config.content_dir, section)
+  var folderPath = Path.join(self.p.content_dir, section)
   var files = glob.sync('**/*.html', {cwd: folderPath})
 
   _.each(files, function (filename) {
@@ -81,11 +55,11 @@ Self.prototype.readPage = function (path) {
   return parsed
 }
 
-Self.prototype.read = function (path) {
+Self.prototype.readPage = function (path) {
   var self = this
 
   var parsed = pageProcessor(path)
-  var path = Path.relative(config.content_dir, path)
+  var path = Path.relative(self.p.content_dir, path)
   return new Page(path, parsed, config)
 }
 

@@ -37,8 +37,6 @@ Self.prototype.read = function () {
   files.forEach(self.parse.bind(self))
   //console.log(self.duplicates);
   //console.log(_.keys(self.duplicates).sort())
-  console.log(self.storage._items);
-  console.log(self.storage._links);
   return self.storage
 }
 
@@ -62,10 +60,12 @@ Self.prototype.parse = function (path) {
   var items = []
 
   names.forEach(function (name, index) {
+    //Disable Groups for development simplicity
     //skip folders in the root for composing Groups
-    if (index > 0 && _.contains(_.keys(self.duplicates), name)) {
-      items[items.length -1] = [items[items.length -1], name]
-    } else items.push(name)
+    //if (index > 0 && _.contains(_.keys(self.duplicates), name)) {
+      //items[items.length -1] = [items[items.length -1], name]
+    //} else 
+      items.push(name)
   })
 
   //add text content
@@ -95,7 +95,7 @@ Self.prototype.parseSequence = function (items) {
 
     //Link parent-child folders
     if (items[index -1]) {
-      self.storage.link(self.tagIds[item], self.tagIds[items[index -1]])
+      self.storage.link(self.tagIds[items[index]], self.tagIds[items[index -1]])
     }
   })
 }

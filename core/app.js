@@ -21,12 +21,14 @@ Self.prototype.registerModules = function () {
   paths = glob.sync('../module/**/provider.js', {cwd: __dirname})
   paths.forEach(function (path) {
     var name = path.replace(/.*module\/(\w+)\/provider.*/, '$1')
-    self.modules[name] = {provider: require(path)}
+    if (!self.modules[name]) self.modules[name] = {}
+    self.modules[name].provider = require(path)
   })
   paths = glob.sync('../module/**/view.js', {cwd: __dirname})
   paths.forEach(function (path) {
     var name = path.replace(/.*module\/(\w+)\/view.*/, '$1')
-    self.modules[name] = {view: require(path)}
+    if (!self.modules[name]) self.modules[name] = {}
+    self.modules[name].view = require(path)
   })
 }
 
@@ -38,6 +40,20 @@ Self.prototype.readRepos = function () {
     var provider = new self.modules[repo.type].provider(options)
     provider.read()
   })
+}
+
+Self.prototype.getRepoConfig = function (path, options) {
+  var repoConfigPath = Path.join(path, '_config.yml')
+
+  //Check wheather repo has it's own config
+  try {
+    fs.lstatSync(repoConfigPath)
+    var config = yaml.load(fs.readFileSync(repoConfigPath))
+    config.path = path
+    return _.extend({}, config, options)
+  } catch (e) {
+    return
+  }
 }
 
 module.exports = new Self
