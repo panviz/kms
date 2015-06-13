@@ -1,4 +1,5 @@
 var _ = require('lodash')
+, dijkstra = require('../../core/dijkstra')
 
 var Self = function () {
   var self = this
@@ -30,7 +31,7 @@ Self.prototype.set = function (data) {
  */
 Self.prototype.setUniq = function (data) {
   var self = this
-  var key = _.invert(self._items)[_.isArray(data) ? data.join(',') : data]
+  var key = self.getKey(data)
   return key || self.set(data)
 }
 
@@ -109,6 +110,27 @@ Self.prototype.linked = function (key) {
   return _.difference(_.map(keys, function (key) {
     return self._links[key]
   }))
+}
+
+Self.prototype.getKey = function (data) {
+  var self = this
+  return _.invert(self._items)[_.isArray(data) ? data.join(',') : data]
+}
+/**
+ * dijkstra algorythm operates with map, so we need to convert format
+ * from: {a:[[b, 3], [c, 1]], b:[[a, 2], [c,1]], c:[[a,4],[b,1]]}
+ * to:   {a:{b:3,c:1},b:{a:2,c:1},c:{a:4,b:1}}
+ */
+Self.prototype.findShortestPath = function (key1, key2) {
+  var self = this
+  var map = {}
+  _.each(self._links, function (links, key) {
+    map[key] = {}
+    _.each(links, function (link) {
+      map[key][link[0]] = link[1]
+    })
+  })
+  return dijkstra.findShortestPath(map, key1, key2)
 }
 
 function compareWeight(link1, link2) {

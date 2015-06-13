@@ -20,23 +20,27 @@ Self.prototype.write = function (storage) {
   var self = this
   if (storage) self.storage = storage
   var items = self.storage.items()
-  var binary = findAllKeys(items, existsPath)
+  var binary = findAllKeys(items, isPath)
   var text = findAllKeys(items, filterText)
   var tags = _.difference(_.keys(items), binary, text)
 
   binary.forEach(function (key) {
     var path = self.storage.get(key)
-    var extension = Path.extname(path)
-    var topLink = self.storage.linked(key)[0]
-    var tag = self.storage.get(topLink[0])
-    var target = Path.join(self.p.target, tag, key + extension)
+    , extension = Path.extname(path)
+    , root = self.storage.getKey(self.p.root)
+    , topLink = self.storage.linked(key)[0]
+    , tag2 = self.storage.get(topLink[0])
+    , bridgeToRoot = self.storage.findShortestPath(root, topLink[0])
+    , tag1 = self.storage.get(bridgeToRoot[1]) || ''
+    if (tag2 === self.p.root) tag2 = ''
+    var target = Path.join(self.p.target, tag1, tag2, key + extension)
     console.log(target);
     //fs.copySync(path, target)
   })
 }
-function existsPath(path) {
-  try { fs.statSync(path); return true }
-  catch (er) { return false }
+
+function isPath(path) {
+  return path.match(/^(\w+:|\\\\|\/)/i)
 }
 /**
  * filter items to write by Semantic provider

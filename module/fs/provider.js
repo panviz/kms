@@ -9,8 +9,9 @@ var fs = require('fs-extra')
 , isbinaryfile = require('isbinaryfile')
 
 var Self = function (p) {
-  this.p = p || {}
-  this.storage = new Storage()
+  var self = this
+  self.p = p || {}
+  self.storage = new Storage()
 }
 
 /*
@@ -121,6 +122,7 @@ Self.prototype._getTagsFromPath = function (path) {
     relative = relative.replace(Path.extname(path), '')
   }
   var tags = relative.split(/[\\\/\.]+/)
+  if (self.p.root) tags.unshift(self.p.root)
   return tags
 }
 

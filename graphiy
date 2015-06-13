@@ -6,15 +6,18 @@ var argv = require('minimist')(process.argv.slice(2))
 if (!argv._[0] || argv._[0] === 'server') {
   require('./core/server')
 } else 
+//./graphiy convert path-to-source path-to-target --source="provider-name" --target="provider-name"
+var defaults = {root: 'root'}
 if (argv._[0] === 'convert') {
-  var config = {source: argv._[1], target: argv._[2]}
+  var config = _.defaults({source: argv._[1], target: argv._[2]}, defaults)
   var source = new app.modules[argv.source].provider(config)
   var target = new app.modules[argv.target].provider(config)
   var items = source.read()
   target.write(items)
 }
+//./graphiy render path-to-repo --view="view_name"
 if (argv._[0] === 'render') {
-  var config = app.getRepoConfig(argv._[1], {render: argv.website})
+  var config = app.getRepoConfig(argv._[1], {render: argv.view})
   var provider = new app.modules[config['repository.type']].provider(config)
   var view = new app.modules[config['repository.type']].view(config)
   var items = provider.read()
