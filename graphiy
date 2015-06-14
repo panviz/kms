@@ -8,6 +8,13 @@ if (!argv._[0] || argv._[0] === 'server') {
 } else 
 //./graphiy convert path-to-source path-to-target --source="provider-name" --target="provider-name"
 var defaults = {root: 'root'}
+
+//TODO where to put 'convert' configs?
+_.extend(defaults, {
+  ignore: ['index']
+, noTextParsing: true
+})
+
 if (argv._[0] === 'convert') {
   var config = _.defaults({source: argv._[1], target: argv._[2]}, defaults)
   var source = new app.modules[argv.source].provider(config)

@@ -27,8 +27,8 @@ Self.prototype.read = function () {
   self.inDir = Path.normalize(self.p.source || '.')
   self.outDir = Path.normalize(self.p.target || '.')
   var files = glob.sync(Path.join(self.inDir, '**/*'))
+  console.log(files.length + ' paths read');
 
-  var counter = 0
   self.tagPaths = {}
   self.items = {}
   self.duplicates = {}
@@ -71,7 +71,7 @@ Self.prototype.parse = function (path) {
 
   //add text content
   if (!fs.lstatSync(path).isDirectory()) {
-    var content = isbinaryfile(path) ? path : fs.readFileSync(path, 'utf8')
+    var content = isbinaryfile(path) || self.p.noTextParsing ? path : fs.readFileSync(path, 'utf8')
     if (content !== '') {
       items.push(content)
     }
@@ -96,7 +96,7 @@ Self.prototype.parseSequence = function (items) {
 
     //Link parent-child folders
     if (items[index -1]) {
-      self.storage.link(self.tagIds[items[index]], self.tagIds[items[index -1]])
+      self.storage.associate(self.tagIds[items[index]], self.tagIds[items[index -1]])
     }
   })
 }
@@ -122,6 +122,7 @@ Self.prototype._getTagsFromPath = function (path) {
     relative = relative.replace(Path.extname(path), '')
   }
   var tags = relative.split(/[\\\/\.]+/)
+  if (_.isArray(self.p.ignore)) tags = _.difference(tags, self.p.ignore)
   if (self.p.root) tags.unshift(self.p.root)
   return tags
 }

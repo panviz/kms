@@ -25,11 +25,12 @@ Self.prototype.read = function () {
 //this will output long item less times
 Self.prototype.write = function (storage) {
   var self = this
-  if (!self.p.target) return
+  if (!self.p.target) throw("Don't know where to write")
+  if (!self.p.target.match('yml')) self.p.target = Path.join(self.p.target, 'data.yml')
   if (storage) this.storage = storage
   var items = {}
 
-  self.storage.getLinks().forEach(function (link) {
+  self.storage.getLinksArray().forEach(function (link) {
     var item1 = self.storage.get(link[0])
     var item2 = self.storage.get(link[1])
 
@@ -39,8 +40,9 @@ Self.prototype.write = function (storage) {
     if (!_.isArray(items[item1])) items[item1] = []
     items[item1].push(item2)
   })
+  console.log(_.keys(self.storage.items()).length + ' Items written')
   var yml = yaml.dump(items)
-  fs.writeFileSync(Path.join(self.p.target, 'data.yml'), yml)
+  fs.writeFileSync(self.p.target, yml)
 }
 
 Self.prototype._getGroupValue = function (group) {
