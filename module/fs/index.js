@@ -5,7 +5,7 @@ var fs = require('fs-extra')
 , Path = require('path')
 , _ = require('lodash')
 , glob = require('glob')
-, Storage = require('../object/provider')
+, Storage = require('../associative/index')
 , isbinaryfile = require('isbinaryfile')
 
 var Self = function (p) {

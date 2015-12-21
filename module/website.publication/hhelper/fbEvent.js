@@ -1,7 +1,7 @@
 'use strict';
 
 /**
-* Facebook event tag
+* Handlebars Facebook event item type
 *
 * Syntax:
 *   {{ fbEvent id}}

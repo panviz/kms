@@ -7,7 +7,7 @@ var fs = require('fs-extra')
 , sanitizeHtml = require('sanitize-html')
 , toMarkdown = require('to-markdown')
 
-var DirectoryProvider = require('../fs/provider')
+var DirectoryProvider = require('../fs/index')
 
 var Self = function (p) {
   //this.init(p)

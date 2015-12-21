@@ -1,7 +1,7 @@
 'use strict';
 
 /**
-* Link generator
+* Handlebars Link item type
 *
 * Syntax:
 *   {{ link Date }}

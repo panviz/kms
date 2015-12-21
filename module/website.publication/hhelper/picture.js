@@ -1,9 +1,9 @@
 'use strict';
 
 /**
-* Picture tag
+* Handlebars Picture item type
 *
-* Syntax:
+* Syntax: 
 *   {{ picture srcPath }}
 */
 var H = require('Handlebars')

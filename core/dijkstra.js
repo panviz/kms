@@ -1,3 +1,6 @@
+/*
+ * Dijkstra Algorythm
+ */
 module.exports = (function (undefined) {
 	var extractKeys = function (obj) {
 		var keys = [], key;

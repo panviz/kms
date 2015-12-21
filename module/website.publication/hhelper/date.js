@@ -1,7 +1,7 @@
 'use strict';
 
 /**
-* Date filter
+* Handlebars Date item type
 *
 * Syntax:
 *   {{ format_date Date }}

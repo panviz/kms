@@ -3,7 +3,7 @@ var fs = require('fs')
 , glob = require('glob')
 , _ = require('lodash')
 , yaml = require('js-yaml')
-, Storage = require('../object/provider')
+, Storage = require('../associative/index')
 
 var Self = function (p) {
   this.p = p || {}

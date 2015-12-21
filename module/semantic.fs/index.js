@@ -2,8 +2,8 @@ var fs = require('fs-extra')
 , Path = require('path')
 , glob = require('glob')
 , _ = require('lodash')
-, Storage = require('../object/provider')
-, Yaml = require('../yaml/provider')
+, Storage = require('../associative/index')
+, Yaml = require('../yaml/index')
 
 var Self = function (p) {
   var self = this
@@ -48,9 +48,6 @@ function isNotPath(path) {
 function filterLinkedText(value) {
   var isText = _.isString(value) && value.match(/---$/mg)// && value.match(/---$/mg).length === 2
   if (isText) return true
-}
-
-function filterLinks(links, filter) {
 }
 
 module.exports = Self

@@ -1,7 +1,7 @@
 'use strict';
 
 /**
-* Youtube tag
+* Handlebars Youtube item type
 *
 * Syntax:
 *   {{ youtube video_id }}

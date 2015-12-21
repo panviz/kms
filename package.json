@@ -24,15 +24,15 @@
     "start": "static"
   },
   "dependencies": {
-    "fs-extra": "^0.18.4",
+    "fs-extra": "^0.26.2",
     "glob": "latest",
     "handlebars": "latest",
-    "isbinaryfile": "^2.0.4",
+    "isbinaryfile": "^3.0.0",
     "js-yaml": "latest",
-    "lodash": "<=3.5.0",
-    "minimist": "^1.1.1",
+    "lodash": "^3.10.1",
+    "minimist": "^1.2.0",
     "moment": "latest",
-    "plusjs": "https://github.com/Dmitra/plusjs.git"
+    "to-markdown": "^2.0.1"
   },
   "devDependencies": {}
 }

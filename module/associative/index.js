@@ -1,5 +1,7 @@
 /**
- * In memory Object storage for Items and Links
+ * In memory Associative storage for Items and Links
+ * Links are stored in redundant format: each item's key has array of its links
+ * Link is an array of key and weight
  */
 var _ = require('lodash')
 , dijkstra = require('../../core/dijkstra')
@@ -11,10 +13,15 @@ var Self = function () {
 }
 /**
  * @param {String | Array} data 
+ * Doesn't allow override.
+ * @return String ID for existing item if any
  */
 Self.prototype.set = function (data) {
   var self = this
-  , key = generateID()
+  if (!data) return
+  if (_.isArray(data) && _.isEmpty(data)) return
+
+  var key = self.getKey(data) || generateID()
 
   //Create Group Item and link with children
   if (_.isArray(data)) {
@@ -27,7 +34,7 @@ Self.prototype.set = function (data) {
   self._items[key] = data
   return key
 }
-/**
+/**TODO deprecated
  * Set Item data or return ID of existing
  * @param {String|Array} data
  * @returns String Item ID
@@ -53,7 +60,9 @@ Self.prototype.getKey = function (data) {
   var self = this
   return _.invert(self._items)[_.isArray(data) ? data.join(',') : data]
 }
-
+/**
+ * @return Object all stored items
+ */
 Self.prototype.items = function () {
   return this._items
 }
@@ -90,6 +99,7 @@ Self.prototype.associate = function (key1, key2, weight) {
   , linkedTo1 = self._links[key1]
   , linkedTo2 = self._links[key2]
   , skip
+  weight = weight || 0
 
   if (!linkedTo1) linkedTo1 = self._links[key1] = []
   if (!linkedTo2) linkedTo2 = self._links[key2] = []
@@ -122,7 +132,7 @@ Self.prototype.getLink = function (key1, key2) {
   }
 }
 
-Self.prototype.getLInks = function () {
+Self.prototype.getLinks = function () {
   return this._links
 }
 /**
@@ -181,10 +191,43 @@ Self.prototype.filter = function (filterer) {
   return filteredStorage
 }
 
+Self.prototype.guess = function () {
+  var self = this
+  var func = arguments[0]
+  var args = Array.prototype.slice.call(arguments, 1)
+  var keys = _.map(args, function (arg) {
+    return self.getKey(arg)
+  })
+  var result = func.apply(self, keys)
+  return self.log(result)
+}
+
+Self.prototype.log = function (obj) {
+  var self = this
+  var str = JSON.stringify(obj)
+  str = self._replaceIds(str)
+  console.log(str);
+  return JSON.parse(str)
+}
+
+Self.prototype._replaceIds = function (str) {
+  var self = this
+  var idPattern = /[a-z0-9]{8}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{12}/g
+  var recurse = false
+
+  var ids = str.match(idPattern)
+  ids.forEach(function (id) {
+    var value = self.get(id)
+    if (_.isArray(value)) recurse = true
+    str = str.replace(id, value)
+  })
+  return recurse ? self._replaceIds(str) : str
+}
+
 function filterKeys(obj, filter) {
   var filtered = {}
   var keys = []
-  _.each( obj, function(value, key) {
+  _.each( obj, function (value, key) {
     if (filter(value)) {
       filtered[key] = value
     }
@@ -198,4 +241,4 @@ function compareWeight(link1, link2) {
 //generate random UUID
 function generateID(a) {return a?(a^Math.random()*16>>a/4).toString(16):([1e7]+-1e3+-4e3+-8e3+-1e11).replace(/[018]/g,generateID)}
 
-module.exports = Self
+module.exports = new Self

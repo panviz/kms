@@ -9,7 +9,9 @@ var Self = function () {
   self.repos = {}
   self.modules = {}
   self.registerModules()
-  self.config = yaml.load(fs.readFileSync('config.yml'))
+  //Switch global initialization off
+  //Use command line interface for convertion
+  //self.config = yaml.load(fs.readFileSync('config.yml'))
   //self.readRepos()
 }
 
@@ -18,17 +20,11 @@ Self.prototype.registerModules = function () {
   var self = this
   , paths = []
 
-  paths = glob.sync('../module/**/provider.js', {cwd: __dirname})
+  paths = glob.sync('../module/**/index.js', {cwd: __dirname})
   paths.forEach(function (path) {
-    var name = path.replace(/.*module\/([\w\.]+)\/provider.*/i, '$1')
+    var name = path.replace(/.*module\/([\w\.]+)\/index.*/i, '$1')
     if (!self.modules[name]) self.modules[name] = {}
-    self.modules[name].provider = require(path)
-  })
-  paths = glob.sync('../module/**/view.js', {cwd: __dirname})
-  paths.forEach(function (path) {
-    var name = path.replace(/.*module\/([\w\.]+)\/view.*/, '$1')
-    if (!self.modules[name]) self.modules[name] = {}
-    self.modules[name].view = require(path)
+    self.modules[name] = require(path)
   })
 }
 
@@ -37,7 +33,7 @@ Self.prototype.readRepos = function () {
   , repos = self.config.repositories
 
   _.keys(repos).forEach(function (options, name) {
-    var provider = new self.modules[repo.type].provider(options)
+    var provider = new self.modules[repo.type](options)
     provider.read()
   })
 }
@@ -49,7 +45,7 @@ Self.prototype.getRepoConfig = function (path, options) {
   try {
     fs.lstatSync(repoConfigPath)
     var config = yaml.load(fs.readFileSync(repoConfigPath))
-    config.path = path
+    config.source = path
     return _.extend({}, config, options)
   } catch (e) {
     return
