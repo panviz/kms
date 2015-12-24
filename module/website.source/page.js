@@ -5,7 +5,7 @@ var _ = require('lodash')
 , fs = require('fs')
 , yaml = require('js-yaml')
 , inflection = require('inflection')
-, db = require('../associative/index')
+, db = require('../../core/db')
 
 var Self = function (p) {
   var self = this
@@ -20,21 +20,22 @@ Self.prototype.get = function (path) {
   var data = s.split('---')
   if (!s.match('---')) throw 'page should have a title at least' 
 
-  var parsed = yaml.load(data[1], 'utf8')
+  var json = yaml.load(data[1], 'utf8')
   var content = data[2]
 
   if (content) {
     var contentSplit = content.split(self.p.excerptSeparator)
-    parsed.excerpt = parsed.excerpt || (contentSplit.length > 1 ? contentSplit[0] : undefined)
+    json.excerpt = json.excerpt || (contentSplit.length > 1 ? contentSplit[0] : undefined)
   }
-  self._parse(parsed, content)
-  console.log(db._links);
-  return parsed
+  self._parse(json, content)
 }
 
 Self.prototype._parse = function (yaml, content) {
   var self = this
+  var pageITK = db.set(['itemtype', 'page'])
   var contentK = db.set(content)
+  db.associate(contentK, pageITK)
+
   _.forEach(yaml, function (value, key) {
     if (!value || !key) return
     var keyK, valueK

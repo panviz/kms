@@ -23,5 +23,5 @@ if (argv._[0] === 'convert') {
   var source = new app.modules[argv.source](config)
   var target = new app.modules[argv.target](config)
   var items = source.read()
-  //target.write(items)
+  target.write(items)
 }

@@ -12,32 +12,43 @@ var Self = function () {
   self._links = {}
 }
 /**
- * @param {String | Array} data 
+ * TODO make order of items in array insignificant
  * Doesn't allow override.
- * @return String ID for existing item if any
+ * @param String data single value
+ * @param Array data Array of values
+ * @param Array data Array of IDs
+ * @return Key ID for existing item if any
  */
 Self.prototype.set = function (data) {
-  var self = this
   if (!data) return
-  if (_.isArray(data) && _.isEmpty(data)) return
+  var self = this
+  if (_.isArray(data)) return self.setGroup(data)
 
   var key = self.getKey(data) || generateID()
-
-  //Create Group Item and link with children
-  if (_.isArray(data)) {
-    var groupedIds = data
-    //Link grouped Items with Group
-    groupedIds.forEach(function (groupedId) {
-      self.associate(key, groupedId)
-    })
-  }
   self._items[key] = data
   return key
 }
+//Create Group Item and link with children
+Self.prototype.setGroup = function (data) {
+  var self = this
+  if (_.isEmpty(data)) return
+
+  var groupKeys = _.map(data, function (datum) {
+    return datum.match(idPattern) ? datum : self.set(datum)
+  })
+  var key = self.getKey(groupKeys) || generateID()
+  //Link grouped Items with Group
+  groupKeys.forEach(function (groupKey) {
+    self.associate(key, groupKey)
+  })
+  
+  self._items[key] = groupKeys
+  return key
+}
 /**TODO deprecated
- * Set Item data or return ID of existing
+ * Set Item data or return Key of existing
  * @param {String|Array} data
- * @returns String Item ID
+ * @returns Key Item ID
  */
 Self.prototype.setUniq = function (data) {
   var self = this
@@ -45,20 +56,12 @@ Self.prototype.setUniq = function (data) {
   return key || self.set(data)
 }
 /**
- * @param String key Item's ID
- * @return String Item's data
+ * @param Key Item ID
+ * @return String Item data
  */
 Self.prototype.get = function (key) {
   var self = this
   return self._items[key]
-}
-/**
- * @param String data of Item
- * @return String ID of Item
- */
-Self.prototype.getKey = function (data) {
-  var self = this
-  return _.invert(self._items)[_.isArray(data) ? data.join(',') : data]
 }
 /**
  * @return Object all stored items
@@ -67,31 +70,37 @@ Self.prototype.items = function () {
   return this._items
 }
 /**
+ * Get key of item by data if it exists
+ * @param String data of Item
+ * @return Key of Item
+ */
+Self.prototype.getKey = function (data) {
+  var self = this
+  var value = _.isArray(data) ? data.join(',') : data
+  
+  return _.invert(self._items)[value]
+}
+/**
+ * @return Key of Item with group meaning
+ */
+Self.prototype.findGroup = function (data) {
+  var self = this
+  if (!_.isArray(data)) throw 'Group can be found by multiple values only'
+  var keys = _.map(data, function (datum) {
+    return self.getKey(datum)
+  })
+  return self.getKey(keys)
+}
+/**
  * @return Array of keys
  */
-Self.prototype.getKeys = function () {
+Self.prototype.getAllItems = function () {
   return _.keys(this._items)
 }
 /**
- * Converts self._links map 
- * from: {a:[[b, 3], [c, 1]], b:[[a, 2], [c,1]], c:[[a,4],[b,1]]}
- * to:   {a:{b:3,c:1},b:{a:2,c:1},c:{a:4,b:1}}
- */
-Self.prototype.getLinksMap = function () {
-  var self = this
-  var map = {}
-  _.each(self._links, function (links, key) {
-    map[key] = {}
-    _.each(links, function (link) {
-      map[key][link[0]] = link[1]
-    })
-  })
-  return map
-}
-/**
  * Create link between two Items
- * @param String key1 Item ID
- * @param String key2 Item ID
+ * @param Key Item ID
+ * @param Key Item ID
  * @param Number weight for this link to be increased on
  */
 Self.prototype.associate = function (key1, key2, weight) {
@@ -136,6 +145,22 @@ Self.prototype.getLinks = function () {
   return this._links
 }
 /**
+ * Converts self._links map 
+ * from: {a:[[b, 3], [c, 1]], b:[[a, 2], [c,1]], c:[[a,4],[b,1]]}
+ * to:   {a:{b:3,c:1},b:{a:2,c:1},c:{a:4,b:1}}
+ */
+Self.prototype.getLinksMap = function () {
+  var self = this
+  var map = {}
+  _.each(self._links, function (links, key) {
+    map[key] = {}
+    _.each(links, function (link) {
+      map[key][link[0]] = link[1]
+    })
+  })
+  return map
+}
+/**
  * @return Array of Links
  */
 Self.prototype.getLinksArray = function () {
@@ -153,18 +178,63 @@ Self.prototype.getLinksArray = function () {
   return all
 }
 /**
+ * @param Key Item key
+ * @return Array of links of provided Item
+ */
+Self.prototype.links = function (key) {
+  var self = this
+  return self._links[key]
+}
+/**
  * @param {String|Array} key Item(s) key
- * @return Array Items linked with specified key
+ * @return Array of distinct Items linked with specified Item(s)
  */
 Self.prototype.linked = function (key) {
   var self = this
-  if (!_.isArray(key)) return self._links[key]
-  var keys = key
+  return _.map(self.links(key), function (link) {
+    return link[0]
+  })
+}
+Self.prototype.groupLinked = function (key) {
+  var self = this
+  var ownKeys = self.get(key)
+  var linked = self.linked(key)
+  return _.difference(linked, ownKeys)
+}
+/**
+ * Find items linked with specified 
+ */
+Self.prototype.findByKeys = function (keys) {
+  var self = this
+  if (!_.isArray(keys)) keys = [keys]
 
-  //TODO
-  return _.difference(_.map(keys, function (key) {
-    return self._links[key]
-  }))
+  var arrLinkedKeys = _.map(keys, function (key) {
+    return self.linked(key)
+  })
+  return _.intersection.apply(_, arrLinkedKeys)
+}
+/** convenient way to find by values
+ */
+Self.prototype.findByValues = function (values) {
+  var self = this
+  if (!_.isArray(values)) values = [values]
+
+  var keys = _.map(values, function (value) {
+    return self.getKey(value)
+  })
+  return self.findByKeys(keys)
+}
+//find by values or keys
+Self.prototype.find = function (data) {
+  var self = this
+  if (!_.isArray(data)) data = [data]
+
+  var keys = _.map(data, function (datum) {
+    return datum.match(idPattern) ? datum : self.getKey(datum)
+  })
+  return self.findByKeys(keys)
+}
+Self.prototype.find = function (data) {
 }
 /**
  * Utilize dijkstra algorythm
@@ -206,13 +276,12 @@ Self.prototype.log = function (obj) {
   var self = this
   var str = JSON.stringify(obj)
   str = self._replaceIds(str)
-  console.log(str);
+  console.log(str)
   return JSON.parse(str)
 }
 
 Self.prototype._replaceIds = function (str) {
   var self = this
-  var idPattern = /[a-z0-9]{8}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{12}/g
   var recurse = false
 
   var ids = str.match(idPattern)
@@ -241,4 +310,6 @@ function compareWeight(link1, link2) {
 //generate random UUID
 function generateID(a) {return a?(a^Math.random()*16>>a/4).toString(16):([1e7]+-1e3+-4e3+-8e3+-1e11).replace(/[018]/g,generateID)}
 
-module.exports = new Self
+var idPattern = /[a-z0-9]{8}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{12}/g
+
+module.exports = Self

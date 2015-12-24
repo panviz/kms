@@ -3,6 +3,7 @@ var fs = require('fs-extra')
 , glob = require('glob')
 , _ = require('lodash')
 , Storage = require('../associative/index')
+, db = require('../../core/db')
 , Yaml = require('../yaml/index')
 
 var Self = function (p) {

@@ -1,12 +1,13 @@
 /*
  * Writes html to website deployment
  */
-var fs =  require('fs')
+var _ = require('lodash')
+, fs =  require('fs')
 , glob = require('glob')
 , Path = require('path')
-, _ = require('lodash')
 , Handlebars = require('handlebars')
-, Layout = require('./layout')
+, Webpage = require('./webpage')
+, db = require('../../core/db')
 
 var Self = function () {
   var self = this
@@ -31,6 +32,17 @@ Self.prototype._registerItemtypes = function () {
   glob.sync('layout/partial/**/*').forEach(function (path) {
     var name = Path.basename(path, Path.extname(path))
     self.engine.registerPartial(name, fs.readFileSync(path, 'utf8'))
+  })
+}
+/**
+ * Find all linked to ['itemtype', 'page'];
+ * set with Webpage itemtype
+ */
+Self.prototype.write = function () {
+  var pageITK = db.findGroup(['itemtype', 'page'])
+  var pagesK = db.groupLinked(pageITK)
+  _.each(pagesK, function (key) {
+    var webpage = Webpage.set(key)
   })
 }
 

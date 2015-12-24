@@ -7,7 +7,7 @@ var fs = require('fs')
 , Path = require('path')
 , glob = require('glob')
 , _ = require('lodash')
-, db = require('../associative/index')
+, db = require('../../core/db')
 , Page = require('./page')
 
 var Self = function (p) {
@@ -19,10 +19,7 @@ var Self = function (p) {
   }
   self.p.contentDir = Path.join(self.p.source, 'content')
   self.p.layoutDir = Path.join(self.p.source, 'layout')
-  self.nameK = db.set('name')
-  var layoutK = db.set('layout')
-  var itemtypeK = db.set('itemtype')
-  self.layoutITK = db.set([layoutK, itemtypeK])
+  self.layoutITK = db.set(['itemtype', 'layout'])
   self.pageIT = new Page(p)
 }
 
@@ -40,7 +37,10 @@ Self.prototype.read = function () {
   })
   //self._readImages()
   //self._readData()
-  self._readLayouts()
+  var layoutFilenames = glob.sync('*', {cwd: self.p.layoutDir})
+  _.each(layoutFilenames, function (filename) {
+    self._readLayout(filename)
+  })
 }
 /**
  * parse dir1 as tag1; dir2 as tag2
@@ -60,20 +60,15 @@ Self.prototype._processSection = function (section) {
 /*
  * This provider has nothing special to do with Layout. So, just read its content here
  */
-Self.prototype._readLayouts = function () {
+Self.prototype._readLayout = function (filename) {
   var self = this
 
-  var fileNames = glob.sync('*', {cwd: self.p.layoutDir})
-  
-  _.each(fileNames, function (filename) {
-    var name = Path.basename(filename, Path.extname(filename))
-    var layoutContent = fs.readFileSync((Path.join(self.p.layoutDir, filename)), 'utf8')
-    var key = db.set(layoutContent)
-    db.associate(key, self.layoutITK)
-    var layoutNameK = db.set(name)
-    var layoutNameGroupK = db.set([layoutNameK, self.nameK])
-    db.associate(key, layoutNameGroupK)
-  })
+  var name = Path.basename(filename, Path.extname(filename))
+  var layoutContent = fs.readFileSync((Path.join(self.p.layoutDir, filename)), 'utf8')
+  var key = db.set(layoutContent)
+  db.associate(key, self.layoutITK)
+  var layoutNameGroupK = db.set([name, 'name'])
+  db.associate(key, layoutNameGroupK)
 }
 
 module.exports = Self
