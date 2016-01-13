@@ -38,19 +38,19 @@ Self.prototype.readRepos = function () {
   })
 }
 
-Self.prototype.getRepoConfig = function (path, options) {
+Self.prototype.getRepoConfig = function (p) {
   var self = this
   var base = {}
-  var repoConfigPath = Path.join(path, '_config.yml')
+  var repoConfigPath = Path.join(p.source, '_config.yml')
 
   //Check wheather repo has it's own config
   try {
     fs.lstatSync(repoConfigPath)
     var config = yaml.load(fs.readFileSync(repoConfigPath))
     config.source = path
-    return _.extend(base, config, options)
+    return _.extend(base, config, p)
   } catch (e) {
-    return base
+    return p
   }
 }
 

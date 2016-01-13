@@ -260,10 +260,11 @@ Self.prototype.filter = function (filterer) {
   })
   return filteredStorage
 }
-
-Self.prototype.guess = function () {
+/**
+ * @param Function func to be called with arguments (values instead of keys)
+ */
+Self.prototype.guess = function (func) {
   var self = this
-  var func = arguments[0]
   var args = Array.prototype.slice.call(arguments, 1)
   var keys = _.map(args, function (arg) {
     return self.getKey(arg)
@@ -271,7 +272,9 @@ Self.prototype.guess = function () {
   var result = func.apply(self, keys)
   return self.log(result)
 }
-
+/**
+ * convert IDs of the object into its values
+ */
 Self.prototype.log = function (obj) {
   var self = this
   var str = JSON.stringify(obj)

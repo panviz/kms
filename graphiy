@@ -18,10 +18,16 @@ _.extend(defaults, {
 })
 
 if (argv._[0] === 'convert') {
-  defaults.target = argv._[2]
-  var config = app.getRepoConfig(argv._[1], defaults)
+  var p = {}
+  _.extend(p, defaults, {
+    source: argv._[1]
+  , target: argv._[2]
+  })
+  var config = app.getRepoConfig(p)
   var source = new app.modules[argv.source](config)
   var target = new app.modules[argv.target](config)
-  var items = source.read()
-  target.write(items)
+  source.read().then(function (db) {
+    target.write(db)
+  })
+  
 }
