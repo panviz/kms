@@ -24,6 +24,7 @@
     "start": "static"
   },
   "dependencies": {
+    "csv": "^0.4.6",
     "fs-extra": "^0.26.2",
     "glob": "latest",
     "handlebars": "latest",
