@@ -12,48 +12,36 @@ var Self = function () {
   self._links = {}
 }
 /**
- * TODO make order of items in array insignificant
  * Doesn't allow override.
- * @param String data single value
- * @param Array data Array of values
- * @param Array data Array of IDs
+ * @param {String|Array} data values of items to be set
  * @return Key ID for existing item if any
  */
 Self.prototype.set = function (data) {
-  if (!data) return
   var self = this
-  if (_.isArray(data)) return self.setGroup(data)
+  if (_.isArray(data)) return _.map(data, function (datum) { return self.set(datum) })
 
-  var key = self.getKey(data) || generateID()
+  var key
+  if (!data) key = generateID()
+  else key = self.getKey(data) || generateID()
   self._items[key] = data
   return key
 }
-//Create Group Item and link with children
-Self.prototype.setGroup = function (data) {
-  var self = this
-  if (_.isEmpty(data)) return
-
-  var groupKeys = _.map(data, function (datum) {
-    return datum.match(idPattern) ? datum : self.set(datum)
-  })
-  var key = self.getKey(groupKeys) || generateID()
-  //Link grouped Items with Group
-  groupKeys.forEach(function (groupKey) {
-    self.associate(key, groupKey)
-  })
-  
-  self._items[key] = groupKeys
-  return key
-}
-/**TODO deprecated
- * Set Item data or return Key of existing
- * @param {String|Array} data
- * @returns Key Item ID
+/**
+ * Create Group Item and link with children
+ * @param String groupValue
+ * @param data Array values of items to be connected to the group item
  */
-Self.prototype.setUniq = function (data) {
+Self.prototype.setGroup = function (groupValue, data) {
   var self = this
-  var key = self.getKey(data)
-  return key || self.set(data)
+  var noData = !data || _.isEmpty(data)
+  if (!groupValue && noData) throw 'empty item with no links'
+  if (noData) return self.set(groupValue)
+
+  var key = self.set(groupValue)
+  var groupKeys = _.map(data, function (datum) { return self.set(datum) })
+  self.associateGroup(key, groupKeys)
+  
+  return key
 }
 /**
  * @param Key Item ID
@@ -70,17 +58,19 @@ Self.prototype.items = function () {
   return this._items
 }
 /**
- * Get key of item by data if it exists
+ * Get key of item by value
+ * do not return anything by empty value
  * @param String data of Item
  * @return Key of Item
  */
-Self.prototype.getKey = function (data) {
+Self.prototype.getKey = function (value) {
   var self = this
-  var value = _.isArray(data) ? data.join(',') : data
+  if (!value) return
   
   return _.invert(self._items)[value]
 }
 /**
+ * @param String data
  * @return Key of Item with group meaning
  */
 Self.prototype.findGroup = function (data) {
@@ -128,6 +118,13 @@ Self.prototype.associate = function (key1, key2, weight) {
   linkedTo1.sort(compareWeight)
   linkedTo2.sort(compareWeight)
 }
+//associate one item to array
+Self.prototype.associateGroup = function (key1, keys) {
+  var self = this
+  keys.forEach(function (key) {
+    self.associate(key1, key)
+  })
+}
 /**
  * @param {String|Array} key1
  * @param {String|Array} key2
@@ -165,15 +162,14 @@ Self.prototype.getLinksMap = function () {
  */
 Self.prototype.getLinksArray = function () {
   var self = this
-  var visited = {}
+  var completed = {}
   var all = []
   _.each(self._links, function (linked, key1) {
     linked.forEach(function (link) {
       var key2 = link[0]
-      if (!visited[key1] || !visited[key2]) all.push([key1, key2])
-      visited[key2] = true
+      if (!completed[key1] && !completed[key2]) all.push([key1, key2])
     })
-    visited[key1] = true
+    completed[key1] = true
   })
   return all
 }
@@ -195,6 +191,9 @@ Self.prototype.linked = function (key) {
     return link[0]
   })
 }
+/**
+ *
+ */
 Self.prototype.groupLinked = function (key) {
   var self = this
   var ownKeys = self.get(key)
@@ -202,7 +201,8 @@ Self.prototype.groupLinked = function (key) {
   return _.difference(linked, ownKeys)
 }
 /**
- * Find items linked with specified 
+ * Find items linked with specified
+ * @param {String|Array} Keys of items connected to the item looked for
  */
 Self.prototype.findByKeys = function (keys) {
   var self = this
@@ -214,6 +214,7 @@ Self.prototype.findByKeys = function (keys) {
   return _.intersection.apply(_, arrLinkedKeys)
 }
 /** convenient way to find by values
+ * @param {String|Array} values of items connected to the item looked for
  */
 Self.prototype.findByValues = function (values) {
   var self = this
@@ -289,7 +290,7 @@ Self.prototype._replaceIds = function (str) {
 
   var ids = str.match(idPattern)
   ids.forEach(function (id) {
-    var value = self.get(id)
+    var value = self.get(id) || id
     if (_.isArray(value)) recurse = true
     str = str.replace(id, value)
   })

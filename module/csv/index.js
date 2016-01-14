@@ -1,3 +1,6 @@
+/**
+ * CSV provider
+ */
 var fs = require('fs')
 , Path = require('path')
 , _ = require('lodash')
@@ -20,18 +23,24 @@ Self.prototype.read = function () {
         return db.set(header)
       })
       data.forEach(function (row) {
-        var groups = _.map(row, function (col, index) {
-          return col ? db.set([titles[index], db.set(col)]) : undefined
+        var columnHeaderGroups = _.map(row, function (columnValue, index) {
+          if (!columnValue) return
+          var columnKey = db.set(columnValue)
+          var columnHeaderGroup = db.set()
+          db.associateGroup(columnHeaderGroup, [titles[index], columnKey])
+          db.findByKeys([titles[index], columnKey])
+          return columnHeaderGroup
         })
-        groups = _.compact(groups)
-        db.set(groups)
+        columnHeaderGroups = _.compact(columnHeaderGroups)
+        var rowGroup = db.set()
+        db.associateGroup(rowGroup, columnHeaderGroups)
       })
       resolve(db)
     })
   })
 }
 
-Self.prototype.write = function (storage) {
+Self.prototype.write = function () {
   var self = this
 }
 
