@@ -47,7 +47,6 @@ Self.prototype.getRepoConfig = function (p) {
   try {
     fs.lstatSync(repoConfigPath)
     var config = yaml.load(fs.readFileSync(repoConfigPath))
-    config.source = path
     return _.extend(base, config, p)
   } catch (e) {
     return p

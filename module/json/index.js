@@ -1,7 +1,11 @@
+/**
+ * JSON provider - synchronous
+ */
 var _ = require('lodash')
-, DB = require('../associative/index')
+, db = require('../../core/db')
 
-var Self = function () {
+var Self = function (p) {
+  this.p = p || {}
 }
 /**
  * Reads json object into Associated storage
@@ -25,7 +29,16 @@ Self.prototype.read = function (obj) {
   })
 }
 
-Self.prototype.write = function (obj) {
+Self.prototype.write = function () {
+  var obj = {}
+  obj.nodes = _.map(db.items(), function (value, key) {
+    return {key: key, value: value}
+  })
+  obj.links = _.map(db.getLinksArray(), function (link) {
+    return {source: link[0], target: link[1]}
+  })
+
+  return obj
 }
 
-module.exports = new Self
+module.exports = Self

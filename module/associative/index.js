@@ -12,17 +12,17 @@ var Self = function () {
   self._links = {}
 }
 /**
- * Doesn't allow override.
+ * Doesn't allow override except if key is specified exactly
  * @param {String|Array} data values of items to be set
+ * @param Key key of the item to set data to
  * @return Key ID for existing item if any
  */
-Self.prototype.set = function (data) {
+Self.prototype.set = function (data, key) {
   var self = this
   if (_.isArray(data)) return _.map(data, function (datum) { return self.set(datum) })
 
-  var key
   if (!data) key = generateID()
-  else key = self.getKey(data) || generateID()
+  else key = key || self.getKey(data) || generateID()
   self._items[key] = data
   return key
 }
