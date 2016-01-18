@@ -4,7 +4,6 @@
  */
 var fs = require('fs')
 , Path = require('path')
-, glob = require('glob')
 , _ = require('lodash')
 , yaml = require('js-yaml')
 , inflection = require('inflection')

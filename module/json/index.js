@@ -2,6 +2,7 @@
  * JSON provider - synchronous
  */
 var _ = require('lodash')
+, fs = require('fs')
 , db = require('../../core/db')
 
 var Self = function (p) {
@@ -28,8 +29,14 @@ Self.prototype.read = function (obj) {
     }
   })
 }
-
+/**
+ * write d3.js compliant format
+ */
 Self.prototype.write = function () {
+  var self = this
+  if (!self.p.target) console.log("no path specified to write a file")
+  else if (!self.p.target.match('json')) self.p.target = Path.join(self.p.target, 'data.json')
+
   var obj = {}
   obj.nodes = _.map(db.items(), function (value, key) {
     return {key: key, value: value}
@@ -38,6 +45,8 @@ Self.prototype.write = function () {
     return {source: link[0], target: link[1]}
   })
 
+  console.log(_.keys(db.items()).length + ' Items to write')
+  if (self.p.target) fs.writeFileSync(self.p.target, JSON.stringify(obj))
   return obj
 }
 

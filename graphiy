@@ -24,10 +24,9 @@ if (argv._[0] === 'convert') {
   , target: argv._[2]
   })
   var config = app.getRepoConfig(p)
-  var source = new app.modules[argv.source](config)
-  var target = new app.modules[argv.target](config)
-  source.read().then(function (db) {
-    target.write(db)
+  var sourceProvider = new app.modules[argv.source](config)
+  var targetProvider = new app.modules[argv.target](config)
+  sourceProvider.read().then(function (db) {
+    targetProvider.write(db)
   })
-  
 }
