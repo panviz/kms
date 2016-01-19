@@ -21,7 +21,8 @@
   },
   "license": "MIT",
   "scripts": {
-    "start": "static"
+    "start": "static",
+    "watch-js": "watchify view/index.js -d -v -o view/bundle.js"
   },
   "dependencies": {
     "csv": "^0.4.6",
@@ -30,6 +31,7 @@
     "glob": "latest",
     "handlebars": "latest",
     "isbinaryfile": "^3.0.0",
+    "jquery": "^2.2.0",
     "js-yaml": "latest",
     "lodash": "^3.10.1",
     "minimist": "^1.2.0",
