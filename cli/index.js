@@ -6,7 +6,7 @@ var argv = require('minimist')(process.argv.slice(2))
 , app = new require('./app')
 
 if (!argv._[0] || argv._[0] === 'server') {
-  require('./core/server')
+  require('../server/index.js')
 } else 
 //./graphiy convert path-to-source path-to-target --source="module-name" --target="module-name"
 var defaults = {root: 'root'}

@@ -1,6 +1,6 @@
 {
   "name": "graphiy.cms",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "simple site generator",
   "main": "graphiy",
   "repository": {
@@ -10,7 +10,6 @@
   "homepage": "",
   "keywords": [
     "cms",
-    "blog",
     "static website generator",
     "tags"
   ],
@@ -22,11 +21,17 @@
   "license": "MIT",
   "scripts": {
     "start": "static",
+    "build-css": "sh bin/build-css",
+    "build-js": "sh bin/build-js",
+    "build-template": "sh bin/build-template",
+    "watch-css": "nodemon -w client -e scss -x sh bin/build-css",
     "watch-js": "watchify client/app.js -d -v -o client/bundle.js"
   },
   "dependencies": {
+    "backbone-events-standalone": "^0.2.7",
     "csv": "^0.4.6",
     "d3": "^3.5.12",
+    "express": "^4.13.4",
     "file-type": "^3.5.0",
     "fs-extra": "^0.26.2",
     "glob": "latest",

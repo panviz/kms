@@ -55,7 +55,7 @@ Self.prototype.write = function (graph) {
   else if (!self.p.target.match('yml')) self.p.target = Path.join(self.p.target, 'data.yml')
   var items = {}
 
-  var unlinked = _.difference(_.keys(graph.getItems()), _.keys(graph.getLinksMap()))
+  var unlinked = _.difference(_.keys(graph.getItems()), _.keys(graph.getLinksWeightMap()))
   unlinked.forEach(function (item) {
     items[item] = graph.get(item)
   })

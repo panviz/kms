@@ -1,0 +1,11 @@
+{
+  "env": {
+    "name": "local",
+    "host": "localhost",
+    "port": 8000
+  },
+  "repository": {
+    "path": "D:/test/raw"
+  },
+  "static": "D:/test/"
+}

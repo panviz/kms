@@ -42,7 +42,8 @@ Self.prototype.write = function (graph) {
 
   var obj = {
     items: graph.getItems(),
-    links: graph.getLinks()
+    //TODO changed name
+    links: graph.getLinksMap()
   }
 
   console.log(_.keys(graph.getItems()).length + ' Items to write')

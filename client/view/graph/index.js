@@ -6,6 +6,13 @@
 var Self = function (p) {
   var self = this
   self.p = p || {}
+  self.selectors = {
+    container: '.view.graph svg',
+    link: '.link',
+    node: '.node'
+  }
+  var $html = $(G.Templates['view/graph/graph']())
+  self.p.container.append($html)
 
   self._links = []
   self._nodes = []
@@ -19,22 +26,25 @@ var Self = function (p) {
     //.linkDistance(40)
     .size([self.p.width, self.p.height])
 
-  self.container = d3.select('#viewport').append('svg')
+  self.container = d3.select(self.selectors.container)
     .attr('width', self.p.width)
     .attr('height', self.p.height)
-}
 
-Self.prototype.render = function (graph) {
+  self.p.selection.on('add', self._onSelect.bind(self))
+}
+BackboneEvents.mixin(Self.prototype)
+
+Self.prototype.render = function (vGraph) {
   var self = this
-  var items = graph.items
-  var edges = graph.edges
+  var items = vGraph.items
+  var edges = vGraph.edges
    
   self.force
     .nodes(items)
     .links(edges)
     .start()
 
-  self._links = self.container.selectAll('.link')
+  self._links = self.container.selectAll(self.selectors.link)
     .data(edges)
 
   var lines = self._links.enter().append('line')
@@ -42,7 +52,7 @@ Self.prototype.render = function (graph) {
     .style('stroke-width', function(d) { return Math.sqrt(d.value) })
   self._links.exit().remove()
 
-  self._nodes = self.container.selectAll('.node')
+  self._nodes = self.container.selectAll(self.selectors.link)
     .data(items, function (d) { return d.key })
 
   var enter = self._nodes.enter().append('g')
@@ -79,6 +89,10 @@ Self.prototype._onTick = function () {
   self._nodes.attr('transform', function (d) {
     return 'translate(' + d.x + ',' + d.y + ')'
   })
+}
+
+Self.prototype._onSelect = function (selection) {
+  var self = this
 }
 
 Self.prototype._onClick = function (node) {

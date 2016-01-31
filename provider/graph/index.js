@@ -64,7 +64,7 @@ Self.prototype.get = function (key) {
 /**
  * @return Object all stored items
  */
-Self.prototype.getItems = function () {
+Self.prototype.getItemsMap = function () {
   return this._items
 }
 /**
@@ -147,16 +147,16 @@ Self.prototype.getLink = function (key1, key2) {
     if (linkedTo1[i] && linkedTo1[i][0] === key2) return linkedTo1[i][1] || 0
   }
 }
-
-Self.prototype.getLinks = function () {
+/**
+ * @return Object in format {a:[[b, 3], [c, 1]], b:[[a, 2], [c,1]], c:[[a,4],[b,1]]}
+ */
+Self.prototype.getLinksMap = function () {
   return this._links
 }
 /**
- * Converts self._links map 
- * from: {a:[[b, 3], [c, 1]], b:[[a, 2], [c,1]], c:[[a,4],[b,1]]}
- * to:   {a:{b:3,c:1},b:{a:2,c:1},c:{a:4,b:1}}
+ * @return Object in format {a:{b:3,c:1},b:{a:2,c:1},c:{a:4,b:1}}
  */
-Self.prototype.getLinksMap = function () {
+Self.prototype.getLinksWeightMap = function () {
   var self = this
   var map = {}
   _.each(self._links, function (links, key) {
@@ -187,7 +187,7 @@ Self.prototype.getLinksArray = function () {
  * @param Key Item key
  * @return Array of links of provided Item
  */
-Self.prototype.links = function (key) {
+Self.prototype.getLinks = function (key) {
   var self = this
   return self._links[key]
 }
@@ -195,20 +195,32 @@ Self.prototype.links = function (key) {
  * @param {String|Array} key Item(s) key
  * @return Array of distinct Items linked with specified Item(s)
  */
-Self.prototype.linked = function (key) {
+Self.prototype.getLinked = function (key) {
   var self = this
-  return _.map(self.links(key), function (link) {
+  return _.map(self.getLinks(key), function (link) {
     return link[0]
   })
 }
 /**
- *
+ * TODO works only for depth 0/1
+ * @param key Key of item to traverse graph from
+ * @param depth
+ * @return Graph starting from the item provided
  */
-Self.prototype.groupLinked = function (key) {
+Self.prototype.getGraph = function (key, depth) {
   var self = this
-  var ownKeys = self.get(key)
-  var linked = self.linked(key)
-  return _.difference(linked, ownKeys)
+  depth = depth || 0
+  //TODO
+  var obj = {items: {}, links: {}}
+  obj.items[key] = self.get(key)
+  if (depth == 1) {
+    obj.links[key] = self._links[key]
+    obj.links[key].forEach(function (link) {
+      obj.items[link[0]] = self.get(link[0])
+    })
+  }
+
+  return new Self(obj)
 }
 /**
  * Find items linked with specified
@@ -219,7 +231,7 @@ Self.prototype.findByKeys = function (keys) {
   if (!_.isArray(keys)) keys = [keys]
 
   var arrLinkedKeys = _.map(keys, function (key) {
-    return self.linked(key)
+    return self.getLinked(key)
   })
   return _.intersection.apply(_, arrLinkedKeys)
 }
@@ -236,7 +248,7 @@ Self.prototype.findByValues = function (values) {
   return self.findByKeys(keys)
 }
 //find by values or keys
-Self.prototype.find = function (data) {
+Self.prototype.findByLinks = function (data) {
   var self = this
   if (!_.isArray(data)) data = [data]
 
@@ -245,14 +257,25 @@ Self.prototype.find = function (data) {
   })
   return self.findByKeys(keys)
 }
-Self.prototype.find = function (data) {
+/**
+ * Find item with value matching the string
+ * @return Array of Items
+ */
+Self.prototype.findItems = function (str) {
+  var self = this
+
+  var results = []
+  _.each(this._items, function (value, key) {
+    if (value.match(str)) results.push({key: key, value: value})
+  })
+  return results
 }
 /**
  * Utilize dijkstra algorythm
  */
 Self.prototype.findShortestPath = function (key1, key2) {
   var self = this
-  var map = self.getLinksMap()
+  var map = self.getLinksWeightMap()
   return dijkstra.findShortestPath(map, key1, key2)
 }
 /**

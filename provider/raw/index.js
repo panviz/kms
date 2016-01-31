@@ -40,7 +40,7 @@ Self.prototype.read = function (source) {
 Self.prototype.write = function (graph, target) {
   var self = this
   if (!self.p.target) return console.log("no path specified to write a file")
-  _.each(graph.items(), function (value, key) {
+  _.each(graph.getItemsMap(), function (value, key) {
     var path = Path.join(self.p.target, key)
     var str = value == undefined ? '' : value
     str = '---\n' + JSON.stringify(graph.linked(key)) + '\n---\n' + str
@@ -49,7 +49,7 @@ Self.prototype.write = function (graph, target) {
     } catch(e) {console.log(e)}
   })
 
-  console.log(_.keys(graph.items()).length + ' Items written')
+  console.log(_.keys(graph.getItemsMap()).length + ' Items written')
 }
 
 module.exports = Self
