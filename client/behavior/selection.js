@@ -11,7 +11,7 @@ var Self = function Selection(p) {
 }
 BackboneEvents.mixin(Self.prototype)
 /**
- * @param selection Id or Array
+ * @param {Id or Array} selection 
  */
 Self.prototype.add = function (selection) {
   var self = this

@@ -97,7 +97,8 @@ Self.prototype._onSelect = function (selection) {
 
 Self.prototype._onClick = function (node) {
   var self = this
-  $(self).trigger('show-linked', node.key)
+  self.p.selection.clear()
+  self.p.selection.add(node.key)
 }
 
 module.exports = Self
