@@ -25,7 +25,7 @@ Self.prototype.render = function (items) {
   var self = this
   var list = _.map(items, function (item) {
     return G.Templates['view/list/row'](item)
-  }).join()
+  }).join('')
   self.elements.list.html(list)
 }
 

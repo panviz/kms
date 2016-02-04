@@ -261,12 +261,12 @@ Self.prototype.findByLinks = function (data) {
  * Find item with value matching the string
  * @return Array of Items
  */
-Self.prototype.findItems = function (str) {
+Self.prototype.findItems = function (regExp) {
   var self = this
 
   var results = []
   _.each(this._items, function (value, key) {
-    if (value.match(str)) results.push({key: key, value: value})
+    if (value.match(regExp)) results.push({key: key, value: value})
   })
   return results
 }

@@ -18,25 +18,25 @@ Self.prototype.read = function () {
   var self = this
   var graph = new Graph
 
-  var data = fs.readFileSync(self.p.source, 'utf8')
   return new Promise(function (resolve, reject) {
-    csv.parse(data, function (err, data) {
-      var headers = data.shift()
+    var data = fs.readFileSync(self.p.source, 'utf8')
+    var filename = Path.basename(self.p.source, '.csv')
+    var root = graph.set(filename)
+
+    csv.parse(data, function (err, rows) {
+      var headers = rows.shift()
       var titles = _.map(headers, function (header) {
         return graph.set(header)
       })
-      data.forEach(function (row) {
-        var columnHeaderGroups = _.map(row, function (columnValue, index) {
-          if (!columnValue) return
-          var columnKey = graph.set(columnValue)
-          var columnHeaderGroup = graph.set()
-          graph.associateGroup(columnHeaderGroup, [titles[index], columnKey])
-          graph.findByKeys([titles[index], columnKey])
-          return columnHeaderGroup
+      rows.forEach(function (row) {
+        var rowItem = graph.set()
+        _.each(row, function (value, index) {
+          if (!value) return
+          var valueKey = graph.set(value)
+          graph.associate(valueKey, titles[index])
+          graph.associate(valueKey, rowItem)
         })
-        columnHeaderGroups = _.compact(columnHeaderGroups)
-        var rowGroup = graph.set()
-        graph.associateGroup(rowGroup, columnHeaderGroups)
+        graph.associate(rowItem, root)
       })
       resolve(graph)
     })

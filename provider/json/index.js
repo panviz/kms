@@ -41,12 +41,11 @@ Self.prototype.write = function (graph) {
   else if (!self.p.target.match('json')) self.p.target = Path.join(self.p.target, 'data.json')
 
   var obj = {
-    items: graph.getItems(),
-    //TODO changed name
-    links: graph.getLinksMap()
+    items: graph.getItemsMap(),
+    links: graph.getLinksMap(),
   }
 
-  console.log(_.keys(graph.getItems()).length + ' Items to write')
+  console.log(_.keys(obj.items).length + ' Items to write')
   if (self.p.target) fs.writeFileSync(self.p.target, JSON.stringify(obj))
   return obj
 }

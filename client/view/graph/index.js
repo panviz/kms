@@ -52,7 +52,7 @@ Self.prototype.render = function (vGraph) {
     .style('stroke-width', function(d) { return Math.sqrt(d.value) })
   self._links.exit().remove()
 
-  self._nodes = self.container.selectAll(self.selectors.link)
+  self._nodes = self.container.selectAll(self.selectors.node)
     .data(items, function (d) { return d.key })
 
   var enter = self._nodes.enter().append('g')

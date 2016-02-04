@@ -54,9 +54,9 @@ Self.prototype._onSelect = function (selection) {
   self.graphView.render(vGraph)
 }
 
-Self.prototype._onSearch = function (str) {
+Self.prototype._onSearch = function (regExp) {
   var self = this
-  var items = self.graph.findItems(str)
+  var items = self.graph.findItems(regExp)
   self.listView.render(items)
 }
 /**
@@ -79,7 +79,7 @@ Self.prototype._onLoad = function (graph) {
   var self = this
   self.graph = graph
   //var vGraph = self._convert(graph)
-  //self.view.render(vGraph)
+  //self.graphView.render(vGraph)
   //
   //TODO show visible items which user previously left
 }
