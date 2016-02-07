@@ -22,6 +22,7 @@ Self.prototype.add = function (selection) {
 
   self._items = _.union(self._items, selection)
 
+  self.trigger('add', selection)
   self.trigger('change', selection)
 }
 

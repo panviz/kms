@@ -20,8 +20,8 @@ var Self = function (p) {
   self.color = d3.scale.category20()
   self.force = d3.layout.force()
     //for big graphs
-    .charge(-820)
-    .linkDistance(50)
+    .charge(-200)
+    .linkDistance(160)
     //.charge(-220)
     //.linkDistance(40)
     .size([self.p.width, self.p.height])
@@ -38,6 +38,10 @@ Self.prototype.render = function (vGraph) {
   var self = this
   var items = vGraph.items
   var edges = vGraph.edges
+  for (var i = 0; i < items.length; i++) {
+    items[i].x = items[i].x || Math.random() * self.p.width/10 + self.p.width/2 - self.p.width/20
+    items[i].y = items[i].y || Math.random() * self.p.height/10 + self.p.height/2 - self.p.height/20
+  }
    
   self.force
     .nodes(items)
@@ -48,7 +52,7 @@ Self.prototype.render = function (vGraph) {
     .data(edges)
 
   var lines = self._links.enter().append('line')
-    .attr('class', 'link')
+    .attr('class', self.selectors.link.slice(1))
     .style('stroke-width', function(d) { return Math.sqrt(d.value) })
   self._links.exit().remove()
 
@@ -59,9 +63,11 @@ Self.prototype.render = function (vGraph) {
   var update = self._nodes
   var exit = self._nodes.exit()
   
-  enter.attr('class', 'node')
+  enter.attr('class', self.selectors.node.slice(1))
+    //.attr('data-key', function (d) { return d.key })
     .call(self.force.drag)
     .on('click', self._onClick.bind(self))
+    .on('dblclick', self._onDblClick.bind(self))
 
   enter.append('circle')
     .attr('r', 10)
@@ -96,6 +102,11 @@ Self.prototype._onSelect = function (selection) {
 }
 
 Self.prototype._onClick = function (node) {
+  var self = this
+  node.key
+}
+
+Self.prototype._onDblClick = function (node) {
   var self = this
   self.p.selection.clear()
   self.p.selection.add(node.key)

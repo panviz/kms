@@ -35,7 +35,7 @@ var Self = function (p) {
     height: 1000,
   }
 
-  self.selection.on('change', self._onSelect.bind(self))
+  self.selection.on('add', self._onSelect.bind(self))
   self.search = new Search({container: self.elements.panel})
   self.search.on('update', self._onSearch.bind(self))
 
