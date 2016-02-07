@@ -18,15 +18,13 @@ _.extend(defaults, {
 })
 
 if (argv._[0] === 'convert') {
-  var p = {}
-  _.extend(p, defaults, {
-    source: argv._[1]
-  , target: argv._[2]
-  })
-  var config = app.getRepoConfig(p)
-  var sourceProvider = new app.providers[argv.source](config)
-  var targetProvider = new app.providers[argv.target](config)
-  sourceProvider.read().then(function (db) {
-    targetProvider.write(db)
-  })
+  var path = {
+    source: argv._[1],
+    target: argv._[2],
+  }
+  var provider = {
+    source: argv.source,
+    target: argv.target,
+  }
+  app.convert(path, provider)
 }

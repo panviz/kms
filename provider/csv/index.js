@@ -1,29 +1,23 @@
 /**
  * CSV provider
  */
-var fs = require('fs')
+var _ = require('lodash')
 , Path = require('path')
-, _ = require('lodash')
 , csv = require('csv')
 , Graph = require('../graph/index')
 
-var Self = function (p) {
-  this.p = p || {}
-}
+var Self = function () {}
 /**
  * parse each line as Item
- * TODO mark (link) each item with its itemtype
  */
-Self.prototype.read = function () {
+Self.prototype.read = function (source, p) {
   var self = this
   var graph = new Graph
 
   return new Promise(function (resolve, reject) {
-    var data = fs.readFileSync(self.p.source, 'utf8')
-    var filename = Path.basename(self.p.source, '.csv')
-    var root = graph.set(filename)
+    var root = graph.set()
 
-    csv.parse(data, function (err, rows) {
+    csv.parse(source, function (err, rows) {
       var headers = rows.shift()
       var titles = _.map(headers, function (header) {
         return graph.set(header)
@@ -47,4 +41,4 @@ Self.prototype.write = function () {
   var self = this
 }
 
-module.exports = Self
+module.exports = new Self

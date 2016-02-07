@@ -19,9 +19,9 @@ var Self = function (p) {
   self.selection = new Selection
 
   var providerSet = {
-    url: '/connections.json'
+    url: '/item'
   }
-  var provider = new Provider(providerSet)
+  self.provider = new Provider(providerSet)
   var graphViewSet = {
     container: self.elements.container,
     selection: self.selection,
@@ -41,23 +41,27 @@ var Self = function (p) {
 
   self.listView = new ListView(listViewSet)
   self.graphView = new GraphView(graphViewSet)
-  provider.read().then(self._onLoad.bind(self))
 
-  self.graphView.on('show-linked', self._method.bind(self))
+  //Can work only for small repos
+  //self.provider.read().then(self._onLoad.bind(self))
 }
 
 Self.prototype._onSelect = function (selection) {
   var self = this
   //TODO multiple selected
-  var graph = self.graph.getGraph(selection[0], 1)
-  var vGraph = self._convert(graph)
-  self.graphView.render(vGraph)
+  self.provider.request('getGraph', selection[0], 1)
+    .then(function (graph) {
+      var vGraph = self._convert(graph)
+      self.graphView.render(vGraph)
+    })
 }
 
-Self.prototype._onSearch = function (regExp) {
+Self.prototype._onSearch = function (data) {
   var self = this
-  var items = self.graph.findItems(regExp)
-  self.listView.render(items)
+  self.provider.request('findItems', data.str, data.flags)
+    .then(function (items) {
+      self.listView.render(items)
+    })
 }
 /**
  * Prepare suitable for api.client json
@@ -107,12 +111,6 @@ Self.prototype._getEdges = function (items, links) {
       value: link.Value
     }
   })
-}
-
-Self.prototype._method = function () {
-  var self = this
-
-  self.view.render(graph)
 }
 
 var templates = G.Templates

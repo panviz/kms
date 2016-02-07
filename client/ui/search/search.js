@@ -24,8 +24,7 @@ Self.prototype._onChange = function (e) {
   var self = this
   var value = e.target.value
   if (value.length < 3) return 
-  var regExp = new RegExp(value, self.elements.ignoreCase.is(':checked') ? 'i' : '')
-  self.trigger('update', regExp)
+  self.trigger('update', {str: value, flags: self.elements.ignoreCase.is(':checked') ? 'i' : ''})
 }
 
 module.exports = Self

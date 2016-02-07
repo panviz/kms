@@ -13,6 +13,9 @@
   li {
     list-style-type: none;
     padding: 8px;
+    &:nth-child(even) {
+      background-color: #e2e2e2;
+    }
 
     &.selected {
       background-color: rgb(137, 255, 137);

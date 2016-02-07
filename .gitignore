@@ -1,4 +1,5 @@
 config.yml
+config.json
 node_modules
 npm-debug.log
 test

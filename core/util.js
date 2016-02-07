@@ -13,4 +13,6 @@ Self.pluralize = function(arg) {
   return _.isArray(arg) ? arg : [arg]
 }
 
+RegExp.prototype.toJSON = function() { return this.toString() }
+
 module.exports = Self

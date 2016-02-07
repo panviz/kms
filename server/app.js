@@ -1,17 +1,27 @@
 /**
  * Server Application
  */
-var express = require('express'),
-Path = require('path'),
-provider = require('../provider/api.server/index')
+var express = require('express')
+, Path = require('path')
+, APIServer = require('../provider/api.server/index')
+, bodyParser = require('body-parser')
+, multer = require('multer')
+, upload = multer() // for parsing multipart/form-data
+
 
 var Self = function () {
   var self = this
   self.p = require('./config.json')
   var packageConf = require('../package.json')
   self.p.version = packageConf['version']
+  self.provider = new APIServer({
+    source: self.p.repository.path,
+    provider: self.p.repository.provider,
+  })
   
   self.server = express()
+  self.server.use(bodyParser.json())
+  self.server.use(bodyParser.urlencoded({ extended: true }))
   self.initRoutes()
 }
 
@@ -30,10 +40,10 @@ Self.prototype.run = function () {
 
 Self.prototype.initRoutes = function (req, res) {
   var self = this
-  self.server.get("/", self._onRootRequest.bind(self))
-  self.server.get(/client*/, self._onAppRequest.bind(self))
-  self.server.get(/node_modules*/, self._onAppRequest.bind(self))
-  self.server.get(idPattern, self._onItemRequest.bind(self))
+  self.server.get('/', self._onRootRequest.bind(self))
+  self.server.get(/client*/, self._onResourceRequest.bind(self))
+  self.server.get(/node_modules*/, self._onResourceRequest.bind(self))
+  self.server.post(/item/, upload.array(), self._onAppRequest.bind(self))
   self.server.get(/^(.+)$/, self._onOtherRequest.bind(self))
 }
 
@@ -42,15 +52,17 @@ Self.prototype._onRootRequest = function (req, res) {
   res.sendFile(ROOT_PATH + '/client/index.html')
 }
 
-Self.prototype._onAppRequest = function (req, res) {
+Self.prototype._onResourceRequest = function (req, res) {
   var self = this
   res.sendFile(Path.join(ROOT_PATH + req.path))
 }
 
-Self.prototype._onItemRequest = function (req, res) { 
+Self.prototype._onAppRequest = function (req, res) {
   var self = this
-  console.log('Item: ' + req.path)
-  res.sendFile(Path.join(self.p.repository.path, req.path))
+  self.provider.request(req.body)
+    .then(function (data) {
+      res.send(data)
+    })
 }
 
 Self.prototype._onOtherRequest = function(req, res){ 

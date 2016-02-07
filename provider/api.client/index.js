@@ -9,7 +9,9 @@ var Self = function (p) {
   var self = this
   self.p = p || {}
 }
+BackboneEvents.mixin(Self.prototype)
 /**
+ * DEPRECATED
  */
 Self.prototype.read = function () {
   var self = this
@@ -22,50 +24,26 @@ Self.prototype.read = function () {
     })
   })
 }
-
-Self.prototype.get = function (key) {
+/**
+ * translate graph function calls to server
+ */
+Self.prototype.request = function (method) {
   var self = this
+  var args = JSON.stringify(Array.prototype.slice.apply(arguments).slice(1))
   var promise = new Promise(function (resolve, reject) {
-    var request = $.get(self.p.url + key)
-    request.then(function (str) {
-      self._onLoad(key, str)
-      resolve(str)
-
-      $(self).trigger('update')
+    var request = $.post({
+      url: self.p.url,
+      data: {
+        method: method,
+        args: args,
+      },
+    })
+    request.then(function (data) {
+      if (data.items && data.links) data = new Graph(data)
+      resolve(data)
     })
   })
   return promise
-}
-
-Self.prototype.getLinkedItem = function (key) {
-  var self = this
-  self.get(key).then(function (str) {
-    var data = str.split('---')
-    var toLoad = JSON.parse(data[1])
-    toLoad.forEach(function (key) {
-      self.get(key)
-    })
-  })
-
-  //return promise
-}
-
-Self.prototype._onLoad = function (key, str) {
-  var self = this
-  var data = str.split('---')
-  var item = _.find(self._items, {key: key})
-  if (!item) {
-    item = {key: key}
-    self._items.push(item)
-  }
-  item['value'] = data[2]
-  var linked = JSON.parse(data[1])
-  //add links to others only if they are already loaded
-  linked.forEach(function (key2) {
-    if (_.find(self._items, {key: key2})) {
-      self._links.push({source: key, target: key2})
-    }
-  })
 }
 
 module.exports = Self

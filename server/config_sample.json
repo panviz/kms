@@ -5,7 +5,8 @@
     "port": 8000
   },
   "repository": {
-    "path": "D:/test/raw"
+    "path": "abs_path_to_repo",
+    "provider": "raw"
   },
-  "static": "D:/test/"
+  "static": "abs_path_to_app"
 }

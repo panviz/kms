@@ -26,11 +26,10 @@ Self.prototype.set = function (data, key) {
   if (_.isArray(data)) return _.map(data, function (datum) { return self.set(datum) })
 
   if (!data) {
-    key = generateID()
+    key = key || generateID()
     //Ensure value is not undefined, as JSON stringify will omit it
     data = ''
-  }
-  else {
+  } else {
     key = key || self.getKey(data) || generateID()
   }
   self._items[key] = data
@@ -68,6 +67,12 @@ Self.prototype.getItemsMap = function () {
   return this._items
 }
 /**
+ * @return Array of keys
+ */
+Self.prototype.getItemKeys = function () {
+  return _.keys(this._items)
+}
+/**
  * Get key of item by value
  * do not return anything by empty value
  * @param String data of Item
@@ -90,12 +95,6 @@ Self.prototype.findGroup = function (data) {
     return self.getKey(datum)
   })
   return self.getKey(keys)
-}
-/**
- * @return Array of keys
- */
-Self.prototype.getAllItems = function () {
-  return _.keys(this._items)
 }
 /**
  * Create link between two Items
@@ -259,11 +258,13 @@ Self.prototype.findByLinks = function (data) {
 }
 /**
  * Find item with value matching the string
+ * @param String str should be RegExp, but it cannot be stringified to transfer with JSON
  * @return Array of Items
  */
-Self.prototype.findItems = function (regExp) {
+Self.prototype.findItems = function (str, flags) {
   var self = this
 
+  var regExp = new RegExp(str, flags)
   var results = []
   _.each(this._items, function (value, key) {
     if (value.match(regExp)) results.push({key: key, value: value})
@@ -315,6 +316,10 @@ Self.prototype.log = function (obj) {
   str = self._replaceIds(str)
   console.log(str)
   return JSON.parse(str)
+}
+
+Self.prototype.toJSON = function () {
+  return {items: this._items, links: this._links}
 }
 
 Self.prototype._replaceIds = function (str) {
