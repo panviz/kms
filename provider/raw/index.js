@@ -65,6 +65,7 @@ Self.prototype.get = function (key, p) {
 /**
  * Writes items in one folder with IDs as filenames
  * Start of file contains utf8 encoded string of links Array []
+ * TODO store link weight
  * @param Graph graph
  */
 Self.prototype.write = function (graph, p) {

@@ -20,10 +20,11 @@ var Self = function (p) {
   self.color = d3.scale.category20()
   self.force = d3.layout.force()
     //for big graphs
-    .charge(-200)
-    .linkDistance(160)
+    .charge(-400)
+    .linkDistance(150)
     //.charge(-220)
     //.linkDistance(40)
+    .gravity(0)
     .size([self.p.width, self.p.height])
 
   self.container = d3.select(self.selectors.container)

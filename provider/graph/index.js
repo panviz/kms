@@ -36,6 +36,42 @@ Self.prototype.set = function (data, key) {
   return key
 }
 /**
+ * Merge this with provided graph
+ * links are summed
+ * @param Graph graph
+ * @param Boolean p.overwrite existing items values with provided
+ */
+Self.prototype.merge = function (graph, p) {
+  var self = this
+  p = p || {}
+  var newItems = graph.getItemsMap()
+
+  _.each(newItems, function (value, key) {
+    if (self._items[key] && !p.overwrite) return
+    self._items[key] = value
+  })
+
+  //_.each(newItems, function (newItem) {
+    //var existLinked = self.getLinked(newItem)
+    //var newLinked = graph.getLinked(newItem)
+    //var addLinked = _.difference(newLinked, existLinked)
+    //if (p.overwrite) self.links[newItem]
+  //})
+
+  //walk through all items with links
+  _.each(graph.getLinksMap(), function (newLinks, newItemWithLinksKey) {
+    var existLinks = self._links[newItemWithLinksKey]
+    if (!existLinks) return self._links[newItemWithLinksKey] = newLinks
+    _.each(newLinks, function (newLink) {
+      var existLink = _.find(existLinks, function (existingLink) { return existingLink[0] === newLink[0]})
+      if (existLink && !p.overwrite) return
+      if (existLink) existLink[1] = newLink[1]
+      existLinks.push(newLink)
+    })
+  })
+}
+/**
+ * DEPRECATED
  * Create Group Item and link with children
  * @param String groupValue
  * @param data Array values of items to be connected to the group item
@@ -85,6 +121,7 @@ Self.prototype.getKey = function (value) {
   return _.invert(self._items)[value]
 }
 /**
+ * DEPRECATED
  * @param String data
  * @return Key of Item with group meaning
  */
@@ -127,7 +164,9 @@ Self.prototype.associate = function (key1, key2, weight) {
   linkedTo1.sort(compareWeight)
   linkedTo2.sort(compareWeight)
 }
-//associate one item to array
+/**
+ * Associate one item to array of items
+ */
 Self.prototype.associateGroup = function (key1, keys) {
   var self = this
   keys.forEach(function (key) {
@@ -202,24 +241,35 @@ Self.prototype.getLinked = function (key) {
 }
 /**
  * TODO works only for depth 0/1
- * @param key Key of item to traverse graph from
+ * @param rootKey Key of item to traverse graph from
  * @param depth
  * @return Graph starting from the item provided
  */
-Self.prototype.getGraph = function (key, depth) {
+Self.prototype.getGraph = function (rootKey, depth) {
   var self = this
   depth = depth || 0
-  //TODO
-  var obj = {items: {}, links: {}}
-  obj.items[key] = self.get(key)
+  var sgItems = {} //sub graph items
+  var sgLinks = {}
+
+  sgItems[rootKey] = self.get(rootKey)
   if (depth == 1) {
-    obj.links[key] = self._links[key]
-    obj.links[key].forEach(function (link) {
-      obj.items[link[0]] = self.get(link[0])
+    sgLinks[rootKey] = self._links[rootKey]
+    sgLinks[rootKey].forEach(function (link) {
+      sgItems[link[0]] = self.get(link[0])
+    })
+    //add links in between those retrieved
+    _.each(sgItems, function (value, sgItemKey) {
+      if (sgItemKey === rootKey) return // skip
+
+      var allSgItemLinks = self._links[sgItemKey]
+      var filteredSgItemLinks = _.filter(allSgItemLinks, function (link) {
+        return !!sgItems[link[0]]
+      })
+      sgLinks[sgItemKey] = filteredSgItemLinks
     })
   }
 
-  return new Self(obj)
+  return new Self({items: sgItems, links: sgLinks})
 }
 /**
  * Find items linked with specified
@@ -257,19 +307,23 @@ Self.prototype.findByLinks = function (data) {
   return self.findByKeys(keys)
 }
 /**
+ * TODO consider non-writing scenario
  * Find item with value matching the string
- * @param String str should be RegExp, but it cannot be stringified to transfer with JSON
- * @return Array of Items
+ * @param String value should be RegExp, but it cannot be stringified to transfer with JSON
+ * @return Graph of Items
  */
-Self.prototype.findItems = function (str, flags) {
+Self.prototype.findGraph = function (lookupValue, p) {
   var self = this
 
-  var regExp = new RegExp(str, flags)
-  var results = []
-  _.each(this._items, function (value, key) {
-    if (value.match(regExp)) results.push({key: key, value: value})
+  var existing = self.getKey(lookupValue)
+  if (existing) return self.getGraph(existing, 1)
+   
+  var target = self.set(lookupValue)
+  var regExp = new RegExp(lookupValue, p)
+  _.each(self._items, function (value, key) {
+    if (value.match(regExp) && value !== lookupValue) self.associate(target, key)
   })
-  return results
+  return self.getGraph(target, 1)
 }
 /**
  * Utilize dijkstra algorythm

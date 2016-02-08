@@ -6,6 +6,7 @@ GraphView = require('./view/graph/index'),
 ListView = require('./view/list/index'),
 Search = require('./ui/search/search'),
 Selection = require('./behavior/selection'),
+Itemman = require('./itemman'),
 Utils = require('../core/util')
 
 var Self = function (p) {
@@ -17,6 +18,7 @@ var Self = function (p) {
   }
   self.elements = Utils.findElements('body', self.selectors)
   self.selection = new Selection
+  self.itemman = new Itemman
 
   var providerSet = {
     url: '/item'
@@ -42,8 +44,7 @@ var Self = function (p) {
   self.listView = new ListView(listViewSet)
   self.graphView = new GraphView(graphViewSet)
 
-  //Can work only for small repos
-  //self.provider.read().then(self._onLoad.bind(self))
+  self.itemman.on('change', self._onItemsChange.bind(self))
 }
 
 Self.prototype._onSelect = function (selection) {
@@ -51,66 +52,22 @@ Self.prototype._onSelect = function (selection) {
   //TODO multiple selected
   self.provider.request('getGraph', selection[0], 1)
     .then(function (graph) {
-      var vGraph = self._convert(graph)
-      self.graphView.render(vGraph)
+      self.itemman.add(graph)
     })
 }
 
 Self.prototype._onSearch = function (data) {
   var self = this
-  self.provider.request('findItems', data.str, data.flags)
-    .then(function (items) {
-      self.listView.render(items)
+  self.provider.request('findGraph', data.str, data.flags)
+    .then(function (graph) {
+      self.itemman.add(graph)
     })
 }
-/**
- * Prepare suitable for api.client json
- */
-Self.prototype._convert = function (graph) {
-  var self = this
-  var obj = {}
-  obj.items = _.map(graph.getItemsMap(), function (value, key) {
-    return {key: key, value: value}
-  })
-  obj.links = _.map(graph.getLinksArray(), function (link) {
-    return {source: link[0], target: link[1]}
-  })
-  obj.edges = self._getEdges(obj.items, obj.links)
-  return obj
-}
 
-Self.prototype._onLoad = function (graph) {
+Self.prototype._onItemsChange = function (vGraph) {
   var self = this
-  self.graph = graph
-  //var vGraph = self._convert(graph)
-  //self.graphView.render(vGraph)
-  //
-  //TODO show visible items which user previously left
-}
-/**
- * convert d3.js compliant format
- */
-Self.prototype._getVisible = function () {
-  var items = []
-  return items
-}
-
-Self.prototype._getEdges = function (items, links) {
-  var self = this
-  return _.map(links, function (link) {
-    var sourceNode = items.filter(function(n) {
-      return n.key === link.source
-    })[0],
-      targetNode = items.filter(function(n) {
-        return n.key === link.target
-      })[0]
-
-    return {
-      source: sourceNode,
-      target: targetNode,
-      value: link.Value
-    }
-  })
+  self.graphView.render(vGraph)
+  self.listView.render(vGraph)
 }
 
 var templates = G.Templates

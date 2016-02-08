@@ -21,15 +21,19 @@ var Self = function (p) {
   self.p.selection.on('change', self._onSelectionChange.bind(self))
 }
 BackboneEvents.mixin(Self.prototype)
-
-Self.prototype.render = function (items) {
+/**
+ * populate list with items 
+ */
+Self.prototype.render = function (vGraph) {
   var self = this
-  var list = _.map(items, function (item) {
+  var list = _.map(vGraph.items, function (item) {
     return G.Templates['view/list/row'](item)
   }).join('')
   self.elements.list.html(list)
 }
-
+/**
+ * Select row in click
+ */
 Self.prototype._onRowClick = function (e) {
   var self = this
   var $el = $(e.target)
@@ -39,7 +43,8 @@ Self.prototype._onRowClick = function (e) {
   self.p.selection.add(key)
 }
 /**
- * @param Array selection items
+ * Highlight selected row
+ * @param Array selection keys
  */
 Self.prototype._onSelectionChange = function (selection) {
   var self = this

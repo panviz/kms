@@ -25,7 +25,8 @@
     "build-js": "sh bin/build-js",
     "build-template": "sh bin/build-template",
     "watch-css": "nodemon -w client -e scss -x sh bin/build-css",
-    "watch-js": "watchify client/app.js -d -v -o client/bundle.js"
+    "watch-js": "watchify client/app.js -d -v -o client/bundle.js",
+    "test": "mocha --recursive"
   },
   "dependencies": {
     "backbone-events-standalone": "^0.2.7",

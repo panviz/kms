@@ -1,7 +1,6 @@
 /**
  * Web API provider for client to access server
- * TODO would be made rich on processing like Graph module, when browser couldn't handle all items
- * TODO how to manage loaded/visible items
+ * TODO cache loaded graph
  */
 var Graph = require('../graph/index')
 
@@ -12,6 +11,7 @@ var Self = function (p) {
 BackboneEvents.mixin(Self.prototype)
 /**
  * DEPRECATED
+ * the whole repository shouldn't be transfered to the client
  */
 Self.prototype.read = function () {
   var self = this

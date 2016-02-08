@@ -12,7 +12,7 @@ var Self = function (p) {
   self.provider.read(self.p.source)
     .then(function (graph) {
       self.graph = graph
-      console.log('Serving items total: ' + graph.getItemKeys().length);
+      console.log('Serving items total: ' + graph.getItemKeys().length)
     })
 }
 
