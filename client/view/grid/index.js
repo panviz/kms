@@ -2,6 +2,8 @@
  * Grid view
  * Items are represented with tiles
  */
+var View = require('../view')
+
 var Self = function (p) {
   var self = this
   self.p = p || {}
@@ -9,6 +11,7 @@ var Self = function (p) {
   self._links = []
   self._nodes = []
 }
+Self.prototype = Object.create(View.prototype)
 
 Self.prototype.render = function (graph) {
   var self = this

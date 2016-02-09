@@ -2,7 +2,8 @@
  * List view
  * Items are represented with rows
  */
-var Utils = require('../../../core/util')
+var View = require('../view')
+, Utils = require('../../../core/util')
 
 var Self = function (p) {
   var self = this
@@ -14,13 +15,10 @@ var Self = function (p) {
   self.p.container.append($html)
   self.elements = Utils.findElements($html, self.selectors)
 
-  self._links = []
-  self._nodes = []
-
   self.elements.list.on('click', self._onRowClick.bind(self))
   self.p.selection.on('change', self._onSelectionChange.bind(self))
 }
-BackboneEvents.mixin(Self.prototype)
+Self.prototype = Object.create(View.prototype)
 /**
  * populate list with items 
  */

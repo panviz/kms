@@ -1,7 +1,14 @@
 .view.graph {
+  flex-grow: 1;
+  height: 100%;
+
   .node {
     stroke: #fff;
     stroke-width: 1.5px;
+    
+    circle {
+      fill: rgb(188, 228, 255);
+    }
   }
 
   .link {

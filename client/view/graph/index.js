@@ -3,21 +3,26 @@
  * Here comes logic for handling visual "GUI-level" user input
  * like: click, hover, collapse/expand, right click, etc
  */
+var View = require('../view')
+, Utils = require('../../../core/util')
+
 var Self = function (p) {
   var self = this
   self.p = p || {}
+  self.autoLayout = true
+
   self.selectors = {
-    container: '.view.graph svg',
+    body: '.view.graph svg',
     link: '.link',
     node: '.node'
   }
   var $html = $(G.Templates['view/graph/graph']())
   self.p.container.append($html)
+  self.elements = Utils.findElements(self.p.container, self.selectors)
 
   self._links = []
   self._nodes = []
 
-  self.color = d3.scale.category20()
   self.force = d3.layout.force()
     //for big graphs
     .charge(-400)
@@ -27,13 +32,13 @@ var Self = function (p) {
     .gravity(0)
     .size([self.p.width, self.p.height])
 
-  self.container = d3.select(self.selectors.container)
-    .attr('width', self.p.width)
-    .attr('height', self.p.height)
+  self.body = d3.select(self.selectors.body)
+  self.resize()
 
   self.p.selection.on('add', self._onSelect.bind(self))
+  $(window).on('resize', self.resize.bind(self))
 }
-BackboneEvents.mixin(Self.prototype)
+Self.prototype = Object.create(View.prototype)
 
 Self.prototype.render = function (vGraph) {
   var self = this
@@ -47,9 +52,9 @@ Self.prototype.render = function (vGraph) {
   self.force
     .nodes(items)
     .links(edges)
-    .start()
+  if (self.autoLayout) self.force.start()
 
-  self._links = self.container.selectAll(self.selectors.link)
+  self._links = self.body.selectAll(self.selectors.link)
     .data(edges)
 
   var lines = self._links.enter().append('line')
@@ -57,7 +62,7 @@ Self.prototype.render = function (vGraph) {
     .style('stroke-width', function(d) { return Math.sqrt(d.value) })
   self._links.exit().remove()
 
-  self._nodes = self.container.selectAll(self.selectors.node)
+  self._nodes = self.body.selectAll(self.selectors.node)
     .data(items, function (d) { return d.key })
 
   var enter = self._nodes.enter().append('g')
@@ -71,8 +76,7 @@ Self.prototype.render = function (vGraph) {
     .on('dblclick', self._onDblClick.bind(self))
 
   enter.append('circle')
-    .attr('r', 10)
-    .style('fill', function(d) { return self.color(d.group) })
+    .attr('r', 32)
 
   enter.append('text')
     .text(function (d) { return d.value })
@@ -85,6 +89,23 @@ Self.prototype.render = function (vGraph) {
 
   self.force.on('tick', self._onTick.bind(self))
 }
+/**
+ * take all available space
+ */
+Self.prototype.resize = function () {
+  var self = this
+  self.p.height = self.elements.root.height()
+  self.p.width = self.elements.root.width()
+  self.body
+    .attr('width', self.p.width)
+    .attr('height', self.p.height)
+}
+Self.prototype.toggleAutoLayout = function () {
+  var self = this
+  self.autoLayout = !self.autoLayout
+  if (!self.autoLayout) self.force.stop()
+  else self.force.start()
+}
 
 Self.prototype._onTick = function () {
   var self = this
@@ -94,6 +115,8 @@ Self.prototype._onTick = function () {
     .attr('y2', function (d) { return d.target.y })
 
   self._nodes.attr('transform', function (d) {
+    d.x = Math.max(15, Math.min(self.p.width - 15, d.x))
+    d.y = Math.max(15, Math.min(self.p.height - 15, d.y))
     return 'translate(' + d.x + ',' + d.y + ')'
   })
 }

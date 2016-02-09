@@ -1,6 +1,10 @@
 body {
   margin: 0;
-}
-.container {
-  display: flex;
+
+  .header-panel {
+    padding-left: 120px;
+  }
+  .container {
+    display: flex;
+  }
 }

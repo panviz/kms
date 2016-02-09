@@ -1,0 +1,19 @@
+.actions-panel {
+  flex: 0 0 120px;
+
+  ul {
+    color: rgb(118,118,118);
+    background-color: rgb(50,50,50);
+    padding: 0;
+    margin: 0;
+
+    li {
+      list-style-type: none;
+      padding: 8px;
+
+      &.enabled {
+        color: rgb(255,255,255);
+      }
+    }
+  }
+}

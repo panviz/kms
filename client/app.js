@@ -5,8 +5,10 @@ var Provider = require('../provider/api.client/index'),
 GraphView = require('./view/graph/index'),
 ListView = require('./view/list/index'),
 Search = require('./ui/search/search'),
+ActionsPanel = require('./ui/actions-panel/panel'),
 Selection = require('./behavior/selection'),
 Itemman = require('./itemman'),
+Actionman = require('./actionman'),
 Utils = require('../core/util')
 
 var Self = function (p) {
@@ -14,11 +16,13 @@ var Self = function (p) {
   self.p = p || {}
   self.selectors = {
     container: '.container',
-    panel: '.panel',
+    headerPanel: '.header-panel',
   }
   self.elements = Utils.findElements('body', self.selectors)
   self.selection = new Selection
   self.itemman = new Itemman
+  self.actionman = new Actionman({selection: self.selection})
+  $act = self.actionman
 
   var providerSet = {
     url: '/item'
@@ -27,19 +31,19 @@ var Self = function (p) {
   var graphViewSet = {
     container: self.elements.container,
     selection: self.selection,
-    width: 1000,
-    height: 1000,
   }
   var listViewSet = {
     container: self.elements.container,
     selection: self.selection,
-    width: 1000,
-    height: 1000,
   }
 
   self.selection.on('add', self._onSelect.bind(self))
-  self.search = new Search({container: self.elements.panel})
+  self.search = new Search({container: self.elements.headerPanel})
   self.search.on('update', self._onSearch.bind(self))
+  self.actionsPanel = new ActionsPanel({
+    container: self.elements.container,
+    actions: self.actionman.getAll(),
+  })
 
   self.listView = new ListView(listViewSet)
   self.graphView = new GraphView(graphViewSet)
