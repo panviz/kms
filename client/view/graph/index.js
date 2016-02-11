@@ -4,12 +4,13 @@
  * like: click, hover, collapse/expand, right click, etc
  */
 var View = require('../view')
+, ForceLayout = require('../../layout/force/force')
 , Utils = require('../../../core/util')
 
 var Self = function (p) {
   var self = this
   self.p = p || {}
-  self.autoLayout = true
+  self.autoLayout = false
 
   self.selectors = {
     body: '.view.graph svg',
@@ -20,20 +21,16 @@ var Self = function (p) {
   self.p.container.append($html)
   self.elements = Utils.findElements(self.p.container, self.selectors)
 
-  self._links = []
+  self._edges = []
   self._nodes = []
-
-  self.force = d3.layout.force()
-    //for big graphs
-    .charge(-400)
-    .linkDistance(150)
-    //.charge(-220)
-    //.linkDistance(40)
-    .gravity(0)
-    .size([self.p.width, self.p.height])
 
   self.body = d3.select(self.selectors.body)
   self.resize()
+
+  self.layout = new ForceLayout({
+    width: self.p.width,
+    height: self.p.height,
+  })
 
   self.p.selection.on('add', self._onSelect.bind(self))
   $(window).on('resize', self.resize.bind(self))
@@ -43,51 +40,57 @@ Self.prototype = Object.create(View.prototype)
 Self.prototype.render = function (vGraph) {
   var self = this
   var items = vGraph.items
-  var edges = vGraph.edges
-  for (var i = 0; i < items.length; i++) {
-    items[i].x = items[i].x || Math.random() * self.p.width/10 + self.p.width/2 - self.p.width/20
-    items[i].y = items[i].y || Math.random() * self.p.height/10 + self.p.height/2 - self.p.height/20
-  }
+  var links = vGraph.edges
    
-  self.force
-    .nodes(items)
-    .links(edges)
-  if (self.autoLayout) self.force.start()
+  self._edges = self.body.selectAll(self.selectors.link)
+    .data(links)
 
-  self._links = self.body.selectAll(self.selectors.link)
-    .data(edges)
+  var updateEdges = self._edges
+  var edgesEnter = self._edges.enter().append('line')
+  var exitEdges = self._edges.exit()
 
-  var lines = self._links.enter().append('line')
+  edgesEnter
     .attr('class', self.selectors.link.slice(1))
     .style('stroke-width', function(d) { return Math.sqrt(d.value) })
-  self._links.exit().remove()
+
+  exitEdges.remove()
 
   self._nodes = self.body.selectAll(self.selectors.node)
     .data(items, function (d) { return d.key })
 
-  var enter = self._nodes.enter().append('g')
-  var update = self._nodes
-  var exit = self._nodes.exit()
+  self.layout.setup(items, links)
+  if (self.autoLayout) self.layout.position()
+
+  var enterNodes = self._nodes.enter().append('g')
+  var updateNodes = self._nodes
+  var exitNodes = self._nodes.exit()
   
-  enter.attr('class', self.selectors.node.slice(1))
+  enterNodes.attr('class', self.selectors.node.slice(1))
     //.attr('data-key', function (d) { return d.key })
-    .call(self.force.drag)
+    .call(self.layout.force.drag)
     .on('click', self._onClick.bind(self))
     .on('dblclick', self._onDblClick.bind(self))
 
-  enter.append('circle')
+  enterNodes.append('circle')
     .attr('r', 32)
 
-  enter.append('text')
+  enterNodes.append('text')
     .text(function (d) { return d.value })
 
-  update
+  updateNodes
     .select('text')
     .text(function (d) { return d.value })
 
-  exit.remove()
+  updateNodes.attr('transform', function (d) {
+    return 'translate(' + d.x + ',' + d.y + ')'
+  })
 
-  self.force.on('tick', self._onTick.bind(self))
+  exitNodes.remove()
+
+  updateEdges.attr('x1', function (d) { return d.source.x })
+    .attr('y1', function (d) { return d.source.y })
+    .attr('x2', function (d) { return d.target.x })
+    .attr('y2', function (d) { return d.target.y })
 }
 /**
  * take all available space
@@ -103,22 +106,13 @@ Self.prototype.resize = function () {
 Self.prototype.toggleAutoLayout = function () {
   var self = this
   self.autoLayout = !self.autoLayout
-  if (!self.autoLayout) self.force.stop()
-  else self.force.start()
-}
-
-Self.prototype._onTick = function () {
-  var self = this
-  self._links.attr('x1', function (d) { return d.source.x })
-    .attr('y1', function (d) { return d.source.y })
-    .attr('x2', function (d) { return d.target.x })
-    .attr('y2', function (d) { return d.target.y })
-
-  self._nodes.attr('transform', function (d) {
-    d.x = Math.max(15, Math.min(self.p.width - 15, d.x))
-    d.y = Math.max(15, Math.min(self.p.height - 15, d.y))
-    return 'translate(' + d.x + ',' + d.y + ')'
-  })
+  if (!self.autoLayout) {
+    self.layout.animation.stop()
+    self.layout.setAnimationHandler()
+  } else {
+    self.layout.setAnimationHandler(self._onAnimation.bind(self))
+    self.layout.animation.start()
+  }
 }
 
 Self.prototype._onSelect = function (selection) {
@@ -134,6 +128,20 @@ Self.prototype._onDblClick = function (node) {
   var self = this
   self.p.selection.clear()
   self.p.selection.add(node.key)
+}
+
+Self.prototype._onAnimation = function (node) {
+  var self = this
+  self._edges.attr('x1', function (d) { return d.source.x })
+    .attr('y1', function (d) { return d.source.y })
+    .attr('x2', function (d) { return d.target.x })
+    .attr('y2', function (d) { return d.target.y })
+
+  self._nodes.attr('transform', function (d) {
+    d.x = Math.max(15, Math.min(self.p.width - 15, d.x))
+    d.y = Math.max(15, Math.min(self.p.height - 15, d.y))
+    return 'translate(' + d.x + ',' + d.y + ')'
+  })
 }
 
 module.exports = Self
