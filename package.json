@@ -29,6 +29,7 @@
     "test": "mocha --recursive"
   },
   "dependencies": {
+    "EasyTabs": "git+https://github.com/JangoSteve/jQuery-EasyTabs.git",
     "backbone-events-standalone": "^0.2.7",
     "body-parser": "^1.14.2",
     "csv": "^0.4.6",
@@ -39,9 +40,10 @@
     "glob": "latest",
     "handlebars": "latest",
     "isbinaryfile": "^3.0.0",
+    "jQuery-Tags-Input": "git+https://github.com/xoxco/jQuery-Tags-Input.git",
     "jquery": "^2.2.0",
     "js-yaml": "latest",
-    "lodash": "^3.10.1",
+    "lodash": "4.3.0",
     "minimist": "^1.2.0",
     "moment": "latest",
     "multer": "^1.1.0",

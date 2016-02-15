@@ -12,8 +12,8 @@ var _ = require('lodash')
 var Self = function (obj) {
   var self = this
   obj = obj || {}
-  self._items = obj.items || {}
-  self._links = obj.links || {}
+  self._items = _.extend({}, obj.items)
+  self._links = _.extend({}, obj.links)
 }
 /**
  * Doesn't allow override except if key is specified exactly
@@ -34,6 +34,20 @@ Self.prototype.set = function (data, key) {
   }
   self._items[key] = data
   return key
+}
+/**
+ * remove key, value, its links and its key from all item which links to it
+ */
+Self.prototype.remove = function (key) {
+  var self = this
+  var linkedKeys = self.getLinked(key)
+  _.each(linkedKeys, function (linkedKey) {
+    self.setDisassociate(key, linkedKey)
+  })
+  delete self._items[key]
+  delete self._links[key]
+
+  return _.union([key], linkedKeys)
 }
 /**
  * Merge this with provided graph
@@ -117,6 +131,7 @@ Self.prototype.getItemKeys = function () {
 Self.prototype.getKey = function (value) {
   var self = this
   if (!value) return
+  value = value.toString()
   
   return _.invert(self._items)[value]
 }
@@ -141,37 +156,52 @@ Self.prototype.findGroup = function (data) {
  */
 Self.prototype.associate = function (key1, key2, weight) {
   var self = this
-  , linkedTo1 = self._links[key1]
+  if (!self.validateKeys(key1, key2)) return []
+     
+  var linkedTo1 = self._links[key1]
   , linkedTo2 = self._links[key2]
   , skip
   weight = weight || 0
+  if (!_.isInteger(weight)) weight = 0
 
   if (!linkedTo1) linkedTo1 = self._links[key1] = []
   if (!linkedTo2) linkedTo2 = self._links[key2] = []
 
-  //check if link exists and increment weight if does
+  // check if link exists and increment weight if it does
   linkedTo1.forEach(function (link) {
     if (link && link[0] === key2){
       link[1] = (link[1] || 0) + (weight || 1)
       return skip = true
     }
   })
-
+  // write new links
   if (!skip) {
     linkedTo1.push([key2, weight])
     linkedTo2.push([key1, weight])
   }
   linkedTo1.sort(compareWeight)
   linkedTo2.sort(compareWeight)
+  return [key1, key2]
+}
+/**
+ * unlink items
+ */
+Self.prototype.setDisassociate = function (key1, key2) {
+  var self = this
+  if (!self.validateKeys(key1, key2)) return []
+  self._links[key1] = _.filter(self._links[key1], function (link) { return link[0] !== key2 })
+  self._links[key2] = _.filter(self._links[key2], function (link) { return link[0] !== key1 })
+  return [key1, key2]
 }
 /**
  * Associate one item to array of items
  */
 Self.prototype.associateGroup = function (key1, keys) {
   var self = this
-  keys.forEach(function (key) {
-    self.associate(key1, key)
+  var changed = _.map(keys, function (key) {
+    return self.associate(key1, key)
   })
+  return _.uniq(_.flatten(changed))
 }
 /**
  * @param {String|Array} key1
@@ -180,6 +210,7 @@ Self.prototype.associateGroup = function (key1, keys) {
  */
 Self.prototype.getLink = function (key1, key2) {
   var self = this
+  if (!self.validateKeys(key1, key2)) return
   var linkedTo1 = self._links[key1]
   for (var i = 0; i < linkedTo1.length; i++) {
     if (linkedTo1[i] && linkedTo1[i][0] === key2) return linkedTo1[i][1] || 0
@@ -227,7 +258,7 @@ Self.prototype.getLinksArray = function () {
  */
 Self.prototype.getLinks = function (key) {
   var self = this
-  return self._links[key]
+  return self._links[key] || []
 }
 /**
  * @param {String|Array} key Item(s) key
@@ -250,11 +281,11 @@ Self.prototype.getGraph = function (rootKey, depth) {
   depth = depth || 0
   var sgItems = {} //sub graph items
   var sgLinks = {}
-
   sgItems[rootKey] = self.get(rootKey)
+  sgLinks[rootKey] = self._links[rootKey]
+
   if (depth == 1) {
-    sgLinks[rootKey] = self._links[rootKey]
-    sgLinks[rootKey].forEach(function (link) {
+    _.each(sgLinks[rootKey], function (link) {
       sgItems[link[0]] = self.get(link[0])
     })
     //add links in between those retrieved
@@ -307,7 +338,6 @@ Self.prototype.findByLinks = function (data) {
   return self.findByKeys(keys)
 }
 /**
- * TODO consider non-writing scenario
  * Find item with value matching the string
  * @param String value should be RegExp, but it cannot be stringified to transfer with JSON
  * @return Graph of Items
@@ -318,12 +348,16 @@ Self.prototype.findGraph = function (lookupValue, p) {
   var existing = self.getKey(lookupValue)
   if (existing) return self.getGraph(existing, 1)
    
-  var target = self.set(lookupValue)
+  var subGraph = new Self
+  var target = subGraph.set(lookupValue)
   var regExp = new RegExp(lookupValue, p)
   _.each(self._items, function (value, key) {
-    if (value.match(regExp) && value !== lookupValue) self.associate(target, key)
+    if (value.match(regExp) && value !== lookupValue) {
+      subGraph.set(value, key)
+      subGraph.associate(target, key)
+    }
   })
-  return self.getGraph(target, 1)
+  return subGraph
 }
 /**
  * Utilize dijkstra algorythm
@@ -388,7 +422,13 @@ Self.prototype._replaceIds = function (str) {
   })
   return recurse ? self._replaceIds(str) : str
 }
-
+/**
+ * do not allow self reference
+ */
+Self.prototype.validateKeys = function (key1, key2) {
+  var self = this
+  return key1 && key2 && key1 !== key2 && self.get(key1) && self.get(key2)
+}
 function filterKeys(obj, filter) {
   var filtered = {}
   var keys = []

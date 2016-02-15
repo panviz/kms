@@ -1,4 +1,5 @@
 var Self = {}
+var _ = require('lodash')
 
 Self.findElements = function (root, selectors) {
   var elements = {}
