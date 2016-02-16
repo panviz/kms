@@ -18,17 +18,30 @@ var Self = function (p) {
 
 Self.prototype.request = function (params) { 
   var self = this
-  console.log(params)
+  console.log('Request params: ' + JSON.stringify(params))
   var args = JSON.parse(params.args)
-  if (params.method === 'get') {
-    return self.provider.get.apply(provider, args)
-  } else {
-    return new Promise(function (resolve, reject) {
-      var result = self.graph[params.method].apply(self.graph, args)
-      console.log(result)
+  var result = self.graph[params.method].apply(self.graph, args)
+
+  return new Promise(function (resolve, reject) {
+    if (params.method === 'get') {
+      // TODO handle items (binary) not in the graph
+      self.provider.get.apply(provider, args)
+        .then(function (data) { resolve(data)})
+    } else if (params.method === 'set') {
+      self.provider.set(result, self.graph.get(result), self.graph.getLinks(result), self.p)
       resolve(result)
-    })
-  }
+    } else if (_.includes(['associate', 'associateGroup', 'remove', 'setDisassociate'], params.method)) {
+      // TODO _.includes(params.method, 'set')
+      _.each(result, function (key) {
+        // TODO do not overwrite items not in the graph
+        self.provider.set(key, self.graph.get(key), self.graph.getLinks(key), self.p)
+      })
+      resolve(result)
+    } else {
+      //TODO store searches to provider
+      resolve(result)
+    }
+  })
 }
 
 module.exports = Self

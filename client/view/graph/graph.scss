@@ -9,6 +9,9 @@
     circle {
       fill: rgba(188, 228, 255, 0.5);
     }
+    &.selected circle {
+      fill: rgb(188, 228, 255);
+    }
   }
 
   .link {

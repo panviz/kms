@@ -115,19 +115,23 @@ Self.prototype.toggleAutoLayout = function () {
   }
 }
 
-Self.prototype._onSelect = function (selection) {
+Self.prototype._onSelect = function (keys) {
   var self = this
+  var node = _.find(self._nodes[0], function (node) {return node.__data__.key === keys[0]})
+  self._nodes.classed('selected', false)
+  $(node).toggleClass('selected')
 }
 
 Self.prototype._onClick = function (node) {
   var self = this
-  node.key
+  self.trigger('item-click', node.key)
 }
 
 Self.prototype._onDblClick = function (node) {
   var self = this
   self.p.selection.clear()
   self.p.selection.add(node.key)
+  self.trigger('item-dblclick', node.key)
 }
 
 Self.prototype._onAnimation = function (node) {

@@ -16,6 +16,7 @@ var Self = function () {
   self.p.version = packageConf['version']
   self.provider = new APIServer({
     source: self.p.repository.path,
+    target: self.p.repository.path,
     provider: self.p.repository.provider,
   })
   

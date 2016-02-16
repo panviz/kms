@@ -3,7 +3,6 @@
  */
 var actions = {
   autoLayout: require('./action/autoLayout'),
-  viewList: require('./action/viewList'),
 }
 var Self = function (p) {
   var self = this;
