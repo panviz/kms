@@ -139,5 +139,11 @@ describe('Graph', function() {
       g1.merge(g2)
       assert.equal(JSON.stringify(g1), JSON.stringify(g2))
     })
+    it('should return only updated keys', function () {
+      var g1 = new Graph(obj1)
+      var g2 = new Graph(obj2)
+      var changedKeys = g1.merge(g2)
+      assert.deepEqual(changedKeys, ['i2', 'i3'])
+    })
   })
 })

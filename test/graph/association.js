@@ -44,10 +44,10 @@ describe('Graph', function() {
       assert(_.isArray(result))
       assert(_.isEmpty(result))
     })
-    it('should return empty array if linked item is missing', function () {
+    it('should be able to associate with item not in graph', function () {
       var result = graph.associate('i1', 'i3')
-      assert(_.isArray(result))
-      assert(_.isEmpty(result))
+      assert.equal(graph.getLinks('i1').length, 1)
+      assert.equal(graph.getLinks('i3').length, 1)
     })
   })
   describe('disassociate items', function () {

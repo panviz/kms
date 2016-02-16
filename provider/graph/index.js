@@ -12,8 +12,8 @@ var _ = require('lodash')
 var Self = function (obj) {
   var self = this
   obj = obj || {}
-  self._items = _.extend({}, obj.items)
-  self._links = _.extend({}, obj.links)
+  self._items = _.cloneDeep(obj.items) || {}
+  self._links = _.cloneDeep(obj.links) || {}
 }
 /**
  * Doesn't allow override except if key is specified exactly
@@ -51,38 +51,63 @@ Self.prototype.remove = function (key) {
 }
 /**
  * Merge this with provided graph
+ * leave existing values and links weights on coincidence
+ * @param Graph graph
+ * @param Boolean p.overwrite existing items values with provided
+ */
+Self.prototype.complement = function (graph) {
+  var self = this
+  self.merge(graph, {overwrite: false})
+}
+/**
+ * Merge this with provided graph
+ * overwrite existing values and links weights
  * links are summed
  * @param Graph graph
  * @param Boolean p.overwrite existing items values with provided
  */
 Self.prototype.merge = function (graph, p) {
   var self = this
-  p = p || {}
+  p = p || {overwrite: true}
   var newItems = graph.getItemsMap()
+  var changed = []
 
-  _.each(newItems, function (value, key) {
-    if (self._items[key] && !p.overwrite) return
-    self._items[key] = value
+  _.each(newItems, function (newValue, newKey) {
+    var existingValue = self._items[newKey]
+    var valueExist = existingValue !== undefined
+    if (valueExist && !p.overwrite) return
+    if (valueExist && existingValue !== newValue) changed.push(newKey)
+    self._items[newKey] = newValue
   })
-
-  //_.each(newItems, function (newItem) {
-    //var existLinked = self.getLinked(newItem)
-    //var newLinked = graph.getLinked(newItem)
-    //var addLinked = _.difference(newLinked, existLinked)
-    //if (p.overwrite) self.links[newItem]
-  //})
 
   //walk through all items with links
+  // add only forward link for each item, as graph may not have linked item
+  // or it must have backlink and would be added in this loop in further iterations
   _.each(graph.getLinksMap(), function (newLinks, newItemWithLinksKey) {
     var existLinks = self._links[newItemWithLinksKey]
-    if (!existLinks) return self._links[newItemWithLinksKey] = newLinks
-    _.each(newLinks, function (newLink) {
-      var existLink = _.find(existLinks, function (existingLink) { return existingLink[0] === newLink[0]})
-      if (existLink && !p.overwrite) return
-      if (existLink) existLink[1] = newLink[1]
-      existLinks.push(newLink)
-    })
+    if (!existLinks) {
+      changed.push(newItemWithLinksKey)
+      self._links[newItemWithLinksKey] = newLinks
+      _.each(newLinks, function (newLink) {
+        changed.push(newLink[0])
+      })
+    } else {
+      // update each link individually
+      _.each(newLinks, function (newLink) {
+        var existLink = _.find(existLinks, function (existingLink) { return existingLink[0] === newLink[0]})
+        if (existLink && !p.overwrite) return
+        if (existLink) {
+          // if only weight for existing link is updated
+          if (existLink[1] !== newLink[1]) changed.push(newItemWithLinksKey)
+          existLink[1] = newLink[1]
+        } else {
+          existLinks.push(newLink)
+          changed.push(newItemWithLinksKey)
+        }
+      })
+    }
   })
+  return _.uniq(changed)
 }
 /**
  * DEPRECATED
@@ -150,12 +175,14 @@ Self.prototype.findGroup = function (data) {
 }
 /**
  * Create link between two Items
+ * Item may be absent in graph. This is useful for referencing items in other graphs/providers
  * @param Key Item ID
  * @param Key Item ID
  * @param Number weight for this link to be increased on
  */
-Self.prototype.associate = function (key1, key2, weight) {
+Self.prototype.associate = function (key1, key2, weight, p) {
   var self = this
+  p = p || {}
   if (!self.validateKeys(key1, key2)) return []
      
   var linkedTo1 = self._links[key1]
@@ -169,8 +196,9 @@ Self.prototype.associate = function (key1, key2, weight) {
 
   // check if link exists and increment weight if it does
   linkedTo1.forEach(function (link) {
-    if (link && link[0] === key2){
-      link[1] = (link[1] || 0) + (weight || 1)
+    if (link && link[0] === key2) {
+      if (p.overwrite) link[1] = (weight || 0)
+      else link[1] =  (link[1] || 0) + (weight || 1)
       return skip = true
     }
   })
@@ -276,29 +304,32 @@ Self.prototype.getLinked = function (key) {
  * @param depth
  * @return Graph starting from the item provided
  */
-Self.prototype.getGraph = function (rootKey, depth) {
+Self.prototype.getGraph = function (rootKeys, depth) {
   var self = this
   depth = depth || 0
   var sgItems = {} //sub graph items
   var sgLinks = {}
-  sgItems[rootKey] = self.get(rootKey)
-  sgLinks[rootKey] = self._links[rootKey]
+  rootKeys = _.isArray(rootKeys) ? rootKeys : [rootKeys]
+  _.each(rootKeys, function (rootKey) {
+    sgItems[rootKey] = self.get(rootKey)
 
-  if (depth == 1) {
-    _.each(sgLinks[rootKey], function (link) {
-      sgItems[link[0]] = self.get(link[0])
-    })
-    //add links in between those retrieved
-    _.each(sgItems, function (value, sgItemKey) {
-      if (sgItemKey === rootKey) return // skip
-
-      var allSgItemLinks = self._links[sgItemKey]
-      var filteredSgItemLinks = _.filter(allSgItemLinks, function (link) {
-        return !!sgItems[link[0]]
+    if (depth === 1) {
+      sgLinks[rootKey] = self._links[rootKey]
+      // get values of first-level linked items
+      _.each(sgLinks[rootKey], function (link) {
+        sgItems[link[0]] = self.get(link[0])
       })
-      sgLinks[sgItemKey] = filteredSgItemLinks
+    }
+  })
+
+  //add links in between those retrieved
+  _.each(sgItems, function (value, sgItemKey) {
+    var allSgItemLinks = self._links[sgItemKey]
+    var filteredSgItemLinks = _.filter(allSgItemLinks, function (link) {
+      return _.has(sgItems, link[0])
     })
-  }
+    sgLinks[sgItemKey] = filteredSgItemLinks
+  })
 
   return new Self({items: sgItems, links: sgLinks})
 }
@@ -342,22 +373,17 @@ Self.prototype.findByLinks = function (data) {
  * @param String value should be RegExp, but it cannot be stringified to transfer with JSON
  * @return Graph of Items
  */
-Self.prototype.findGraph = function (lookupValue, p) {
+Self.prototype.find = function (lookupValue, p) {
   var self = this
-
+  var resultKeys = []
   var existing = self.getKey(lookupValue)
-  if (existing) return self.getGraph(existing, 1)
+  if (existing) return existing
    
-  var subGraph = new Self
-  var target = subGraph.set(lookupValue)
   var regExp = new RegExp(lookupValue, p)
   _.each(self._items, function (value, key) {
-    if (value.match(regExp) && value !== lookupValue) {
-      subGraph.set(value, key)
-      subGraph.associate(target, key)
-    }
+    if (value.match(regExp)) resultKeys.push(key)
   })
-  return subGraph
+  return resultKeys
 }
 /**
  * Utilize dijkstra algorythm
@@ -427,12 +453,12 @@ Self.prototype._replaceIds = function (str) {
  */
 Self.prototype.validateKeys = function (key1, key2) {
   var self = this
-  return key1 && key2 && key1 !== key2 && self.get(key1) && self.get(key2)
+  return key1 && key2 && key1 !== key2
 }
 function filterKeys(obj, filter) {
   var filtered = {}
   var keys = []
-  _.each( obj, function (value, key) {
+  _.each(obj, function (value, key) {
     if (filter(value)) {
       filtered[key] = value
     }
