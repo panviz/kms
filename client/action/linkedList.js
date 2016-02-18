@@ -2,14 +2,14 @@ var Action = require('../action')
 var Self = function (p) {
   var self = this
 
-  self.id = 'viewList'
-  self._label = 'View List'
+  self.id = 'showLinkedList'
+  self._label = 'Linked Items List'
 }
 Self.prototype = Object.create(Action.prototype)
 
-Self.prototype.execute = function() {
+Self.prototype.execute = function () {
   var self = this
-  G.listView.toggle()
+  G.linkedList.toggle()
 }
 
 module.exports = Self

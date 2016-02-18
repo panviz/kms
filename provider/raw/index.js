@@ -23,6 +23,7 @@ Self.prototype.read = function (source) {
   return new Promise(function (resolve, reject) {
     var counter = 0
     var files = glob.sync('*', {cwd: source})
+    if (files.length === 0) resolve(new Graph)
     _.each(files, function (key) {
       var path = Path.join(source, key)
       self._getFile(path)

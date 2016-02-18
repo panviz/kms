@@ -2,14 +2,14 @@
  * Client application is runned in browser
  */
 var Provider = require('../provider/api.client/index')
-, GraphView = require('./view/graph/index')
-, ListView = require('./view/list/index')
 , Search = require('./ui/search/search')
+, GraphView = require('./view/graph/graph')
+, ListView = require('./view/list/list')
+, Editor = require('./view/editor/editor')
 , ActionsPanel = require('./ui/actions-panel/panel')
 , Selection = require('./behavior/selection')
-, Itemman = require('./itemman')
 , Actionman = require('./actionman')
-, Utils = require('../core/util')
+, Util = require('../core/util')
 
 var Self = function (p) {
   var self = this
@@ -22,7 +22,7 @@ var Self = function (p) {
     visibleItem: {value: 'visibleItem'},
     searchItem: {},
   }
-  self.elements = Utils.findElements('body', self.selectors)
+  self.elements = Util.findElements('body', self.selectors)
   self.selection = new Selection
   // IDs array of visible items
   self.visibleItems = new Selection
@@ -41,6 +41,11 @@ var Self = function (p) {
   var listViewSet = {
     container: self.elements.container,
     selection: self.selection,
+    hidden: true,
+  }
+  var editorSet = {
+    container: self.elements.container,
+    hidden: true,
   }
 
   self.selection.on('add', self._onSelect.bind(self))
@@ -51,37 +56,60 @@ var Self = function (p) {
     actions: self.actionman.getAll(),
   })
 
-  self.listView = new ListView(listViewSet)
   self.graphView = new GraphView(graphViewSet)
+  self.linkedList = new ListView(listViewSet)
+  self.editor = new Editor(editorSet)
+  self.graphView.on('item-dblclick', self.showChildren.bind(self))
 
   self.provider.request('set', self.serviceItem.visibleItem.value)
     .then(function (key) {
       self.serviceItem.visibleItem.key = key
       self.provider.request('getGraph', self.serviceItem.visibleItem.key, 1)
         .then(function (graph) {
+          self._filter(graph)
           var keys = graph.getItemKeys()
-          keys = self._filter(keys)
           self.visibleItems.add(keys)
-          self._renderViews(graph)
+          self._updateGraphView(graph)
         })
     })
   self.visibleItems.on('change', self._onVisibleItemsChange.bind(self))
   self.visibleItems.on('add', self._onVisibleItemsAdd.bind(self))
+  self.visibleItems.on('remove', self._onVisibleItemsRemove.bind(self))
+}
+
+Self.prototype.showChildren = function (keys) {
+  var self = this
+  keys = Util.pluralize(keys)
+  //TODO multiple
+  var rootKey = keys[0]
+  self.provider.request('getGraph', rootKey, 1)
+    .then(function (graph) {
+      graph.remove(rootKey)
+      self._filter(graph)
+      var linkedKeys = graph.getItemKeys()
+      self.visibleItems.add(linkedKeys)
+
+      var vGraph = self._convert(graph)
+      G.linkedList.show()
+      // TODO when one view on common container is changed fire event and resize others
+      G.graphView.resize()
+      G.linkedList.render(vGraph)
+    })
+}
+
+Self.prototype.editItem = function (key) {
+  var self = this
+  self.provider.request('get', key)
+    .then(function (value) {
+      self.editor.set(value)
+      self.editor.show()
+      self.graphView.resize()
+    })
 }
 
 Self.prototype._onSelect = function (keys) {
   var self = this
   if (keys.length !== 1) return
-  self.provider.request('getLinked', keys[0])
-    .then(function (keys) {
-      keys = self._filter(keys)
-      self.visibleItems.add(keys)
-    })
-}
-
-Self.prototype._onVisibleItemsAdd = function (keys) {
-  var self = this
-  self.provider.request('associateGroup', self.serviceItem.visibleItem.key, keys)
 }
 
 Self.prototype._onSearch = function (data) {
@@ -92,23 +120,40 @@ Self.prototype._onSearch = function (data) {
     })
 }
 
+Self.prototype._onVisibleItemsRemove = function (keys) {
+  var self = this
+  self.provider.request('setDisassociate', self.serviceItem.visibleItem.key, keys)
+}
+
+Self.prototype._onVisibleItemsAdd = function (keys) {
+  var self = this
+  self.provider.request('associate', self.serviceItem.visibleItem.key, keys)
+}
+
 Self.prototype._onVisibleItemsChange = function () {
   var self = this
   var keys = self.visibleItems.getAll()
   self.provider.request('getGraph', keys)
     .then(function (graph) {
-      self._renderViews(graph)
+      self._updateGraphView(graph)
     })
 }
-Self.prototype._renderViews = function (graph) {
+Self.prototype._updateGraphView = function (graph) {
   var self = this
   var vGraph = self._convert(graph)
   self.graphView.render(vGraph)
-  self.listView.render(vGraph)
 }
-Self.prototype._filter = function (keys) {
+
+Self.prototype._filter = function (data) {
   var self = this
-  return _.without(keys, self.serviceItem.visibleItem.key) 
+  var graph, keys
+  if (data.providerID) graph = data
+  if (_.isArray(data)) keys = data
+  if (graph) {
+    graph.remove(self.serviceItem.visibleItem.key)
+  } else {
+    return _.without(keys, self.serviceItem.visibleItem.key) 
+  }
 }
 /**
  * Prepare suitable for Views json

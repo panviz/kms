@@ -34,14 +34,14 @@ Self.prototype.read = function (str) {
     if (!_.isArray(datum2)) {
       key2 = graph.set(datum2)
       groupK = graph.set()
-      graph.associateGroup(groupK, [key1, key2])
+      graph.associate(groupK, [key1, key2])
       graph.associate(item, groupK)
     } else {
       key1 = graph.set(inflection.singularize(datum1))
       datum2.forEach(function (arrayDatum) {
         key2 = graph.set(arrayDatum)
         groupK = graph.set()
-        graph.associateGroup(groupK, [key1, key2])
+        graph.associate(groupK, [key1, key2])
         graph.associate(item, groupK)
       })
     }

@@ -55,10 +55,12 @@ describe('Graph', function() {
       items: {
         i1: 1,
         i2: 2,
+        i3: 3,
       },
       links: {
-        i1: [['i2', 0]],
+        i1: [['i2', 0], ['i3', 0]],
         i2: [['i1', 0]],
+        i3: [['i1', 0]],
       }
     }
     beforeEach(function () {
@@ -72,6 +74,13 @@ describe('Graph', function() {
     it('should return changed items', function () {
       var result = graph.setDisassociate('i1', 'i2')
       assert.deepEqual(result, ['i1', 'i2'])
+    })
+    it('should unlink from multiple', function () {
+      var result = graph.setDisassociate('i1', ['i2', 'i3'])
+      assert.equal(graph.getLink('i1', 'i2'), undefined)
+      assert.equal(graph.getLink('i2', 'i1'), undefined)
+      assert.equal(graph.getLink('i1', 'i3'), undefined)
+      assert.equal(graph.getLink('i3', 'i1'), undefined)
     })
   })
   describe('associate group', function () {
@@ -87,18 +96,18 @@ describe('Graph', function() {
       graph = new Graph(obj)
     })
     it('should associate first argument item with each one in second argument array', function () {
-      graph.associateGroup('i1', ['i2', 'i3'])
+      graph.associate('i1', ['i2', 'i3'])
       assert.equal(graph.getLink('i1', 'i2'), 0)
       assert.equal(graph.getLink('i1', 'i3'), 0)
       assert.equal(graph.getLink('i2', 'i1'), 0)
       assert.equal(graph.getLink('i3', 'i1'), 0)
     })
     it('should not associate items in array between each other', function () {
-      graph.associateGroup('i1', ['i2', 'i3'])
+      graph.associate('i1', ['i2', 'i3'])
       assert.equal(graph.getLink('i2', 'i3'), undefined)
     })
     it('should return changed items', function () {
-      var result = graph.associateGroup('i1', ['i2', 'i3'])
+      var result = graph.associate('i1', ['i2', 'i3'])
       assert.deepEqual(result, ['i1', 'i2', 'i3'])
     })
   })

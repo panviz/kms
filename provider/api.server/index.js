@@ -24,13 +24,14 @@ Self.prototype.request = function (params) {
 
   return new Promise(function (resolve, reject) {
     if (params.method === 'get') {
+      args.push(self.p)
       // TODO handle items (binary) not in the graph
-      self.provider.get.apply(provider, args)
+      self.provider.get.apply(self.provider, args)
         .then(function (data) { resolve(data)})
     } else if (params.method === 'set') {
       self.provider.set(result, self.graph.get(result), self.graph.getLinks(result), self.p)
       resolve(result)
-    } else if (_.includes(['associate', 'associateGroup', 'remove', 'setDisassociate'], params.method)) {
+    } else if (_.includes(['associate', 'remove', 'setDisassociate'], params.method)) {
       // TODO _.includes(params.method, 'set')
       _.each(result, function (key) {
         // TODO do not overwrite items not in the graph

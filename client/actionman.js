@@ -2,7 +2,12 @@
  * Actions Manager
  */
 var actions = {
-  autoLayout: require('./action/autoLayout'),
+  graphAutoLayout: require('./view/graph/action/autoLayout'),
+  itemCreate: require('./action/item/create'),
+  itemEdit: require('./action/item/edit'),
+  itemShowChildren: require('./action/item/showChildren'),
+  itemHide: require('./action/item/hide'),
+
 }
 var Self = function (p) {
   var self = this;

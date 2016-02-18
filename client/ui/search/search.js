@@ -1,7 +1,7 @@
 /**
  * Search widget with autocomplete
  */
-var Utils = require('../../../core/util')
+var Util = require('../../../core/util')
 
 var Self = function (p) {
   var self = this
@@ -13,7 +13,7 @@ var Self = function (p) {
   }
   var $html = $(G.Templates['ui/search/search']())
   self.p.container.append($html)
-  self.elements = Utils.findElements($html, self.selectors)
+  self.elements = Util.findElements($html, self.selectors)
 
   self.elements.input.on('keyup', self._onChange.bind(self))
   self.elements.ignoreCase.on('click', self._onChange.bind(self))

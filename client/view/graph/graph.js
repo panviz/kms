@@ -5,7 +5,7 @@
  */
 var View = require('../view')
 , ForceLayout = require('../../layout/force/force')
-, Utils = require('../../../core/util')
+, Util = require('../../../core/util')
 
 var Self = function (p) {
   var self = this
@@ -13,20 +13,23 @@ var Self = function (p) {
   self.autoLayout = false
 
   self.selectors = {
+    viewContainer: '.view.graph',
     body: '.view.graph svg',
     link: '.link',
-    node: '.node'
+    node: '.node',
   }
   var $html = $(G.Templates['view/graph/graph']())
   self.p.container.append($html)
-  self.elements = Utils.findElements(self.p.container, self.selectors)
+  self.elements = Util.findElements(self.p.container, self.selectors)
 
   self._edges = []
   self._nodes = []
 
   self.body = d3.select(self.selectors.body)
   self.resize()
-
+  setTimeout(function () {
+    self.resize()
+  }, 100)
   self.layout = new ForceLayout({
     width: self.p.width,
     height: self.p.height,
@@ -75,11 +78,11 @@ Self.prototype.render = function (vGraph) {
     .attr('r', 32)
 
   enterNodes.append('text')
-    .text(function (d) { return d.value })
+    .text(self._getLabel)
 
   updateNodes
     .select('text')
-    .text(function (d) { return d.value })
+    .text(self._getLabel)
 
   updateNodes.attr('transform', function (d) {
     return 'translate(' + d.x + ',' + d.y + ')'
@@ -97,12 +100,15 @@ Self.prototype.render = function (vGraph) {
  */
 Self.prototype.resize = function () {
   var self = this
-  self.p.height = self.elements.root.height()
-  self.p.width = self.elements.root.width()
+  self.elements.body.detach()
+  self.p.height = self.elements.viewContainer.height()
+  self.p.width = self.elements.viewContainer.width()
+  self.elements.viewContainer.append(self.elements.body)
   self.body
     .attr('width', self.p.width)
     .attr('height', self.p.height)
 }
+
 Self.prototype.toggleAutoLayout = function () {
   var self = this
   self.autoLayout = !self.autoLayout
@@ -115,6 +121,9 @@ Self.prototype.toggleAutoLayout = function () {
   }
 }
 
+Self.prototype._getLabel = function (d) {
+  return d.value.slice(0, 15)
+}
 Self.prototype._onSelect = function (keys) {
   var self = this
   var node = _.find(self._nodes[0], function (node) {return node.__data__.key === keys[0]})
@@ -124,13 +133,13 @@ Self.prototype._onSelect = function (keys) {
 
 Self.prototype._onClick = function (node) {
   var self = this
+  self.p.selection.clear()
+  self.p.selection.add(node.key)
   self.trigger('item-click', node.key)
 }
 
 Self.prototype._onDblClick = function (node) {
   var self = this
-  self.p.selection.clear()
-  self.p.selection.add(node.key)
   self.trigger('item-dblclick', node.key)
 }
 

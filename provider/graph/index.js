@@ -8,9 +8,11 @@
  */
 var _ = require('lodash')
 , dijkstra = require('../../core/dijkstra')
+, Util = require('../../core/util')
 
 var Self = function (obj) {
   var self = this
+  self.providerID = 'graph'
   obj = obj || {}
   self._items = _.cloneDeep(obj.items) || {}
   self._links = _.cloneDeep(obj.links) || {}
@@ -123,7 +125,7 @@ Self.prototype.setGroup = function (groupValue, data) {
 
   var key = self.set(groupValue)
   var groupKeys = _.map(data, function (datum) { return self.set(datum) })
-  self.associateGroup(key, groupKeys)
+  self.associate(key, groupKeys)
   
   return key
 }
@@ -180,7 +182,7 @@ Self.prototype.findGroup = function (data) {
  * @param Key Item ID
  * @param Number weight for this link to be increased on
  */
-Self.prototype.associate = function (key1, key2, weight, p) {
+Self.prototype._associate = function (key1, key2, weight, p) {
   var self = this
   p = p || {}
   if (!self.validateKeys(key1, key2)) return []
@@ -214,20 +216,30 @@ Self.prototype.associate = function (key1, key2, weight, p) {
 /**
  * unlink items
  */
-Self.prototype.setDisassociate = function (key1, key2) {
+Self.prototype._disassociate = function (key1, key2) {
   var self = this
   if (!self.validateKeys(key1, key2)) return []
   self._links[key1] = _.filter(self._links[key1], function (link) { return link[0] !== key2 })
   self._links[key2] = _.filter(self._links[key2], function (link) { return link[0] !== key1 })
   return [key1, key2]
 }
+
+Self.prototype.setDisassociate = function (key1, keys) {
+  var self = this
+  keys = Util.pluralize(keys)
+  var changed = _.map(keys, function (key2) {
+    return self._disassociate(key1, key2)
+  })
+  return _.uniq(_.flatten(changed))
+}
 /**
  * Associate one item to array of items
  */
-Self.prototype.associateGroup = function (key1, keys) {
+Self.prototype.associate = function (key1, keys, weight, p) {
   var self = this
-  var changed = _.map(keys, function (key) {
-    return self.associate(key1, key)
+  keys = Util.pluralize(keys)
+  var changed = _.map(keys, function (key2) {
+    return self._associate(key1, key2, weight, p)
   })
   return _.uniq(_.flatten(changed))
 }
@@ -309,7 +321,7 @@ Self.prototype.getGraph = function (rootKeys, depth) {
   depth = depth || 0
   var sgItems = {} //sub graph items
   var sgLinks = {}
-  rootKeys = _.isArray(rootKeys) ? rootKeys : [rootKeys]
+  rootKeys = Util.pluralize(rootKeys)
   _.each(rootKeys, function (rootKey) {
     sgItems[rootKey] = self.get(rootKey)
 
@@ -339,7 +351,7 @@ Self.prototype.getGraph = function (rootKeys, depth) {
  */
 Self.prototype.findByKeys = function (keys) {
   var self = this
-  if (!_.isArray(keys)) keys = [keys]
+  keys = Util.pluralize(keys)
 
   var arrLinkedKeys = _.map(keys, function (key) {
     return self.getLinked(key)
@@ -351,7 +363,7 @@ Self.prototype.findByKeys = function (keys) {
  */
 Self.prototype.findByValues = function (values) {
   var self = this
-  if (!_.isArray(values)) values = [values]
+  values = Util.pluralize(values)
 
   var keys = _.map(values, function (value) {
     return self.getKey(value)
@@ -361,7 +373,7 @@ Self.prototype.findByValues = function (values) {
 //find by values or keys
 Self.prototype.findByLinks = function (data) {
   var self = this
-  if (!_.isArray(data)) data = [data]
+  data = Util.pluralize(data)
 
   var keys = _.map(data, function (datum) {
     return datum.match(idPattern) ? datum : self.getKey(datum)

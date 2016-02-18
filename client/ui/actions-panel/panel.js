@@ -1,4 +1,7 @@
-Utils = require('../../../core/util')
+/**
+ * Actions panel control
+ */
+var Util = require('../../../core/util')
 
 var Self = function (p) {
   var self = this
@@ -12,7 +15,7 @@ var Self = function (p) {
 
   var $html = $(G.Templates['ui/actions-panel/panel']())
   self.p.container.append($html)
-  self.elements = Utils.findElements($html, self.selectors)
+  self.elements = Util.findElements($html, self.selectors)
 
   var actionTemplate = G.Templates['ui/actions-panel/action']
 
@@ -28,7 +31,7 @@ var Self = function (p) {
     action.on('enable', self.enableMenuItem.bind(self, action))
     action.on('disable', self.disableMenuItem.bind(self, action))
   })
-  self.elements = Utils.findElements(self.p.container, self.selectors)
+  self.elements = Util.findElements(self.p.container, self.selectors)
   self.elements.action.on('click', self._onActionClick.bind(self))
 }
 BackboneEvents.mixin(Self.prototype)

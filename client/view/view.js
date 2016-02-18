@@ -1,3 +1,7 @@
+/**
+ * Base object for views
+ * @event focus fires on view gain focus
+ */
 var Self = function (p) {
   var self = this
   self.p = p || {}

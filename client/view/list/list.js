@@ -3,7 +3,7 @@
  * Items are represented with rows
  */
 var View = require('../view')
-, Utils = require('../../../core/util')
+, Util = require('../../../core/util')
 
 var Self = function (p) {
   var self = this
@@ -12,8 +12,9 @@ var Self = function (p) {
     list: '.items-list',
   }
   var $html = $(G.Templates['view/list/list']())
+  if (self.p.hidden) $html.css("display", "none")
   self.p.container.append($html)
-  self.elements = Utils.findElements($html, self.selectors)
+  self.elements = Util.findElements($html, self.selectors)
 
   self.elements.list.on('click', self._onRowClick.bind(self))
   self.p.selection.on('change', self._onSelectionChange.bind(self))
