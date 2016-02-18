@@ -1,10 +1,13 @@
 body {
+  font-family: Verdana, Geneva, sans-serif;
   margin: 0;
 
-  .header-panel {
-    padding-left: 120px;
-  }
   .container {
     display: flex;
+  }
+  .sidebar {
+    flex: 0 0 160px;
+    height: 100%;
+    background-color: rgb(50,50,50);
   }
 }

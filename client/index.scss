@@ -1,6 +1,14 @@
 @import 'style/style';
+@import 'style/header';
+
+@import 'ui/actions-panel/panel';
+@import 'ui/search/search';
+@import 'ui/linkedList/linkedList';
+
 @import 'view/graph/graph';
 @import 'view/list/list';
 @import 'view/editor/editor';
-@import 'ui/actions-panel/panel';
-@import 'ui/linkedList/linkedList';
+
+$fa-font-path: "/node_modules/font-awesome/fonts/";
+@import '../node_modules/font-awesome/scss/font-awesome';
+@import './style/material';

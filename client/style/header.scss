@@ -1,0 +1,19 @@
+.header {
+  display: flex;
+  width: 100%;
+
+  .brand {
+    height: 80px;
+    width: 160px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: none repeat scroll 0 0 #1FB5AD;
+
+    a.logo {
+      color: #FFFFFF;
+      font-size: 28px;
+      text-decoration: none;
+    }
+  }
+}

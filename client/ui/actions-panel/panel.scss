@@ -1,18 +1,23 @@
 .actions-panel {
-  flex: 0 0 120px;
+  position: relative;
 
   ul {
-    color: rgb(118,118,118);
-    background-color: rgb(50,50,50);
     padding: 0;
     margin: 0;
 
     li {
-      list-style-type: none;
       padding: 8px;
+      list-style-type: none;
+      color: rgb(118,118,118);
+      text-transform: none;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      transition: ease all 1s;
 
       &.enabled {
         color: rgb(255,255,255);
+      }
+      i {
+        padding: 0 8px;
       }
     }
   }

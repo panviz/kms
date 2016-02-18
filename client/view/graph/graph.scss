@@ -1,10 +1,12 @@
 .view.graph {
-  flex: 3 1 300px;
+  flex: 3 1 320px;
   height: 100%;
 
   .node {
-    stroke: #fff;
-    stroke-width: 1.5px;
+    font-size: 12px;
+    &:hover {
+      text-decoration: underline;
+    }
     
     circle {
       fill: rgba(188, 228, 255, 0.5);
@@ -19,6 +21,5 @@
     stroke-opacity: .6;
   }
   text {
-    stroke: black;
   }
 }

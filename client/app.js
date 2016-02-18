@@ -14,20 +14,34 @@ var Provider = require('../provider/api.client/index')
 var Self = function (p) {
   var self = this
   self.p = p || {}
-  self.selectors = {
-    container: '.container',
-    headerPanel: '.header-panel',
-  }
   self.serviceItem = {
     visibleItem: {value: 'visibleItem'},
     searchItem: {},
   }
-  self.elements = Util.findElements('body', self.selectors)
+
+  self.actionman = new Actionman({selection: self.selection})
+  self.actions = [
+    require('./action/item/create'),
+    require('./action/item/edit'),
+    require('./action/item/showChildren'),
+    require('./action/item/hide'),
+  ]
+  _.each(self.actions, function (action) {
+    action.app = self
+    self.actionman.set(action)
+  })
+
   self.selection = new Selection
+  self.selection.on('change', self.actionman.update.bind(self.actionman, self.selection))
+
+  self.selectors = {
+    header: '.header',
+    container: '.container',
+    sidebar: '.sidebar',
+  }
+  self.elements = Util.findElements('body', self.selectors)
   // IDs array of visible items
   self.visibleItems = new Selection
-  self.actionman = new Actionman({selection: self.selection})
-  $act = self.actionman
   //self.tabs = new Tabs
 
   var providerSet = {
@@ -35,26 +49,30 @@ var Self = function (p) {
   }
   self.provider = new Provider(providerSet)
   var graphViewSet = {
+    actionman: self.actionman,
     container: self.elements.container,
     selection: self.selection,
   }
   var listViewSet = {
+    actionman: self.actionman,
     container: self.elements.container,
     selection: self.selection,
     hidden: true,
   }
   var editorSet = {
+    actionman: self.actionman,
     container: self.elements.container,
     hidden: true,
   }
 
   self.selection.on('add', self._onSelect.bind(self))
-  self.search = new Search({container: self.elements.headerPanel})
+  self.search = new Search({container: self.elements.header})
   self.search.on('update', self._onSearch.bind(self))
   self.actionsPanel = new ActionsPanel({
-    container: self.elements.container,
+    container: self.elements.sidebar,
     actions: self.actionman.getAll(),
   })
+  self.actionman.on('add', self.actionsPanel.addMenuItem.bind(self.actionsPanel))
 
   self.graphView = new GraphView(graphViewSet)
   self.linkedList = new ListView(listViewSet)

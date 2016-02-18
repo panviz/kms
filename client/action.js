@@ -1,7 +1,5 @@
 /** 
  * A "Command" object
- * @event show
- * @event hide
  * @event enable
  * @event disable
  */
@@ -11,7 +9,8 @@ var Self = function (p) {
   p = p || {}
   self.id = p.id
   self._label = p.label
-  self._icon = p.icon || '/res/image/icon/Action.png'
+  self._icon = p.icon || 'fa fa-check-square-o'
+  self._deny = true
 }
 BackboneEvents.mixin(Self.prototype)
 /**
@@ -33,7 +32,7 @@ Self.prototype.execute = function () {
  * Evaluate enabled state on selection change
  * @param selection Array
  */
-Self.prototype.evaluate = function(selection) {
+Self.prototype.evaluate = function (selection) {
 }
 /**
  * @returns Boolean whether Action has undo method
@@ -48,11 +47,16 @@ Self.prototype.isEnabled = function () {
   return !self._deny
 }
 /**
- * Refresh icon image source
- * @param newSrc String The image source
+ * Change icon
+ * @param String cssClass
  */
-Self.prototype.setIcon = function (newSrc) {
+Self.prototype.setIcon = function (cssClass) {
   var self = this
+  self._icon = cssClass
+}
+Self.prototype.getIcon = function () {
+  var self = this
+  return self._icon
 }
 /**
  * Refresh the action label
@@ -67,24 +71,6 @@ Self.prototype.setLabel = function (newLabel, newTitle) {
 Self.prototype.getLabel = function () {
   var self = this
   return self._label
-}
-/**
- * Changes show/hide state
- * Notifies "hide" Event
- */
-Self.prototype.hide = function () {
-  var self = this
-  self._deny = true
-  self.trigger('hide')
-}
-/**
- * Changes show/hide state
- * Notifies "show" Event 
- */
-Self.prototype.show = function () {
-  var self = this
-  self._deny = false
-  self.trigger('show')
 }
 /**
  * Changes enable/disable state

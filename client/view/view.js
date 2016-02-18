@@ -23,4 +23,7 @@ Self.prototype.toggle = function (vGraph) {
   self.elements.root.toggle()
 }
 
+Self.prototype.isFocused = function () {
+}
+
 module.exports = Self

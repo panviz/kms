@@ -1,5 +1,6 @@
 var Action = require('../../action')
 var Self = function (p) {
+  Action.call(this, p)
   var self = this
 
   self.id = 'itemHide'
@@ -9,8 +10,14 @@ Self.prototype = Object.create(Action.prototype)
 
 Self.prototype.execute = function () {
   var self = this
-  var keys = G.selection.getAll()
-  G.visibleItems.remove(keys)
+  var keys = self.app.selection.getAll()
+  self.app.visibleItems.remove(keys)
 }
 
-module.exports = Self
+Self.prototype.evaluate = function (selection) {
+  var self = this
+  if (_.isEmpty(selection.getAll())) self.disable()
+  else self.enable()
+}
+
+module.exports = new Self

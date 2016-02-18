@@ -11,6 +11,8 @@ var Self = function (p) {
   var self = this
   self.p = p || {}
   self.autoLayout = false
+  self.actionman = p.actionman
+  self.selection = p.selection
 
   self.selectors = {
     viewContainer: '.view.graph',
@@ -18,6 +20,11 @@ var Self = function (p) {
     link: '.link',
     node: '.node',
   }
+  self.actions = [require('./action/layoutItems')]
+  _.each(self.actions, function (action) {
+    action.view = self
+    self.actionman.set(action)
+  })
   var $html = $(G.Templates['view/graph/graph']())
   self.p.container.append($html)
   self.elements = Util.findElements(self.p.container, self.selectors)
@@ -35,7 +42,9 @@ var Self = function (p) {
     height: self.p.height,
   })
 
-  self.p.selection.on('add', self._onSelect.bind(self))
+  self.selection.on('add', self._onSelect.bind(self))
+  self.selection.on('remove', self._onDeselect.bind(self))
+  self.elements.body.on('click', self._onBgClick.bind(self))
   $(window).on('resize', self.resize.bind(self))
 }
 Self.prototype = Object.create(View.prototype)
@@ -116,34 +125,12 @@ Self.prototype.toggleAutoLayout = function () {
     self.layout.animation.stop()
     self.layout.setAnimationHandler()
   } else {
-    self.layout.setAnimationHandler(self._onAnimation.bind(self))
+    self.layout.setAnimationHandler(self.update.bind(self))
     self.layout.animation.start()
   }
 }
 
-Self.prototype._getLabel = function (d) {
-  return d.value.slice(0, 15)
-}
-Self.prototype._onSelect = function (keys) {
-  var self = this
-  var node = _.find(self._nodes[0], function (node) {return node.__data__.key === keys[0]})
-  self._nodes.classed('selected', false)
-  $(node).toggleClass('selected')
-}
-
-Self.prototype._onClick = function (node) {
-  var self = this
-  self.p.selection.clear()
-  self.p.selection.add(node.key)
-  self.trigger('item-click', node.key)
-}
-
-Self.prototype._onDblClick = function (node) {
-  var self = this
-  self.trigger('item-dblclick', node.key)
-}
-
-Self.prototype._onAnimation = function (node) {
+Self.prototype.update = function () {
   var self = this
   self._edges.attr('x1', function (d) { return d.source.x })
     .attr('y1', function (d) { return d.source.y })
@@ -151,10 +138,52 @@ Self.prototype._onAnimation = function (node) {
     .attr('y2', function (d) { return d.target.y })
 
   self._nodes.attr('transform', function (d) {
-    d.x = Math.max(15, Math.min(self.p.width - 15, d.x))
-    d.y = Math.max(15, Math.min(self.p.height - 15, d.y))
     return 'translate(' + d.x + ',' + d.y + ')'
   })
+}
+
+Self.prototype.isFocused = function () {
+  return true
+}
+
+Self.prototype._getLabel = function (d) {
+  return d.value.slice(0, 15)
+}
+
+Self.prototype._onSelect = function (keys) {
+  var self = this
+  _.each(keys, function (key) {
+    var node = _.find(self._nodes[0], function (node) {return node.__data__.key === key})
+    $(node).addClass('selected')
+  })
+}
+
+Self.prototype._onDeselect = function (keys) {
+  var self = this
+  _.each(keys, function (key) {
+    var node = _.find(self._nodes[0], function (node) {return node.__data__.key === key})
+    $(node).removeClass('selected')
+  })
+}
+
+Self.prototype._onClick = function (node) {
+  var self = this
+  d3.event.stopPropagation()
+  self.selection.clear()
+  self.selection.add(node.key)
+  self.trigger('item-click', node.key)
+}
+
+Self.prototype._onDblClick = function (node) {
+  var self = this
+  d3.event.stopPropagation()
+  self.trigger('item-dblclick', node.key)
+}
+
+Self.prototype._onBgClick = function (node) {
+  var self = this
+  self.selection.clear()
+  self._nodes.classed('selected', false)
 }
 
 module.exports = Self

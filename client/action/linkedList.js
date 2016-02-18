@@ -1,5 +1,6 @@
 var Action = require('../action')
 var Self = function (p) {
+  Action.call(this, p)
   var self = this
 
   self.id = 'showLinkedList'
@@ -9,7 +10,7 @@ Self.prototype = Object.create(Action.prototype)
 
 Self.prototype.execute = function () {
   var self = this
-  G.linkedList.toggle()
+  self.app.linkedList.toggle()
 }
 
-module.exports = Self
+module.exports = new Self
