@@ -49,7 +49,7 @@ var Self = function (p) {
 
   self.selection.on('add', self._onSelect.bind(self))
   self.selection.on('remove', self._onDeselect.bind(self))
-  self.elements.canvas.on('click', self._onBgClick.bind(self))
+  self.elements.svg.on('click', self._onBgClick.bind(self))
   $(window).on('resize', self.resize.bind(self))
 }
 Self.prototype = Object.create(View.prototype)
@@ -189,10 +189,11 @@ Self.prototype._onDblClick = function (node) {
   self.trigger('item-dblclick', node.key)
 }
 
-Self.prototype._onBgClick = function (node) {
+Self.prototype._onBgClick = function () {
   var self = this
   self.selection.clear()
   self._nodes.classed('selected', false)
+  self.trigger('background-click')
 }
 
 module.exports = Self

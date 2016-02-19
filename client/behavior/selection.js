@@ -28,6 +28,7 @@ Self.prototype.add = function (items) {
 
   self.trigger('add', items)
   self.trigger('change', items)
+  return items
 }
 
 Self.prototype.get = function (id) {
@@ -54,6 +55,7 @@ Self.prototype.remove = function (items) {
 
   self.trigger('remove', items)
   self.trigger('change', items)
+  return items
 }
 
 Self.prototype.clear = function () {
@@ -65,6 +67,7 @@ Self.prototype.clear = function () {
 
   self.trigger('remove', deselected)
   self.trigger('change', deselected)
+  return deselected
 }
 
 module.exports = Self

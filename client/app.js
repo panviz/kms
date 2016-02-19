@@ -66,7 +66,7 @@ var Self = function (p) {
     hidden: true,
   }
 
-  self.selection.on('add', self._onSelect.bind(self))
+  self.selection.on('change', self._onSelect.bind(self))
   self.search = new Search({container: self.elements.header})
   self.search.on('update', self._onSearch.bind(self))
   self.actionsPanel = new ActionsPanel({
@@ -79,6 +79,7 @@ var Self = function (p) {
   self.linkedList = new ListView(listViewSet)
   self.editor = new Editor(editorSet)
   self.graphView.on('item-dblclick', self.showChildren.bind(self))
+  self.graphView.on('background-click', self._hideSecondaryViews.bind(self))
 
   self.provider.request('set', self.serviceItem.visibleItem.value)
     .then(function (key) {
@@ -109,10 +110,10 @@ Self.prototype.showChildren = function (keys) {
       self.visibleItems.add(linkedKeys)
 
       var vGraph = self._convert(graph)
-      G.linkedList.show()
+      self.linkedList.show()
       // TODO when one view on common container is changed fire event and resize others
-      G.graphView.resize()
-      G.linkedList.render(vGraph)
+      self.graphView.resize()
+      self.linkedList.render(vGraph)
     })
 }
 
@@ -126,9 +127,27 @@ Self.prototype.editItem = function (key) {
     })
 }
 
-Self.prototype._onSelect = function (keys) {
+Self.prototype._onSelect = function () {
   var self = this
-  if (keys.length !== 1) return
+  var keys = self.selection.getAll()
+  if (keys.length === 1) {
+    if (!self.editor.isVisible()) return
+    self.provider.request('get', keys[0])
+      .then(function (value) {
+        self.editor.set(value)
+      })
+  } else {
+  }
+}
+/**
+ * 1) hide editor on graphView fire bgClick
+ * 2) do not hide on multiple selection but just on empty
+ */
+Self.prototype._hideSecondaryViews = function () {
+  var self = this
+  self.editor.hide()
+  self.linkedList.hide()
+  self.graphView.resize()
 }
 
 Self.prototype._onSearch = function (data) {

@@ -19,4 +19,9 @@ Self.prototype.set = function (value) {
   self.elements.text.val(value)
 }
 
+Self.prototype.isFocused = function (value) {
+  var self = this
+  self.elements.text.is(':focus')
+}
+
 module.exports = Self

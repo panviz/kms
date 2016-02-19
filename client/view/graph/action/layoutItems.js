@@ -5,6 +5,7 @@ var Self = function (p) {
   self._deny = false
   self.id = 'graphLayoutItems'
   self._label = 'Layout Items'
+  self._icon = 'fa fa-share-alt'
 }
 Self.prototype = Object.create(Action.prototype)
 
