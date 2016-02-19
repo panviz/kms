@@ -35,7 +35,7 @@ var Self = function (p) {
   self.selection.on('change', self.actionman.update.bind(self.actionman, self.selection))
 
   self.selectors = {
-    header: '.header',
+    header: 'header',
     container: '.container',
     sidebar: '.sidebar',
   }
