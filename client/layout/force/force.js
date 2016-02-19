@@ -35,7 +35,7 @@ Self.prototype.setup = function (items, links) {
 Self.prototype.position = function () {
   var self = this
   self.force.start()
-  for (var i = 1000; i > 0; --i) self.force.tick()
+  for (var i = 100000; i > 0; --i) self.force.tick()
   self.force.stop()
 }
 

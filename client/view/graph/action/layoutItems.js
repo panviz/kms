@@ -12,7 +12,7 @@ Self.prototype.execute = function () {
   var self = this
   if (!self.view) return
   self.view.layout.position()
-  self.view.update()
+  self.view.updatePosition()
 }
 
 Self.prototype.evaluate = function () {

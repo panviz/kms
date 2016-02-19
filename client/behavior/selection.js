@@ -60,6 +60,7 @@ Self.prototype.clear = function () {
   var deselected = self._items
   self._items = []
 
+  self.trigger('remove', deselected)
   self.trigger('change', deselected)
 }
 

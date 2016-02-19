@@ -10,7 +10,7 @@ var View = require('../view')
 var Self = function (p) {
   var self = this
   self.p = p || {}
-  self.autoLayout = false
+  self.autoLayout = true
   self.actionman = p.actionman
   self.selection = p.selection
 
@@ -56,22 +56,21 @@ Self.prototype.render = function (vGraph) {
    
   self._edges = self.body.selectAll(self.selectors.link)
     .data(links)
-
-  var updateEdges = self._edges
-  var edgesEnter = self._edges.enter().append('line')
-  var exitEdges = self._edges.exit()
-
-  edgesEnter
-    .attr('class', self.selectors.link.slice(1))
-    .style('stroke-width', function(d) { return Math.sqrt(d.value) })
-
-  exitEdges.remove()
-
   self._nodes = self.body.selectAll(self.selectors.node)
     .data(items, function (d) { return d.key })
 
   self.layout.setup(items, links)
   if (self.autoLayout) self.layout.position()
+
+  var updateEdges = self._edges
+  var enterEdges = self._edges.enter().append('line')
+  var exitEdges = self._edges.exit()
+
+  enterEdges
+    .attr('class', self.selectors.link.slice(1))
+    .style('stroke-width', function(d) { return Math.sqrt(d.value) })
+
+  exitEdges.remove()
 
   var enterNodes = self._nodes.enter().append('g')
   var updateNodes = self._nodes
@@ -82,6 +81,14 @@ Self.prototype.render = function (vGraph) {
     .call(self.layout.force.drag)
     .on('click', self._onClick.bind(self))
     .on('dblclick', self._onDblClick.bind(self))
+    .attr('transform', function (d) {
+      return 'translate(' + d.x + ',' + d.y + ')'
+    })
+  enterEdges
+    .attr('x1', function (d) { return d.source.x })
+    .attr('y1', function (d) { return d.source.y })
+    .attr('x2', function (d) { return d.target.x })
+    .attr('y2', function (d) { return d.target.y })
 
   enterNodes.append('circle')
     .attr('r', 32)
@@ -93,16 +100,25 @@ Self.prototype.render = function (vGraph) {
     .select('text')
     .text(self._getLabel)
 
-  updateNodes.attr('transform', function (d) {
-    return 'translate(' + d.x + ',' + d.y + ')'
-  })
-
   exitNodes.remove()
+  self.updatePosition()
+}
 
-  updateEdges.attr('x1', function (d) { return d.source.x })
+Self.prototype.updatePosition = function (nodes, edges) {
+  var self = this
+  if (self.autoLayout) self.layout.position()
+  self._edges
+    .transition()
+    .attr('x1', function (d) { return d.source.x })
     .attr('y1', function (d) { return d.source.y })
     .attr('x2', function (d) { return d.target.x })
     .attr('y2', function (d) { return d.target.y })
+
+  self._nodes
+    .transition()
+    .attr('transform', function (d) {
+      return 'translate(' + d.x + ',' + d.y + ')'
+    })
 }
 /**
  * take all available space
@@ -125,21 +141,9 @@ Self.prototype.toggleAutoLayout = function () {
     self.layout.animation.stop()
     self.layout.setAnimationHandler()
   } else {
-    self.layout.setAnimationHandler(self.update.bind(self))
+    self.layout.setAnimationHandler(self.updatePosition.bind(self))
     self.layout.animation.start()
   }
-}
-
-Self.prototype.update = function () {
-  var self = this
-  self._edges.attr('x1', function (d) { return d.source.x })
-    .attr('y1', function (d) { return d.source.y })
-    .attr('x2', function (d) { return d.target.x })
-    .attr('y2', function (d) { return d.target.y })
-
-  self._nodes.attr('transform', function (d) {
-    return 'translate(' + d.x + ',' + d.y + ')'
-  })
 }
 
 Self.prototype.isFocused = function () {
