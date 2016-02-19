@@ -27,11 +27,11 @@ var Self = function (p) {
     action.on('hide', self.removeMenuItem.bind(self, action))
   })
   self.elements = Util.findElements(self.p.container, self.selectors)
-  self.elements.action.on('click', self._onActionClick.bind(self))
+  self.elements.list.on('click', self.selectors.action, self._onMenuItemClick.bind(self))
 }
 BackboneEvents.mixin(Self.prototype)
 
-Self.prototype._onActionClick = function (e) {
+Self.prototype._onMenuItemClick = function (e) {
   var self = this
   var data = $(e.target).data()
   var action = self.actions[data.id]

@@ -27,8 +27,8 @@ Self.prototype.getActive = function () {
 
 Self.prototype.set = function (action) {
   var self = this
+  self._instances[action.id] = action
   self.trigger('add', action)
-  return self._instances[action.id] = action
 }
 /**
  * Updates all actions state
