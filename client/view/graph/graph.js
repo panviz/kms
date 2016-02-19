@@ -5,6 +5,7 @@
  */
 var View = require('../view')
 , ForceLayout = require('../../layout/force/force')
+, Pan = require('../../behavior/pan')
 , Util = require('../../../core/util')
 
 var Self = function (p) {
@@ -16,7 +17,8 @@ var Self = function (p) {
 
   self.selectors = {
     viewContainer: '.view.graph',
-    body: '.view.graph svg',
+    svg: 'svg',
+    canvas: 'svg .canvas',
     link: '.link',
     node: '.node',
   }
@@ -32,19 +34,22 @@ var Self = function (p) {
   self._edges = []
   self._nodes = []
 
-  self.body = d3.select(self.selectors.body)
+  self.canvas = d3.select(self.selectors.canvas)
   self.resize()
-  setTimeout(function () {
-    self.resize()
-  }, 100)
+
   self.layout = new ForceLayout({
     width: self.p.width,
     height: self.p.height,
   })
+  self.panning = new Pan({
+    container: self.elements.canvas,
+    eventTarget: self.elements.svg,
+  })
+  self.panning.enable()
 
   self.selection.on('add', self._onSelect.bind(self))
   self.selection.on('remove', self._onDeselect.bind(self))
-  self.elements.body.on('click', self._onBgClick.bind(self))
+  self.elements.canvas.on('click', self._onBgClick.bind(self))
   $(window).on('resize', self.resize.bind(self))
 }
 Self.prototype = Object.create(View.prototype)
@@ -54,9 +59,9 @@ Self.prototype.render = function (vGraph) {
   var items = vGraph.items
   var links = vGraph.edges
    
-  self._edges = self.body.selectAll(self.selectors.link)
+  self._edges = self.canvas.selectAll(self.selectors.link)
     .data(links)
-  self._nodes = self.body.selectAll(self.selectors.node)
+  self._nodes = self.canvas.selectAll(self.selectors.node)
     .data(items, function (d) { return d.key })
 
   self.layout.setup(items, links)
@@ -104,7 +109,7 @@ Self.prototype.render = function (vGraph) {
   self.updatePosition()
 }
 
-Self.prototype.updatePosition = function (nodes, edges) {
+Self.prototype.updatePosition = function () {
   var self = this
   if (self.autoLayout) self.layout.position()
   self._edges
@@ -125,13 +130,13 @@ Self.prototype.updatePosition = function (nodes, edges) {
  */
 Self.prototype.resize = function () {
   var self = this
-  self.elements.body.detach()
+  self.elements.svg.detach()
   self.p.height = self.elements.viewContainer.height()
   self.p.width = self.elements.viewContainer.width()
-  self.elements.viewContainer.append(self.elements.body)
-  self.body
-    .attr('width', self.p.width)
-    .attr('height', self.p.height)
+  self.elements.viewContainer.append(self.elements.svg)
+  self.elements.svg
+    .width(self.p.width)
+    .height(self.p.height)
 }
 
 Self.prototype.toggleAutoLayout = function () {

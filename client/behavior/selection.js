@@ -1,16 +1,19 @@
 /**
+ * Selection behavior
  * Operates on ids of data items
  * @event add fires on items added to collection
  * @event remove fires on items removed from collection
  * @event change fires on items collection changed
  */
-var Util = require('../../core/util')
+var Behavior = require('./behavior')
+, Util = require('../../core/util')
 
-var Self = function Selection(p) {
+var Self = function (p) {
+  Behavior.call(this)
   var self = this
   self._items = []
 }
-BackboneEvents.mixin(Self.prototype)
+Self.prototype = Object.create(Behavior.prototype)
 /**
  * @param {ID or Array} items 
  */

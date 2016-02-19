@@ -10,6 +10,7 @@ var Provider = require('../provider/api.client/index')
 , Selection = require('./behavior/selection')
 , Actionman = require('./actionman')
 , Util = require('../core/util')
+require('./util')
 
 var Self = function (p) {
   var self = this
