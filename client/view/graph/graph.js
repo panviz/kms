@@ -38,23 +38,7 @@ var Self = function (p) {
 
   self.canvas = d3.select(self.selectors.canvas)
   self.resize()
-
-  var forceLayout = new ForceLayout({
-    width: self.p.width,
-    height: self.p.height,
-  })
-  var gridLayout = new GridLayout({
-    width: self.p.width,
-    height: self.p.height,
-    item: self.p.itemSize,
-    offset: {x: self.p.itemSize.width, y: self.p.itemSize.height},
-    spacing: 100,
-  })
-  self.layouts = {
-    force: forceLayout,
-    grid: gridLayout,
-  }
-  self.layout = self.layouts.force
+  self.initLayouts()
 
   self.panning = new Pan({
     container: self.elements.canvas,
@@ -172,6 +156,32 @@ Self.prototype.toggleAutoLayout = function () {
 
 Self.prototype.isFocused = function () {
   return true
+}
+
+Self.prototype.initLayouts = function () {
+  var self = this
+  var forceLayout = new ForceLayout({
+    width: self.p.width,
+    height: self.p.height,
+  })
+  var gridLayout = new GridLayout({
+    width: self.p.width,
+    height: self.p.height,
+    item: self.p.itemSize,
+    offset: {x: self.p.itemSize.width, y: self.p.itemSize.height},
+    spacing: 100,
+  })
+  self.layouts = {
+    force: forceLayout,
+    grid: gridLayout,
+  }
+  self.layout = self.layouts.force
+  var SwitchLayout = require('./action/switchLayout')
+  _.each(self.layouts, function (layout, id) {
+    var action = new SwitchLayout({id: id, label: layout.name})
+    action.view = self
+    self.actionman.set(action)
+  })
 }
 
 Self.prototype._getLabel = function (d) {

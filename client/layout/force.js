@@ -6,6 +6,7 @@ var Layout = require('./layout')
 var Self = function (p) {
   Layout.call(this, p)
   var self = this
+  self.name = "Force directed"
 
   self.force = d3.layout.force()
     .charge(-400)

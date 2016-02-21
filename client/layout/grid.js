@@ -7,6 +7,7 @@ var Layout = require('./layout')
 var Self = function (p) {
   Layout.call(this, p)
   var self = this
+  self.name = "Grid"
 }
 Self.prototype = Object.create(Layout.prototype)
 
