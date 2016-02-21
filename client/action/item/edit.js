@@ -6,6 +6,7 @@ var Self = function (p) {
   self.id = 'itemEdit'
   self._label = 'Edit item'
   self._icon = 'fa fa-pencil-square-o'
+  self.group = 'item'
 }
 Self.prototype = Object.create(Action.prototype)
 

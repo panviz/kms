@@ -8,7 +8,7 @@ var Self = function (p) {
   self.p = p || {}
   self.selectors = {
     panel: '.actions-panel',
-    list: '.actions-list',
+    group: '.group',
     action: '.action',
   }
   self.actions = self.p.actions
@@ -18,6 +18,7 @@ var Self = function (p) {
   self.elements = Util.findElements($html, self.selectors)
 
   self.actionTemplate = G.Templates['ui/actions-panel/action']
+  self.groupTemplate = G.Templates['ui/actions-panel/group']
 
   _.each(self.actions, function (action) {
     self.addMenuItem(action)
@@ -26,8 +27,7 @@ var Self = function (p) {
     action.on('show', self.addMenuItem.bind(self, action))
     action.on('hide', self.removeMenuItem.bind(self, action))
   })
-  self.elements = Util.findElements(self.p.container, self.selectors)
-  self.elements.list.on('click', self.selectors.action, self._onMenuItemClick.bind(self))
+  self.elements.root.on('click', self.selectors.action, self._onMenuItemClick.bind(self))
 }
 BackboneEvents.mixin(Self.prototype)
 
@@ -45,26 +45,34 @@ Self.prototype.addMenuItem = function (action) {
     label: action.getLabel(),
     icon: action.getIcon(),
   }
-  var html = self.actionTemplate(actionData)
-  var $html = $(html).toggleClass('enabled', action.isEnabled())
-  self.elements.list.append($html)
+  var actionHTML = self.actionTemplate(actionData)
+  var $actionHTML = $(actionHTML).toggleClass('enabled', action.isEnabled())
+  var group = action.group || 'main'
+  var $group = self.elements.root.find('.' + group)
+  if (_.isEmpty($group)) {
+    var $group = $(self.groupTemplate({group: group}))
+    self.elements.root.append($group)
+  }
+  $group.find('ul').append($actionHTML)
+  Util.updateElements(self)
 }
 
 Self.prototype.removeMenuItem = function (action) {
   var self = this
-  var menuItem = self.elements.list.find('[data-id="' + action.id + '"]')
+  var menuItem = self.elements.root.find('[data-id="' + action.id + '"]')
   menuItem.remove()
+  Util.updateElements(self)
 }
 
 Self.prototype.enableMenuItem = function (action) {
   var self = this
-  var menuItem = self.elements.list.find('[data-id="' + action.id + '"]')
+  var menuItem = self.elements.root.find('[data-id="' + action.id + '"]')
   menuItem.addClass('enabled')
 }
 
 Self.prototype.disableMenuItem = function (action) {
   var self = this
-  var menuItem = self.elements.list.find('[data-id="' + action.id + '"]')
+  var menuItem = self.elements.root.find('[data-id="' + action.id + '"]')
   menuItem.removeClass('enabled')
 }
 

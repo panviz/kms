@@ -1,6 +1,14 @@
 .actions-panel {
   position: relative;
 
+  .group span {
+    display: block;
+    text-transform: capitalize;
+    padding: 16px;
+    color: rgb(148, 136, 221);
+    background-color: rgb(42, 42, 42);
+  }
+
   ul {
     padding: 0;
     margin: 0;

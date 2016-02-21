@@ -5,6 +5,7 @@ var Self = function (p) {
 
   self.id = 'showLinkedList'
   self._label = 'Linked Items List'
+  self.group = 'item'
 }
 Self.prototype = Object.create(Action.prototype)
 
