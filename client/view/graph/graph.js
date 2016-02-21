@@ -24,7 +24,7 @@ var Self = function (p) {
     link: '.link',
     node: '.node',
   }
-  self.actions = [require('./action/layoutItems')]
+  self.actions = [require('./action/forceLayout'), require('./action/gridLayout')]
   _.each(self.actions, function (action) {
     action.view = self
     self.actionman.set(action)
@@ -176,12 +176,6 @@ Self.prototype.initLayouts = function () {
     grid: gridLayout,
   }
   self.layout = self.layouts.force
-  var SwitchLayout = require('./action/switchLayout')
-  _.each(self.layouts, function (layout, id) {
-    var action = new SwitchLayout({id: id, label: layout.name})
-    action.view = self
-    self.actionman.set(action)
-  })
 }
 
 Self.prototype._getLabel = function (d) {

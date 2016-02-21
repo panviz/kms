@@ -2,15 +2,17 @@ var Action = require('../../../action')
 var Self = function (p) {
   Action.call(this, p)
   var self = this
+  self.id = 'force'
+  self._label = 'Force directed'
   self._deny = false
+  self._icon = 'fa fa-share-alt'
   self.group = 'layout'
 }
 Self.prototype = Object.create(Action.prototype)
 
-Self.prototype.execute = function (p) {
+Self.prototype.execute = function () {
   var self = this
-  var id = p.id || 'force'
-  self.view.layout = self.view.layouts[id]
+  self.view.layout = self.view.layouts[self.id]
   self.view.updatePosition()
 }
 
@@ -20,5 +22,4 @@ Self.prototype.evaluate = function () {
   else self.disable()
 }
 
-
-module.exports = Self
+module.exports = new Self

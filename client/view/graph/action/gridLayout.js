@@ -2,17 +2,17 @@ var Action = require('../../../action')
 var Self = function (p) {
   Action.call(this, p)
   var self = this
+  self.id = 'grid'
   self._deny = false
-  self.id = 'graphLayoutItems'
-  self._label = 'Layout Items'
-  self._icon = 'fa fa-share-alt'
+  self._label = 'Grid'
+  self._icon = 'fa fa-th'
   self.group = 'layout'
 }
 Self.prototype = Object.create(Action.prototype)
 
 Self.prototype.execute = function () {
   var self = this
-  if (!self.view) return
+  self.view.layout = self.view.layouts[self.id]
   self.view.updatePosition()
 }
 
