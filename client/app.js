@@ -90,11 +90,11 @@ var Self = function (p) {
           var keys = graph.getItemKeys()
           self.visibleItems.add(keys)
           self._updateGraphView(graph)
+          self.visibleItems.on('change', self._onVisibleItemsChange.bind(self))
+          self.visibleItems.on('add', self._onVisibleItemsAdd.bind(self))
+          self.visibleItems.on('remove', self._onVisibleItemsRemove.bind(self))
         })
     })
-  self.visibleItems.on('change', self._onVisibleItemsChange.bind(self))
-  self.visibleItems.on('add', self._onVisibleItemsAdd.bind(self))
-  self.visibleItems.on('remove', self._onVisibleItemsRemove.bind(self))
 }
 
 Self.prototype.showChildren = function (keys) {
@@ -145,9 +145,11 @@ Self.prototype._onSelect = function () {
  */
 Self.prototype._hideSecondaryViews = function () {
   var self = this
-  self.editor.hide()
-  self.linkedList.hide()
-  self.graphView.resize()
+  if (self.editor.isVisible() || self.linkedList.isVisible()) {
+    self.editor.hide()
+    self.linkedList.hide()
+    self.graphView.resize()
+  }
 }
 
 Self.prototype._onSearch = function (data) {

@@ -4,7 +4,7 @@
  * like: click, hover, collapse/expand, right click, etc
  */
 var View = require('../view')
-, ForceLayout = require('../../layout/force/force')
+, ForceLayout = require('../../layout/force')
 , Pan = require('../../behavior/pan')
 , Util = require('../../../core/util')
 
@@ -65,7 +65,7 @@ Self.prototype.render = function (vGraph) {
     .data(items, function (d) { return d.key })
 
   self.layout.setup(items, links)
-  if (self.autoLayout) self.layout.position()
+  if (self.autoLayout) self.layout.run()
 
   var updateEdges = self._edges
   var enterEdges = self._edges.enter().append('line')
@@ -83,7 +83,6 @@ Self.prototype.render = function (vGraph) {
   
   enterNodes.attr('class', self.selectors.node.slice(1))
     //.attr('data-key', function (d) { return d.key })
-    .call(self.layout.force.drag)
     .on('click', self._onClick.bind(self))
     .on('dblclick', self._onDblClick.bind(self))
     .attr('transform', function (d) {
@@ -106,12 +105,13 @@ Self.prototype.render = function (vGraph) {
     .text(self._getLabel)
 
   exitNodes.remove()
+  // TODO do not trigger on first load (as everything is already made on enterNodes)
   self.updatePosition()
 }
 
 Self.prototype.updatePosition = function () {
   var self = this
-  if (self.autoLayout) self.layout.position()
+  if (self.autoLayout) self.layout.run()
   self._edges
     .transition()
     .attr('x1', function (d) { return d.source.x })
@@ -137,6 +137,11 @@ Self.prototype.resize = function () {
   self.elements.svg
     .width(self.p.width)
     .height(self.p.height)
+  if (self.layout) {
+    self.layout.size(self.p.width, self.p.height)
+    self.layout.run()
+    self.updatePosition()
+  }
 }
 
 Self.prototype.toggleAutoLayout = function () {
