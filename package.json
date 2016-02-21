@@ -49,6 +49,7 @@
     "minimist": "^1.2.0",
     "moment": "latest",
     "multer": "^1.1.0",
+    "plusjs": "git+https://github.com/Dmitra/plusjs.git",
     "to-markdown": "^2.0.1"
   },
   "devDependencies": {}

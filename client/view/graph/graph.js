@@ -6,6 +6,7 @@
 var View = require('../view')
 , ForceLayout = require('../../layout/force')
 , GridLayout = require('../../layout/grid')
+, RadialLayout = require('../../layout/radial')
 , Pan = require('../../behavior/pan')
 , Util = require('../../../core/util')
 
@@ -24,7 +25,7 @@ var Self = function (p) {
     link: '.link',
     node: '.node',
   }
-  self.actions = [require('./action/forceLayout'), require('./action/gridLayout')]
+  self.actions = [require('./action/forceLayout'), require('./action/gridLayout'), require('./action/radialLayout')]
   _.each(self.actions, function (action) {
     action.view = self
     self.actionman.set(action)
@@ -171,9 +172,14 @@ Self.prototype.initLayouts = function () {
     offset: {x: self.p.itemSize.width, y: self.p.itemSize.height},
     spacing: 100,
   })
+  var radialLayout = new RadialLayout({
+    width: self.p.width,
+    height: self.p.height,
+  })
   self.layouts = {
     force: forceLayout,
     grid: gridLayout,
+    radial: radialLayout,
   }
   self.layout = self.layouts.force
 }
