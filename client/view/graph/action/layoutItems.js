@@ -12,7 +12,6 @@ Self.prototype = Object.create(Action.prototype)
 Self.prototype.execute = function () {
   var self = this
   if (!self.view) return
-  self.view.layout.run()
   self.view.updatePosition()
 }
 

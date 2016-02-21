@@ -5,12 +5,14 @@
  */
 var View = require('../view')
 , ForceLayout = require('../../layout/force')
+, GridLayout = require('../../layout/grid')
 , Pan = require('../../behavior/pan')
 , Util = require('../../../core/util')
 
 var Self = function (p) {
   var self = this
   self.p = p || {}
+  self.p.itemSize = {width: 32, height: 32}
   self.autoLayout = true
   self.actionman = p.actionman
   self.selection = p.selection
@@ -37,10 +39,23 @@ var Self = function (p) {
   self.canvas = d3.select(self.selectors.canvas)
   self.resize()
 
-  self.layout = new ForceLayout({
+  var forceLayout = new ForceLayout({
     width: self.p.width,
     height: self.p.height,
   })
+  var gridLayout = new GridLayout({
+    width: self.p.width,
+    height: self.p.height,
+    item: self.p.itemSize,
+    offset: {x: self.p.itemSize.width, y: self.p.itemSize.height},
+    spacing: 100,
+  })
+  self.layouts = {
+    force: forceLayout,
+    grid: gridLayout,
+  }
+  self.layout = self.layouts.force
+
   self.panning = new Pan({
     container: self.elements.canvas,
     eventTarget: self.elements.svg,
@@ -56,16 +71,16 @@ Self.prototype = Object.create(View.prototype)
 
 Self.prototype.render = function (vGraph) {
   var self = this
-  var items = vGraph.items
-  var links = vGraph.edges
+  self._items = vGraph.items
+  self._links = vGraph.edges
    
   self._edges = self.canvas.selectAll(self.selectors.link)
-    .data(links)
+    .data(self._links)
   self._nodes = self.canvas.selectAll(self.selectors.node)
-    .data(items, function (d) { return d.key })
+    .data(self._items, function (d) { return d.key })
 
-  self.layout.setup(items, links)
-  if (self.autoLayout) self.layout.run()
+  if (self.layout.setup) self.layout.setup(self._items, self._links)
+  if (self.autoLayout) self.layout.run(self._items)
 
   var updateEdges = self._edges
   var enterEdges = self._edges.enter().append('line')
@@ -95,7 +110,7 @@ Self.prototype.render = function (vGraph) {
     .attr('y2', function (d) { return d.target.y })
 
   enterNodes.append('circle')
-    .attr('r', 32)
+    .attr('r', self.p.itemSize.width)
 
   enterNodes.append('text')
     .text(self._getLabel)
@@ -111,7 +126,7 @@ Self.prototype.render = function (vGraph) {
 
 Self.prototype.updatePosition = function () {
   var self = this
-  if (self.autoLayout) self.layout.run()
+  if (self.autoLayout) self.layout.run(self._items)
   self._edges
     .transition()
     .attr('x1', function (d) { return d.source.x })
@@ -139,7 +154,6 @@ Self.prototype.resize = function () {
     .height(self.p.height)
   if (self.layout) {
     self.layout.size(self.p.width, self.p.height)
-    self.layout.run()
     self.updatePosition()
   }
 }
