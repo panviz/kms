@@ -2,23 +2,25 @@
  * Force directed layout
  */
 var Layout = require('./layout')
+, webcola = require('webcola')
 
 var Self = function (p) {
   Layout.call(this, p)
   var self = this
   self.name = "Force directed"
 
-  self.force = d3.layout.force()
-    .charge(-400)
+  self.force = webcola.d3adaptor()
     .linkDistance(150)
-    //.charge(-220)
-    //.linkDistance(40)
-    .gravity(0)
+    //.charge(-400)
+    //.gravity(0)
+    .constraints([{axis: "y", left: 0, right: 1, gap: 25}])
+    .avoidOverlaps(true)
+    .symmetricDiffLinkLengths(50)
     .size([self.width, self.height])
 
   self.animation = self.force
 
-  self.force.on('tick', self._boundConstraint.bind(self))
+  //self.force.on('tick', self._boundConstraint.bind(self))
 }
 Self.prototype = Object.create(Layout.prototype)
 
@@ -32,17 +34,13 @@ Self.prototype.size = function (width, height) {
 Self.prototype.run = function (items, links) {
   var self = this
   // nodes should appear near the center but not too close to not repel strongly
-  for (var i = 0; i < items.length; i++) {
-    items[i].x = items[i].x || Math.random() * self.width/10 + self.width/2 - self.width/20
-    items[i].y = items[i].y || Math.random() * self.height/10 + self.height/2 - self.height/20
-  }
   self._items = items
   self.force
     .nodes(items)
     .links(links)
 
-  self.force.start()
-  for (var i = 100000; i > 0; --i) self.force.tick()
+  self.force.start(10, 15, 20)
+  for (var i = 1000; i > 0; --i) self.force.tick()
   self.force.stop()
 }
 

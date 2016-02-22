@@ -1,5 +1,6 @@
 /**
- * Graph view based on d3.force layout
+ * Graph view
+ * Utilizes several layouts
  * Here comes logic for handling visual "GUI-level" user input
  * like: click, hover, collapse/expand, right click, etc
  */
@@ -13,7 +14,15 @@ var View = require('../view')
 var Self = function (p) {
   var self = this
   self.p = p || {}
-  self.p.itemSize = {width: 32, height: 32}
+  self.p.item = {
+    size: {
+      width: 32,
+      height: 32
+    },
+    label: {
+      maxLength: 15
+    }
+  }
   self.autoLayout = true
   self.actionman = p.actionman
   self.selection = p.selection
@@ -38,7 +47,7 @@ var Self = function (p) {
 
   self.canvas = d3.select(self.selectors.canvas)
   self.resize()
-  self.initLayouts()
+  self._initLayouts()
 
   self.panning = new Pan({
     container: self.elements.canvas,
@@ -69,42 +78,46 @@ Self.prototype.render = function (vGraph) {
   var enterEdges = self._edges.enter().append('line')
   var exitEdges = self._edges.exit()
 
-  enterEdges
-    .attr('class', self.selectors.link.slice(1))
-    .style('stroke-width', function(d) { return Math.sqrt(d.value) })
-
-  exitEdges.remove()
-
   var enterNodes = self._nodes.enter().append('g')
   var updateNodes = self._nodes
   var exitNodes = self._nodes.exit()
   
-  enterNodes.attr('class', self.selectors.node.slice(1))
-    //.attr('data-key', function (d) { return d.key })
-    .on('click', self._onClick.bind(self))
-    .on('dblclick', self._onDblClick.bind(self))
-    .attr('transform', function (d) {
-      return 'translate(' + d.x + ',' + d.y + ')'
-    })
+  enterEdges
+    .attr('class', self.selectors.link.slice(1))
+    .style('stroke-width', function(d) { return Math.sqrt(d.value) })
   enterEdges
     .attr('x1', function (d) { return d.source.x })
     .attr('y1', function (d) { return d.source.y })
     .attr('x2', function (d) { return d.target.x })
     .attr('y2', function (d) { return d.target.y })
 
-  enterNodes.append('circle')
-    .attr('r', self.p.itemSize.width)
+  enterNodes
+    .attr('class', self.selectors.node.slice(1))
+    .on('click', self._onClick.bind(self))
+    .on('dblclick', self._onDblClick.bind(self))
+    .attr('transform', function (d) {
+      return 'translate(' + d.x + ',' + d.y + ')'
+    })
+  enterNodes
+    .append('circle')
+    .attr('r', self.p.item.size.width)
+  enterNodes
+    .append('text')
+    .text(self._getLabel.bind(self))
 
-  enterNodes.append('text')
-    .text(self._getLabel)
+  self.update()
 
-  updateNodes
-    .select('text')
-    .text(self._getLabel)
-
+  exitEdges.remove()
   exitNodes.remove()
   // TODO do not trigger on first load (as everything is already made on enterNodes)
   self.updatePosition()
+}
+
+Self.prototype.update = function () {
+  var self = this
+  self._nodes
+    .select('text')
+    .text(self._getLabel.bind(self))
 }
 
 Self.prototype.updatePosition = function () {
@@ -153,7 +166,7 @@ Self.prototype.toggleAutoLayout = function () {
   }
 }
 
-Self.prototype.initLayouts = function () {
+Self.prototype._initLayouts = function () {
   var self = this
   var forceLayout = new ForceLayout({
     width: self.p.width,
@@ -162,8 +175,8 @@ Self.prototype.initLayouts = function () {
   var gridLayout = new GridLayout({
     width: self.p.width,
     height: self.p.height,
-    item: self.p.itemSize,
-    offset: {x: self.p.itemSize.width, y: self.p.itemSize.height},
+    item: self.p.item.size,
+    offset: {x: self.p.item.size.width, y: self.p.item.size.height},
     spacing: 100,
   })
   var radialLayout = new RadialLayout({
@@ -176,10 +189,14 @@ Self.prototype.initLayouts = function () {
     radial: radialLayout,
   }
   self.layout = self.layouts.force
+  //self.layout.force.on('tick', self.updatePosition.bind(self))
 }
 
 Self.prototype._getLabel = function (d) {
-  return d.value.slice(0, 15)
+  var self = this
+  var value = d.value
+  if (value.length > self.p.item.label.maxLength) value = value.slice(0, 15) + '...'
+  return value
 }
 
 Self.prototype._onSelect = function (keys) {
