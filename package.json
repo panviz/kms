@@ -1,24 +1,26 @@
 {
-  "name": "graphiy.cms",
+  "name": "graphiy.kms",
   "version": "0.0.3",
-  "description": "simple site generator",
+  "description": "knowledge management system",
   "main": "graphiy",
   "repository": {
     "type": "git",
-    "url": "https://github.com/Graphiy/cms"
+    "url": "https://github.com/Graphiy/kms"
   },
   "homepage": "",
   "keywords": [
-    "cms",
-    "static website generator",
-    "tags"
+    "knowledge management",
+    "graph data",
+    "network data",
+    "data visualization",
+    "cms"
   ],
   "author": {
     "name": "Dmitra",
     "email": "k@dmitra.com",
-    "url": "http://dmitra.com/dmitra.kyianytsia"
+    "url": "http://dmitra.com"
   },
-  "license": "MIT",
+  "license": "http://graphiy.com/licence",
   "scripts": {
     "start": "static",
     "build-css": "sh bin/build-css",
@@ -50,7 +52,8 @@
     "moment": "latest",
     "multer": "^1.1.0",
     "plusjs": "git+https://github.com/Dmitra/plusjs.git",
-    "to-markdown": "^2.0.1"
+    "to-markdown": "^2.0.1",
+    "webcola": "git+https://github.com/tgdwyer/WebCola.git"
   },
   "devDependencies": {}
 }

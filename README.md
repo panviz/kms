@@ -1,15 +1,8 @@
-# Graphiy CMS
-In the version 0.0.X it is a simple content management system.
-For now it can generate static website from content in markdown/html + assets with [Handlebars](http://handlebarsjs.com) templates.
-It is written in Javascript for nodeJS platform.
+# Graphiy - Knowledge Management System
+Based on general-purpose graph/network data editing software.
 
-##The killing feature
-is [Graphiy](http://dmitra.com/graphiy/concept) concept at the heart.
+[Full documentation](http://graphiy.com/) is available on [Graphiy.com](http://graphiy.com)
 
-It is now in active development.
-Fully working tool is planned to be released in version 0.1.
-This tool will be used as publication platform for next version of [Dmitra.com](http://dmitra.com) and [Graphiy.com](http://graphiy.com) websites.
+It is now in active development. It is open-source proprietary product available now for free.
 
-##Roadmap
-In the the version 0.2 it is planned to be a simple CMS again :)
-At that moment with network (graph) editor for content relations.
+First MVP prototype is planned to be released in version 0.1
