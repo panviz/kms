@@ -27,8 +27,7 @@ var Self = function (p) {
   }
   self.actions = [require('./action/forceLayout'), require('./action/gridLayout'), require('./action/radialLayout')]
   _.each(self.actions, function (action) {
-    action.view = self
-    self.actionman.set(action)
+    self.actionman.set(action, self)
   })
   var $html = $(G.Templates['view/graph/graph']())
   self.p.container.append($html)
@@ -64,8 +63,7 @@ Self.prototype.render = function (vGraph) {
   self._nodes = self.canvas.selectAll(self.selectors.node)
     .data(self._items, function (d) { return d.key })
 
-  if (self.layout.setup) self.layout.setup(self._items, self._links)
-  if (self.autoLayout) self.layout.run(self._items)
+  if (self.autoLayout) self.layout.run(self._items, self._links)
 
   var updateEdges = self._edges
   var enterEdges = self._edges.enter().append('line')
@@ -111,7 +109,7 @@ Self.prototype.render = function (vGraph) {
 
 Self.prototype.updatePosition = function () {
   var self = this
-  if (self.autoLayout) self.layout.run(self._items)
+  if (self.autoLayout) self.layout.run(self._items, self._links)
   self._edges
     .transition()
     .attr('x1', function (d) { return d.source.x })
@@ -153,10 +151,6 @@ Self.prototype.toggleAutoLayout = function () {
     self.layout.setAnimationHandler(self.updatePosition.bind(self))
     self.layout.animation.start()
   }
-}
-
-Self.prototype.isFocused = function () {
-  return true
 }
 
 Self.prototype.initLayouts = function () {

@@ -22,7 +22,14 @@ var Self = function (p) {
 }
 Self.prototype = Object.create(Layout.prototype)
 
-Self.prototype.setup = function (items, links) {
+Self.prototype.size = function (width, height) {
+  var self = this
+  self.width = width
+  self.height = height
+  self.force.size([self.width, self.height])
+}
+
+Self.prototype.run = function (items, links) {
   var self = this
   // nodes should appear near the center but not too close to not repel strongly
   for (var i = 0; i < items.length; i++) {
@@ -33,17 +40,7 @@ Self.prototype.setup = function (items, links) {
   self.force
     .nodes(items)
     .links(links)
-}
 
-Self.prototype.size = function (width, height) {
-  var self = this
-  self.width = width
-  self.height = height
-  self.force.size([self.width, self.height])
-}
-
-Self.prototype.run = function () {
-  var self = this
   self.force.start()
   for (var i = 100000; i > 0; --i) self.force.tick()
   self.force.stop()

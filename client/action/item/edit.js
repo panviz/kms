@@ -4,16 +4,17 @@ var Self = function (p) {
   var self = this
 
   self.id = 'itemEdit'
-  self._label = 'Edit item'
+  self._label = 'Edit'
   self._icon = 'fa fa-pencil-square-o'
   self.group = 'item'
+  self.registrar.selection.on('change', self.evaluate.bind(self, self.registrar.selection))
 }
 Self.prototype = Object.create(Action.prototype)
 
 Self.prototype.execute = function () {
   var self = this
-  var keys = self.app.selection.getAll()
-  self.app.editItem(keys[0])
+  var keys = self.registrar.selection.getAll()
+  self.registrar.editItem(keys[0])
 }
 
 Self.prototype.evaluate = function (selection) {
@@ -22,4 +23,4 @@ Self.prototype.evaluate = function (selection) {
   else self.enable()
 }
 
-module.exports = new Self
+module.exports = Self

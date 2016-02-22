@@ -25,8 +25,9 @@ Self.prototype.getActive = function () {
   })
 }
 
-Self.prototype.set = function (action) {
+Self.prototype.set = function (Action, registrar) {
   var self = this
+  var action = new Action({registrar: registrar})
   self._instances[action.id] = action
   self.trigger('add', action)
 }

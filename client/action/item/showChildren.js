@@ -7,13 +7,14 @@ var Self = function (p) {
   self._label = 'Show Children'
   self._icon = 'fa fa-plus-circle'
   self.group = 'item'
+  self.registrar.selection.on('change', self.evaluate.bind(self, self.registrar.selection))
 }
 Self.prototype = Object.create(Action.prototype)
 
 Self.prototype.execute = function () {
   var self = this
-  var keys = self.app.selection.getAll()
-  self.app.showChildren(keys)
+  var keys = self.registrar.selection.getAll()
+  self.registrar.showChildren(keys)
 }
 
 Self.prototype.evaluate = function (selection) {
@@ -22,4 +23,4 @@ Self.prototype.evaluate = function (selection) {
   else self.enable()
 }
 
-module.exports = new Self
+module.exports = Self

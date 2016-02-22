@@ -22,10 +22,6 @@ var Self = function (p) {
 
   _.each(self.actions, function (action) {
     self.addMenuItem(action)
-    action.on('enable', self.enableMenuItem.bind(self, action))
-    action.on('disable', self.disableMenuItem.bind(self, action))
-    action.on('show', self.addMenuItem.bind(self, action))
-    action.on('hide', self.removeMenuItem.bind(self, action))
   })
   self.elements.root.on('click', self.selectors.action, self._onMenuItemClick.bind(self))
 }
@@ -40,6 +36,11 @@ Self.prototype._onMenuItemClick = function (e) {
 
 Self.prototype.addMenuItem = function (action) {
   var self = this
+  action.on('enable', self.enableMenuItem.bind(self, action))
+  action.on('disable', self.disableMenuItem.bind(self, action))
+  action.on('show', self.addMenuItem.bind(self, action))
+  action.on('hide', self.removeMenuItem.bind(self, action))
+
   var actionData = {
     id: action.id,
     label: action.getLabel(),

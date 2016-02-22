@@ -11,7 +11,7 @@ Self.prototype = Object.create(Action.prototype)
 
 Self.prototype.execute = function () {
   var self = this
-  self.app.linkedList.toggle()
+  self.registrar.linkedList.toggle()
 }
 
-module.exports = new Self
+module.exports = Self

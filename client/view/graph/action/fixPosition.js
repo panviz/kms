@@ -10,4 +10,4 @@ Self.prototype = Object.create(Action.prototype)
 Self.prototype.execute = function () {
 }
 
-module.exports = new Self
+module.exports = Self

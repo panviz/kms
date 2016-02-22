@@ -10,12 +10,16 @@ BackboneEvents.mixin(Self.prototype)
 
 Self.prototype.show = function () {
   var self = this
+  if (self.isVisible()) return
   self.elements.root.show()
+  self.trigger('show')
 }
 
 Self.prototype.hide = function () {
   var self = this
+  if (!self.isVisible()) return
   self.elements.root.hide()
+  self.trigger('hide')
 }
 
 Self.prototype.toggle = function () {

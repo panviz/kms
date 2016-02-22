@@ -19,6 +19,9 @@ Self.prototype = Object.create(Layout.prototype)
 
 Self.prototype.run = function (items) {
   var self = this
+  _.each(items, function (item, key) {
+    if (!item.index) item.index = key
+  })
   self._radial(items)
 }
 

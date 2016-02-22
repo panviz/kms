@@ -4,16 +4,17 @@ var Self = function (p) {
   var self = this
 
   self.id = 'itemHide'
-  self._label = 'Hide item'
+  self._label = 'Hide'
   self._icon = 'fa fa-eye-slash'
   self.group = 'item'
+  self.registrar.selection.on('change', self.evaluate.bind(self, self.registrar.selection))
 }
 Self.prototype = Object.create(Action.prototype)
 
 Self.prototype.execute = function () {
   var self = this
-  var keys = self.app.selection.getAll()
-  self.app.visibleItems.remove(keys)
+  var keys = self.registrar.selection.getAll()
+  self.registrar.visibleItems.remove(keys)
 }
 
 Self.prototype.evaluate = function (selection) {
@@ -22,4 +23,4 @@ Self.prototype.evaluate = function (selection) {
   else self.enable()
 }
 
-module.exports = new Self
+module.exports = Self

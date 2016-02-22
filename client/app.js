@@ -20,30 +20,17 @@ var Self = function (p) {
     searchItem: {},
   }
 
-  self.actionman = new Actionman({selection: self.selection})
-  self.actions = [
-    require('./action/item/create'),
-    require('./action/item/edit'),
-    require('./action/item/showChildren'),
-    require('./action/item/hide'),
-  ]
-  _.each(self.actions, function (action) {
-    action.app = self
-    self.actionman.set(action)
-  })
-
-  self.selection = new Selection
-  self.selection.on('change', self.actionman.update.bind(self.actionman, self.selection))
-
   self.selectors = {
     header: 'header',
     container: '.container',
     sidebar: '.sidebar',
   }
   self.elements = Util.findElements('body', self.selectors)
+
+  self.selection = new Selection
+  self.actionman = new Actionman()
   // IDs array of visible items
   self.visibleItems = new Selection
-  //self.tabs = new Tabs
 
   var providerSet = {
     url: '/item'
@@ -76,25 +63,30 @@ var Self = function (p) {
   self.actionman.on('add', self.actionsPanel.addMenuItem.bind(self.actionsPanel))
 
   self.graphView = new GraphView(graphViewSet)
-  self.linkedList = new ListView(listViewSet)
-  self.editor = new Editor(editorSet)
   self.graphView.on('item-dblclick', self.showChildren.bind(self))
   self.graphView.on('background-click', self._hideSecondaryViews.bind(self))
 
-  self.provider.request('set', self.serviceItem.visibleItem.value)
-    .then(function (key) {
-      self.serviceItem.visibleItem.key = key
-      self.provider.request('getGraph', self.serviceItem.visibleItem.key, 1)
-        .then(function (graph) {
-          self._filter(graph)
-          var keys = graph.getItemKeys()
-          self.visibleItems.add(keys)
-          self._updateGraphView(graph)
-          self.visibleItems.on('change', self._onVisibleItemsChange.bind(self))
-          self.visibleItems.on('add', self._onVisibleItemsAdd.bind(self))
-          self.visibleItems.on('remove', self._onVisibleItemsRemove.bind(self))
-        })
-    })
+  self.linkedList = new ListView(listViewSet)
+  self.linkedList.on('show', self._layoutViews.bind(self))
+  self.linkedList.on('hide', self._layoutViews.bind(self))
+
+  self.editor = new Editor(editorSet)
+  self.editor.on('hide', self.saveItem.bind(self))
+  self.editor.on('show', self._layoutViews.bind(self))
+  self.editor.on('hide', self._layoutViews.bind(self))
+
+  self.actions = [
+    require('./action/item/create'),
+    require('./action/item/edit'),
+    require('./action/item/save'),
+    require('./action/item/showChildren'),
+    require('./action/item/hide'),
+  ]
+  _.each(self.actions, function (action) {
+    self.actionman.set(action, self)
+  })
+
+  self._loadVisibleItems()
 }
 
 Self.prototype.showChildren = function (keys) {
@@ -112,7 +104,6 @@ Self.prototype.showChildren = function (keys) {
       var vGraph = self._convert(graph)
       self.linkedList.show()
       // TODO when one view on common container is changed fire event and resize others
-      self.graphView.resize()
       self.linkedList.render(vGraph)
     })
 }
@@ -121,9 +112,41 @@ Self.prototype.editItem = function (key) {
   var self = this
   self.provider.request('get', key)
     .then(function (value) {
-      self.editor.set(value)
+      self.editor.set(value, key)
       self.editor.show()
-      self.graphView.resize()
+    })
+}
+
+Self.prototype.saveItem = function () {
+  var self = this
+  var key = self.editor.getKey()
+  var value = self.editor.get()
+  self.provider.request('set', value, key)
+    .then(function (key) {
+      if (key === key) {
+        self.editor.saved()
+        self._onVisibleItemsChange()
+      }
+    })
+}
+/**
+ * populate view with user data from previous time
+ */
+Self.prototype._loadVisibleItems = function () {
+  var self = this
+  self.provider.request('set', self.serviceItem.visibleItem.value)
+    .then(function (key) {
+      self.serviceItem.visibleItem.key = key
+      self.provider.request('getGraph', self.serviceItem.visibleItem.key, 1)
+        .then(function (graph) {
+          self._filter(graph)
+          var keys = graph.getItemKeys()
+          self.visibleItems.add(keys)
+          self._updateGraphView(graph)
+          self.visibleItems.on('change', self._onVisibleItemsChange.bind(self))
+          self.visibleItems.on('add', self._onVisibleItemsAdd.bind(self))
+          self.visibleItems.on('remove', self._onVisibleItemsRemove.bind(self))
+        })
     })
 }
 
@@ -131,10 +154,11 @@ Self.prototype._onSelect = function () {
   var self = this
   var keys = self.selection.getAll()
   if (keys.length === 1) {
+    var key = keys[0]
     if (!self.editor.isVisible()) return
-    self.provider.request('get', keys[0])
+    self.provider.request('get', key)
       .then(function (value) {
-        self.editor.set(value)
+        self.editor.set(value, key)
       })
   } else {
   }
@@ -148,8 +172,12 @@ Self.prototype._hideSecondaryViews = function () {
   if (self.editor.isVisible() || self.linkedList.isVisible()) {
     self.editor.hide()
     self.linkedList.hide()
-    self.graphView.resize()
   }
+}
+
+Self.prototype._layoutViews = function () {
+  var self = this
+  self.graphView.resize()
 }
 
 Self.prototype._onSearch = function (data) {
@@ -178,6 +206,7 @@ Self.prototype._onVisibleItemsChange = function () {
       self._updateGraphView(graph)
     })
 }
+
 Self.prototype._updateGraphView = function (graph) {
   var self = this
   var vGraph = self._convert(graph)

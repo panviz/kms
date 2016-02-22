@@ -7,6 +7,7 @@ var Self = function (p) {
   var self = this
 
   p = p || {}
+  self.registrar = p.registrar
   self.id = p.id
   self._label = p.label
   self._icon = p.icon || 'fa fa-check-square-o'
