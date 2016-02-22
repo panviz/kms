@@ -27,7 +27,8 @@ Self.prototype.set = function (data, key) {
   var self = this
   if (_.isArray(data)) return _.map(data, function (datum) { return self.set(datum) })
 
-  if (!data) {
+  if (data === '' || _.isNil(data)) {
+    if (key && _.isEmpty(self.getLinks(key))) return self.remove(key)
     key = key || generateID()
     //Ensure value is not undefined, as JSON stringify will omit it
     data = ''

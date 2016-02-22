@@ -40,12 +40,26 @@ describe('Graph', function() {
       assert.equal(graph.get(keys[1]), 5)
     })
   })
+
   describe('update item value', function () {
     it('should overwrite existing value', function () {
       graph.set('new', 'i1')
       assert.equal(graph.get('i1'), 'new')
     })
+    it('should not remove item with links set with empty string value', function () {
+      graph.set('', 'i3')
+      assert.equal(graph.get('i3'), '')
+    })
+    it('should set item with "0" value', function () {
+      graph.set(0, 'i3')
+      assert.equal(graph.get('i3'), 0)
+    })
+    it('should not remove item with links set with "undefined" value', function () {
+      graph.set(undefined, 'i3')
+      assert.equal(graph.get('i3'), '')
+    })
   })
+
   describe('remove item', function () {
     it('graph should not have a value for removed key', function () {
       graph.remove('i1')
@@ -60,13 +74,19 @@ describe('Graph', function() {
       assert(_.isEmpty(graph.getLinks('i2')))
       assert(_.isEmpty(graph.getLinks('i3')))
     })
-    it('should remove all items from array', function () {
+    it('should remove array of items', function () {
       graph.remove(['i2', 'i3'])
       assert.equal(graph.getItemKeys().length, 1)
       assert(_.isEmpty(graph.getLinks('i1')))
     })
     it('should return array of changed items', function () {
       assert.deepEqual(graph.remove('i1'), ['i1', 'i2', 'i3'])
+    })
+    it('should remove item if set with no value and links', function () {
+      graph.setDisassociate('i2', 'i1')
+      var changed = graph.set('', 'i2')
+      assert.equal(changed, 'i2')
+      assert.equal(graph.get('i2'), undefined)
     })
   })
 })

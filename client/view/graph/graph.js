@@ -14,7 +14,7 @@ var View = require('../view')
 var Self = function (p) {
   var self = this
   self.p = p || {}
-  self.p.item = {
+  self.p.node = {
     size: {
       width: 32,
       height: 32
@@ -100,7 +100,7 @@ Self.prototype.render = function (vGraph) {
     })
   enterNodes
     .append('circle')
-    .attr('r', self.p.item.size.width)
+    .attr('r', self.p.node.size.width)
   enterNodes
     .append('text')
     .text(self._getLabel.bind(self))
@@ -175,8 +175,8 @@ Self.prototype._initLayouts = function () {
   var gridLayout = new GridLayout({
     width: self.p.width,
     height: self.p.height,
-    item: self.p.item.size,
-    offset: {x: self.p.item.size.width, y: self.p.item.size.height},
+    node: self.p.node.size,
+    offset: {x: self.p.node.size.width, y: self.p.node.size.height},
     spacing: 100,
   })
   var radialLayout = new RadialLayout({
@@ -195,7 +195,7 @@ Self.prototype._initLayouts = function () {
 Self.prototype._getLabel = function (d) {
   var self = this
   var value = d.value
-  if (value.length > self.p.item.label.maxLength) value = value.slice(0, 15) + '...'
+  if (value.length > self.p.node.label.maxLength) value = value.slice(0, 15) + '...'
   return value
 }
 
@@ -220,13 +220,13 @@ Self.prototype._onClick = function (node) {
   d3.event.stopPropagation()
   self.selection.clear()
   self.selection.add(node.key)
-  self.trigger('item-click', node.key)
+  self.trigger('node-click', node.key)
 }
 
 Self.prototype._onDblClick = function (node) {
   var self = this
   d3.event.stopPropagation()
-  self.trigger('item-dblclick', node.key)
+  self.trigger('node-dblclick', node.key)
 }
 
 Self.prototype._onBgClick = function () {

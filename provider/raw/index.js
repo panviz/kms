@@ -86,10 +86,16 @@ Self.prototype._getFile = function (path, p) {
  */
 Self.prototype.set = function (key, value, links, p) {
   var self = this
+  var path = Path.join(p.target, key)
+  if ((_.isNil(value) || value === '') && _.isEmpty(links)) {
+    try {fs.unlinkSync(path)} catch (e) {}
+    return
+  }
+
   var content = value === undefined ? '' : value
   content = JSON.stringify(links) + Self.linksDelimiter + content
   try {
-    fs.writeFileSync(Path.join(p.target, key), content)
+    fs.writeFileSync(path, content)
   } catch(e) {console.log(e)}
 }
 /**

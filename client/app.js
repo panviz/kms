@@ -63,7 +63,7 @@ var Self = function (p) {
   self.actionman.on('add', self.actionsPanel.addMenuItem.bind(self.actionsPanel))
 
   self.graphView = new GraphView(graphViewSet)
-  self.graphView.on('item-dblclick', self.showChildren.bind(self))
+  self.graphView.on('node-dblclick', self.showChildren.bind(self))
   self.graphView.on('background-click', self._hideSecondaryViews.bind(self))
 
   self.linkedList = new ListView(listViewSet)
