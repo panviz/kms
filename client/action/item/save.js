@@ -12,9 +12,11 @@ var Self = function (p) {
 }
 Self.prototype = Object.create(Action.prototype)
 
-Self.prototype.execute = function () {
+Self.prototype._execute = function () {
   var self = this
-  self.registrar.saveItem()
+  var key = self.registrar.editor.getKey()
+  var value = self.registrar.editor.get()
+  self.registrar.saveItem(value, key)
 }
 
 Self.prototype.evaluate = function () {

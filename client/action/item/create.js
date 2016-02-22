@@ -11,12 +11,9 @@ var Self = function (p) {
 }
 Self.prototype = Object.create(Action.prototype)
 
-Self.prototype.execute = function () {
+Self.prototype._execute = function () {
   var self = this
-  self.registrar.provider.request('set')
-    .then(function (key) {
-      self.registrar.visibleItems.add(key)
-    })
+  self.registrar.createItem()
 }
 
 module.exports = Self

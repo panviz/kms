@@ -11,7 +11,7 @@ var Self = function (p) {
 }
 Self.prototype = Object.create(Action.prototype)
 
-Self.prototype.execute = function () {
+Self.prototype._execute = function () {
   var self = this
   var keys = self.registrar.selection.getAll()
   self.registrar.showChildren(keys)

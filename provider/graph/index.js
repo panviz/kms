@@ -40,7 +40,14 @@ Self.prototype.set = function (data, key) {
 /**
  * remove key, value, its links and its key from all item which links to it
  */
-Self.prototype.remove = function (key) {
+Self.prototype.remove = function (keys) {
+  var self = this
+  keys = Util.pluralize(keys)
+  var changed = _.map(keys, self._remove.bind(self))
+  return _.union.apply(_, changed)
+}
+
+Self.prototype._remove = function (key) {
   var self = this
   var linkedKeys = self.getLinked(key)
   _.each(linkedKeys, function (linkedKey) {

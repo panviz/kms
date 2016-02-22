@@ -71,7 +71,9 @@ var Self = function (p) {
   self.linkedList.on('hide', self._layoutViews.bind(self))
 
   self.editor = new Editor(editorSet)
-  self.editor.on('hide', self.saveItem.bind(self))
+  self.editor.on('hide', function () {
+    self.actionman.get('itemSave').apply()
+  })
   self.editor.on('show', self._layoutViews.bind(self))
   self.editor.on('hide', self._layoutViews.bind(self))
 
@@ -81,6 +83,7 @@ var Self = function (p) {
     require('./action/item/save'),
     require('./action/item/showChildren'),
     require('./action/item/hide'),
+    require('./action/item/remove'),
   ]
   _.each(self.actions, function (action) {
     self.actionman.set(action, self)
@@ -108,6 +111,14 @@ Self.prototype.showChildren = function (keys) {
     })
 }
 
+Self.prototype.createItem = function () {
+  var self = this
+  self.provider.request('set')
+    .then(function (key) {
+      self.visibleItems.add(key)
+    })
+}
+
 Self.prototype.editItem = function (key) {
   var self = this
   self.provider.request('get', key)
@@ -117,16 +128,22 @@ Self.prototype.editItem = function (key) {
     })
 }
 
-Self.prototype.saveItem = function () {
+Self.prototype.saveItem = function (value, key) {
   var self = this
-  var key = self.editor.getKey()
-  var value = self.editor.get()
   self.provider.request('set', value, key)
     .then(function (key) {
       if (key === key) {
         self.editor.saved()
         self._onVisibleItemsChange()
       }
+    })
+}
+
+Self.prototype.removeItem = function (keys) {
+  var self = this
+  self.provider.request('remove', keys)
+    .then(function (updated) {
+      self.visibleItems.remove(keys)
     })
 }
 /**

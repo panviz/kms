@@ -34,7 +34,7 @@ Self.prototype.request = function (params) {
     } else if (_.includes(['associate', 'remove', 'setDisassociate'], params.method)) {
       // TODO _.includes(params.method, 'set')
       _.each(result, function (key) {
-        // TODO do not overwrite items not in the graph
+        // TODO do not write items not in the graph (they may be just external links)
         self.provider.set(key, self.graph.get(key), self.graph.getLinks(key), self.p)
       })
       resolve(result)

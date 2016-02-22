@@ -21,12 +21,12 @@ Self.prototype.apply = function () {
   var self = this
   if (self._deny) return
 
-  if (self.execute) {
-    self.execute.apply(self, arguments)
+  if (self._execute) {
+    self._execute.apply(self, arguments)
   }
 }
-// Override in ConcreteCommand
-Self.prototype.execute = function () {
+// Override in Concrete Command
+Self.prototype._execute = function () {
   var self = this
 }
 /**

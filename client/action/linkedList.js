@@ -9,7 +9,7 @@ var Self = function (p) {
 }
 Self.prototype = Object.create(Action.prototype)
 
-Self.prototype.execute = function () {
+Self.prototype._execute = function () {
   var self = this
   self.registrar.linkedList.toggle()
 }

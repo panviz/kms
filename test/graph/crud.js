@@ -47,7 +47,7 @@ describe('Graph', function() {
     })
   })
   describe('remove item', function () {
-    it('graph should not have a value for its key', function () {
+    it('graph should not have a value for removed key', function () {
       graph.remove('i1')
       assert.equal(graph.get('i1'), undefined)
     })
@@ -55,10 +55,18 @@ describe('Graph', function() {
       graph.remove('i1')
       assert(_.isEmpty(graph.getLinks('i1')))
     })
-    it('linked items should not have a reference to deleted item', function () {
+    it('all linked items should not have a reference to deleted item', function () {
       graph.remove('i1')
       assert(_.isEmpty(graph.getLinks('i2')))
       assert(_.isEmpty(graph.getLinks('i3')))
+    })
+    it('should remove all items from array', function () {
+      graph.remove(['i2', 'i3'])
+      assert.equal(graph.getItemKeys().length, 1)
+      assert(_.isEmpty(graph.getLinks('i1')))
+    })
+    it('should return array of changed items', function () {
+      assert.deepEqual(graph.remove('i1'), ['i1', 'i2', 'i3'])
     })
   })
 })
