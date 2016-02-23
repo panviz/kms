@@ -1,7 +1,11 @@
-var Self = function () {
+/**
+ * Behavior interface
+ */
+var Self = function (p) {
   var self = this
+  self.p = p || {}
 
-  self._enabled = false
+  self._enabled = false || p.enabled
   self._inProgress = false
 }
 BackboneEvents.mixin(Self.prototype)

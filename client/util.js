@@ -1,6 +1,6 @@
 $.fn.translateX = function (x) {
   var matrix = this.transform()
-  var newX = x || matrix[4]
+  var newX = _.isNumber(x) ? x : matrix[4]
   var newY = matrix[5]
   var newScale = matrix[0]
   if (x === undefined) return newX
@@ -10,7 +10,7 @@ $.fn.translateX = function (x) {
 $.fn.translateY = function (y) {
   var matrix = this.transform()
   var newX = matrix[4]
-  var newY = y || matrix[5]
+  var newY = _.isNumber(y) ? y : matrix[5]
   var newScale = matrix[0]
   if (y === undefined) return newY
   this.transform(newX, newY, newScale)
@@ -32,8 +32,8 @@ $.fn.transform = function (x, y, scale) {
 
   if (_.isEmpty(arguments)) return matrix
 
-  x = x || matrix[4]
-  y = y || matrix[5]
+  x = _.isNumber(x) ? x : matrix[4]
+  y = _.isNumber(y) ? y : matrix[5]
   scale = scale || matrix[0]
   this.css('transform', 'matrix('+ [scale, 0, 0, scale, x, y].join(',') +')')
 }

@@ -1,19 +1,17 @@
 /**
- * Selection behavior
+ * Selection object
  * Operates on ids of data items
  * @event add fires on items added to collection
  * @event remove fires on items removed from collection
  * @event change fires on items collection changed
  */
-var Behavior = require('./behavior')
-, Util = require('../../core/util')
+var Util = require('../core/util')
 
 var Self = function (p) {
-  Behavior.call(this)
   var self = this
   self._items = []
 }
-Self.prototype = Object.create(Behavior.prototype)
+BackboneEvents.mixin(Self.prototype)
 /**
  * @param {ID or Array} items 
  */
@@ -33,8 +31,7 @@ Self.prototype.add = function (items) {
 
 Self.prototype.get = function (id) {
   var self = this
-  var position = self._items.indexOf(id) > -1
-  return self._items[position]
+  return self._items.indexOf(id) > -1
 }
 
 Self.prototype.getAll = function () {
@@ -48,7 +45,7 @@ Self.prototype.getCount = function () {
 
 Self.prototype.remove = function (items) {
   var self = this
-  if (!_.isArray(items)) items = [items]
+  items = Util.pluralize(items)
   if (_.isEmpty(items)) return
 
   self._items = _.difference(self._items, items)

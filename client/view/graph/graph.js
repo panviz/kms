@@ -8,6 +8,7 @@ var View = require('../view')
 , ForceLayout = require('../../layout/force')
 , GridLayout = require('../../layout/grid')
 , RadialLayout = require('../../layout/radial')
+, Selectioning = require('../../behavior/selection/selectioning')
 , Pan = require('../../behavior/pan')
 , Util = require('../../../core/util')
 
@@ -49,14 +50,20 @@ var Self = function (p) {
   self.resize()
   self._initLayouts()
 
-  self.panning = new Pan({
+  self.pan = new Pan({
     container: self.elements.canvas,
     eventTarget: self.elements.svg,
   })
-  self.panning.enable()
+  self.pan.enable()
+  self.selectioning = new Selectioning({
+    selection: self.selection,
+    container: self.elements.svg,
+    nodeSelector: self.selectors.node,
+  })
 
   self.selection.on('add', self._onSelect.bind(self))
   self.selection.on('remove', self._onDeselect.bind(self))
+  self.elements.svg.on('dblclick', self.selectors.node, self._onNodeDblClick.bind(self))
   self.elements.svg.on('click', self._onBgClick.bind(self))
   $(window).on('resize', self.resize.bind(self))
 }
@@ -93,8 +100,6 @@ Self.prototype.render = function (vGraph) {
 
   enterNodes
     .attr('class', self.selectors.node.slice(1))
-    .on('click', self._onClick.bind(self))
-    .on('dblclick', self._onDblClick.bind(self))
     .attr('transform', function (d) {
       return 'translate(' + d.x + ',' + d.y + ')'
     })
@@ -215,24 +220,15 @@ Self.prototype._onDeselect = function (keys) {
   })
 }
 
-Self.prototype._onClick = function (node) {
+Self.prototype._onNodeDblClick = function (e) {
   var self = this
-  d3.event.stopPropagation()
-  self.selection.clear()
-  self.selection.add(node.key)
-  self.trigger('node-click', node.key)
-}
-
-Self.prototype._onDblClick = function (node) {
-  var self = this
-  d3.event.stopPropagation()
-  self.trigger('node-dblclick', node.key)
+  var key = e.currentTarget.__data__.key
+  e.stopPropagation()
+  self.trigger('node-dblclick', key)
 }
 
 Self.prototype._onBgClick = function () {
   var self = this
-  self.selection.clear()
-  self._nodes.classed('selected', false)
   self.trigger('background-click')
 }
 

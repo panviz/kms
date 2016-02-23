@@ -73,6 +73,7 @@ Self.prototype.disableMenuItem = function (action) {
 
 Self.prototype._onMenuItemClick = function (e) {
   var self = this
+  e.stopPropagation()
   var data = $(e.target).data()
   var action = self.actions[data.id]
   action.apply(data)

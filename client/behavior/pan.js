@@ -10,39 +10,40 @@ var Behavior = require('./behavior')
  * @param Number p.keyStep pixels to move on keyboard arrows
  */
 var Self = function (p) {
-  Behavior.call(this)
+  Behavior.call(this, p)
   var self = this
 
   self.p = _.extend({
     wheelStep: 10,
     keyStep:  30,
   }, p)
+  self._controlKeys = ['Up', 'Down', 'Left', 'Right']
   self._startPoint = {}
-  self.container = p.container
-
   self._changed = false
-  self.eventTarget = p.eventTarget
+
+  self.container = p.container
+  self._eventTarget = p.eventTarget
   $(document).on('keydown', self._onKeyDown.bind(self))
 }
 Self.prototype = Object.create(Behavior.prototype)
 
 Self.prototype.enable = function () {
   var self = this
-  self.eventTarget.on('mousedown', self._onMouseDown.bind(self))
-  self.eventTarget.on('mousemove', self._onMouseMove.bind(self))
-  self.eventTarget.on('mouseup', self._end.bind(self))
-  self.eventTarget.on('mousewheel', self._onScroll.bind(self))
-  self.eventTarget.addClass('pan')
+  self._eventTarget.on('mousedown', self._onMouseDown.bind(self))
+  self._eventTarget.on('mousemove', self._onMouseMove.bind(self))
+  self._eventTarget.on('mouseup', self._end.bind(self))
+  self._eventTarget.on('mousewheel', self._onScroll.bind(self))
+  self._eventTarget.addClass('pan')
   self._enabled = true
 }
 
 Self.prototype.disable = function () {
   var self = this
-  self.eventTarget.off('mousedown', self._onMouseDown)
-  self.eventTarget.off('mousemove', self._onMouseMove)
-  self.eventTarget.off('mouseup', self._end)
-  // self.eventTarget.off('mousewheel', self._onScroll)
-  self.eventTarget.removeClass('pan')
+  self._eventTarget.off('mousedown', self._onMouseDown)
+  self._eventTarget.off('mousemove', self._onMouseMove)
+  self._eventTarget.off('mouseup', self._end)
+  // self._eventTarget.off('mousewheel', self._onScroll)
+  self._eventTarget.removeClass('pan')
   self._enabled = false
 }
 /**
@@ -55,7 +56,9 @@ Self.prototype.getPosition = function () {
   pos.y = _.toNumber(self.container.translateY())
   return pos
 }
-
+/**
+ * Move canvas either absolute or relative
+ */
 Self.prototype.move = function (x, y, relative, silent) {
   var self = this
   if (relative) {
@@ -65,18 +68,22 @@ Self.prototype.move = function (x, y, relative, silent) {
   }
   if (!silent) self.trigger('end')
 }
-
+/**
+ * shift canvas on specified distance {deltaX, deltaY}
+ */
 Self.prototype._moveOn = function (deltaX, deltaY) {
   var self = this
   var current = self.getPosition()
   self._moveTo(current.x + deltaX, current.y + deltaY)
 }
-
+/**
+ * Move canvas to absolute position {x,y}
+ */
 Self.prototype._moveTo = function (x, y, silent) {
   var self = this
   if (y !== undefined) self.container.translateY(y)
   if (x !== undefined) self.container.translateX(x)
-  if(!silent) self.trigger('change')
+  if (!silent) self.trigger('change')
 }
 /**
  * Sets self.startPoint
@@ -150,17 +157,18 @@ Self.prototype._onScroll = function (e) {
 
 Self.prototype._onKeyDown = function (e) {
   var self = this
+  e = e.originalEvent
+  if ( !('keyIdentifier' in e) ) {
+    e.keyIdentifier = e.key
+  }
+  if (!_.includes(self._controlKeys, e.keyIdentifier)) return
+
   var turnOff = false
   if(!self._enabled){
     self._enabled = true
     turnOff = true
   }
   self._start(0,0)
-
-  e = e.originalEvent
-  if ( !('keyIdentifier' in e) ) {
-    e.keyIdentifier = e.key
-  }
 
   switch(e.keyIdentifier) {
     case 'Up':
