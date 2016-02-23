@@ -24,15 +24,9 @@ var Self = function (p) {
     self.addMenuItem(action)
   })
   self.elements.root.on('click', self.selectors.action, self._onMenuItemClick.bind(self))
+  self.elements.root.on('click', self.selectors.group, self._onGroupClick.bind(self))
 }
 BackboneEvents.mixin(Self.prototype)
-
-Self.prototype._onMenuItemClick = function (e) {
-  var self = this
-  var data = $(e.target).data()
-  var action = self.actions[data.id]
-  action.apply(data)
-}
 
 Self.prototype.addMenuItem = function (action) {
   var self = this
@@ -75,6 +69,20 @@ Self.prototype.disableMenuItem = function (action) {
   var self = this
   var menuItem = self.elements.root.find('[data-id="' + action.id + '"]')
   menuItem.removeClass('enabled')
+}
+
+Self.prototype._onMenuItemClick = function (e) {
+  var self = this
+  var data = $(e.target).data()
+  var action = self.actions[data.id]
+  action.apply(data)
+}
+
+Self.prototype._onGroupClick = function (e) {
+  var self = this
+  var $group = $(e.currentTarget)
+  $group.find('ul').slideToggle()
+  $group.find('span').toggleClass('collapsed')
 }
 
 module.exports = Self
