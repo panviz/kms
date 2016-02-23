@@ -9,6 +9,7 @@ var View = require('../view')
 , GridLayout = require('../../layout/grid')
 , RadialLayout = require('../../layout/radial')
 , Selectioning = require('../../behavior/selection/selectioning')
+, RectSelectioning = require('../../behavior/selection/rectangular')
 , Pan = require('../../behavior/pan')
 , Util = require('../../../core/util')
 
@@ -29,19 +30,22 @@ var Self = function (p) {
   self.selection = p.selection
 
   self.selectors = {
-    viewContainer: '.view.graph',
     svg: 'svg',
     canvas: 'svg .canvas',
     link: '.link',
     node: '.node',
   }
-  self.actions = [require('./action/forceLayout'), require('./action/gridLayout'), require('./action/radialLayout')]
+  self.actions = [
+    require('./action/forceLayout'),
+    require('./action/gridLayout'),
+    require('./action/radialLayout')
+  ]
   _.each(self.actions, function (action) {
     self.actionman.set(action, self)
   })
   var $html = $(G.Templates['view/graph/graph']())
   self.p.container.append($html)
-  self.elements = Util.findElements(self.p.container, self.selectors)
+  self.elements = Util.findElements($html, self.selectors)
 
   self._edges = []
   self._nodes = []
@@ -54,12 +58,19 @@ var Self = function (p) {
     container: self.elements.canvas,
     eventTarget: self.elements.svg,
   })
-  self.pan.enable()
+  //self.pan.enable()
   self.selectioning = new Selectioning({
     selection: self.selection,
     container: self.elements.svg,
     nodeSelector: self.selectors.node,
   })
+  self.rectSelectioning = new RectSelectioning({
+    selection: self.selection,
+    nodes: self._nodes,
+    container: self.elements.root,
+    eventTarget: self.elements.svg,
+  })
+  self.rectSelectioning.enable()
 
   self.selection.on('add', self._onSelect.bind(self))
   self.selection.on('remove', self._onDeselect.bind(self))
@@ -147,9 +158,9 @@ Self.prototype.updatePosition = function () {
 Self.prototype.resize = function () {
   var self = this
   self.elements.svg.detach()
-  self.p.height = self.elements.viewContainer.height()
-  self.p.width = self.elements.viewContainer.width()
-  self.elements.viewContainer.append(self.elements.svg)
+  self.p.height = self.elements.root.height()
+  self.p.width = self.elements.root.width()
+  self.elements.root.append(self.elements.svg)
   self.elements.svg
     .width(self.p.width)
     .height(self.p.height)

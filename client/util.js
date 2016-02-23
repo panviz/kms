@@ -1,3 +1,7 @@
+$.fn.cssInt = function (prop, value) {
+  if (value !== undefined) this.css(prop, value + 'px')
+  return _.toNumber(this.css(prop)) || 0
+}
 $.fn.translateX = function (x) {
   var matrix = this.transform()
   var newX = _.isNumber(x) ? x : matrix[4]

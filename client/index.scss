@@ -9,6 +9,8 @@
 @import 'view/list/list';
 @import 'view/editor/editor';
 
+@import 'behavior/selection/rectangular';
+
 $fa-font-path: "/node_modules/font-awesome/fonts/";
 @import '../node_modules/font-awesome/scss/font-awesome';
 @import './style/material';

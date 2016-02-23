@@ -1,0 +1,9 @@
+.selectioningRectangle {
+  display: none;
+  position: absolute;
+  left: 0;
+  top: 0;
+  z-index: 10;
+  background-color: rgba(220, 216, 244, .33);
+  pointer-events: none;
+}
