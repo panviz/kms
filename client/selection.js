@@ -17,10 +17,13 @@ BackboneEvents.mixin(Self.prototype)
  */
 Self.prototype.add = function (items) {
   var self = this
-  items = _.without(Util.pluralize(items), undefined)
-  if (_.isEmpty(items)) return
-  // Do not add existing items
-  if (_.isEmpty(_.difference(items, self._items))) return
+  items = Util.pluralize(items)
+
+  // Do not add existing items and non String values
+  items = _.filter(items, function (item) {
+    return _.isString(item) && item && !_.includes(self._items, item)
+  })
+  if (_.isEmpty(items)) return []
 
   self._items = _.union(self._items, items)
 
@@ -46,7 +49,11 @@ Self.prototype.getCount = function () {
 Self.prototype.remove = function (items) {
   var self = this
   items = Util.pluralize(items)
-  if (_.isEmpty(items)) return
+
+  items = _.filter(items, function (item) {
+    return _.isString(item) && item && _.includes(self._items, item)
+  })
+  if (_.isEmpty(items)) return []
 
   self._items = _.difference(self._items, items)
 
