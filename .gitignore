@@ -2,7 +2,4 @@ config.yml
 config.json
 node_modules
 npm-debug.log
-client/bundle.js
-client/bundle.css
-client/templates.js
-client/libs.js
+client/bundle/*

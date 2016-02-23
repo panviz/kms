@@ -1,3 +1,3 @@
 #!/bin/bash  
 cd client
-node-sass index.scss bundle.css
+node-sass index.scss bundle/bundle.css

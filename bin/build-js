@@ -1,10 +1,10 @@
 #!/bin/bash
-handlebars client > client/templates.js -e html -m -n "G.Templates"
+handlebars client > client/bundle/templates.js -e html -m -n "G.Templates"
 
 uglifyjs \
-  node_modules/lodash/index.js \
+  node_modules/lodash/lodash.js \
   node_modules/jquery/dist/jquery.js \
   node_modules/handlebars/dist/handlebars.js \
   node_modules/d3/d3.js \
   node_modules/backbone-events-standalone/backbone-events-standalone.js \
--c -o client/libs.js
+-c -o client/bundle/libs.js
