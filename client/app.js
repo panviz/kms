@@ -63,8 +63,6 @@ var Self = function (p) {
   self.actionman.on('add', self.actionsPanel.addMenuItem.bind(self.actionsPanel))
 
   self.graphView = new GraphView(graphViewSet)
-  self.graphView.on('node-dblclick', self.showChildren.bind(self))
-  self.graphView.on('background-click', self._hideSecondaryViews.bind(self))
 
   self.linkedList = new ListView(listViewSet)
   self.linkedList.on('show', self._layoutViews.bind(self))
@@ -81,6 +79,7 @@ var Self = function (p) {
     require('./action/item/create'),
     require('./action/item/edit'),
     require('./action/item/save'),
+    require('./action/item/link'),
     require('./action/item/showChildren'),
     require('./action/item/hide'),
     require('./action/item/remove'),
@@ -146,6 +145,14 @@ Self.prototype.removeItem = function (keys) {
       self.visibleItems.remove(keys)
     })
 }
+
+Self.prototype.linkItems = function (source, targets) {
+  var self = this
+  self.provider.request('associate', source, targets)
+    .then(function (updated) {
+      self._onVisibleItemsChange()
+    })
+}
 /**
  * populate view with user data from previous time
  */
@@ -177,12 +184,10 @@ Self.prototype._onSelect = function () {
       .then(function (value) {
         self.editor.set(value, key)
       })
-  } else {
-  }
+  } else if (keys.length === 0) self._hideSecondaryViews()
 }
 /**
- * 1) hide editor on graphView fire bgClick
- * 2) do not hide on multiple selection but just on empty
+ * Hide secondary views on empty selection
  */
 Self.prototype._hideSecondaryViews = function () {
   var self = this

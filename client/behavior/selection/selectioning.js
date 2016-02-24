@@ -1,5 +1,6 @@
 /*
- * Rectangular selection
+ * Selection by click
+ * allows multiple
  */
 var Behavior = require('../behavior')
 , Util = require('../../../core/util')
@@ -9,16 +10,17 @@ var Self = function (p) {
   var self = this
 
   self.selection = p.selection
-  self._eventTarget = p.container
+  self.container = p.container
   self._nodeSelector = p.nodeSelector
-  self._eventTarget.on('mousedown', self._nodeSelector, self._onMouseDownNode.bind(self))
-  self._eventTarget.on('mouseup', self._nodeSelector, self._onMouseUpNode.bind(self))
-  self._eventTarget.on('mousedown', self._onMouseDownBase.bind(self))
+  self.container.on('mousedown', self._nodeSelector, self._onMouseDownNode.bind(self))
+  self.container.on('mouseup', self._nodeSelector, self._onMouseUpNode.bind(self))
+  self.container.on('mousedown', self._onMouseDownBase.bind(self))
 }
 Self.prototype = Object.create(Behavior.prototype)
 
 Self.prototype._onMouseDownBase = function (e) {
   var self = this
+  if (e.target !== e.currentTarget) return
   if (e.shiftKey === false) self.selection.clear()
 }
 
@@ -35,16 +37,12 @@ Self.prototype._onMouseDownNode = function (e) {
       self.selection.add(key)
     }
   }
-  e.stopPropagation()
 }
 
 Self.prototype._onMouseUpNode = function (e) {
   var self = this
   var key = e.currentTarget.__data__.key
   var selected = self.selection.getAll()
-
-  // do not clear selection when dragging
-  if (!self.selection.get(key)) return
 
   // deselect all except current
   if (e.shiftKey === false) {

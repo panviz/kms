@@ -10,21 +10,14 @@ var View = require('../view')
 , RadialLayout = require('../../layout/radial')
 , Selectioning = require('../../behavior/selection/selectioning')
 , RectSelectioning = require('../../behavior/selection/rectangular')
-, Pan = require('../../behavior/pan')
+, Pan = require('../../behavior/pan/pan')
+, Drag = require('../../behavior/drag/drag')
 , Util = require('../../../core/util')
 
 var Self = function (p) {
   var self = this
   self.p = p || {}
-  self.p.node = {
-    size: {
-      width: 32,
-      height: 32
-    },
-    label: {
-      maxLength: 15
-    }
-  }
+
   self.autoLayout = true
   self.actionman = p.actionman
   self.selection = p.selection
@@ -47,35 +40,27 @@ var Self = function (p) {
   self.p.container.append($html)
   self.elements = Util.findElements($html, self.selectors)
 
+  self.p.node = {
+    selector: self.selectors.node,
+    size: {
+      width: 32,
+      height: 32
+    },
+    label: {
+      maxLength: 15,
+    }
+  }
   self._edges = []
   self._nodes = []
 
   self.canvas = d3.select(self.selectors.canvas)
   self.resize()
   self._initLayouts()
-
-  self.pan = new Pan({
-    container: self.elements.canvas,
-    eventTarget: self.elements.svg,
-  })
-  //self.pan.enable()
-  self.selectioning = new Selectioning({
-    selection: self.selection,
-    container: self.elements.svg,
-    nodeSelector: self.selectors.node,
-  })
-  self.rectSelectioning = new RectSelectioning({
-    selection: self.selection,
-    nodes: self._nodes,
-    container: self.elements.root,
-    eventTarget: self.elements.svg,
-  })
-  self.rectSelectioning.enable()
+  self._initBehaviors()
 
   self.selection.on('add', self._onSelect.bind(self))
   self.selection.on('remove', self._onDeselect.bind(self))
   self.elements.svg.on('dblclick', self.selectors.node, self._onNodeDblClick.bind(self))
-  self.elements.svg.on('click', self._onBgClick.bind(self))
   $(window).on('resize', self.resize.bind(self))
 }
 Self.prototype = Object.create(View.prototype)
@@ -111,14 +96,17 @@ Self.prototype.render = function (vGraph) {
 
   enterNodes
     .attr('class', self.selectors.node.slice(1))
-    .attr('transform', function (d) {
-      return 'translate(' + d.x + ',' + d.y + ')'
+    .attr('style', function (d) {
+      return 'transform: translate(' + d.x + 'px,' + d.y + 'px)'
     })
   enterNodes
     .append('circle')
-    .attr('r', self.p.node.size.width)
+    .attr('r', self.p.node.size.width/2)
   enterNodes
     .append('text')
+    .attr('x', 10)
+    .attr('dy', '.35em')
+    .attr('dx', '.70em')
     .text(self._getLabel.bind(self))
 
   self.update()
@@ -148,8 +136,8 @@ Self.prototype.updatePosition = function () {
 
   self._nodes
     .transition()
-    .attr('transform', function (d) {
-      return 'translate(' + d.x + ',' + d.y + ')'
+    .attr('style', function (d) {
+      return 'transform: translate(' + d.x + 'px,' + d.y + 'px)'
     })
 }
 /**
@@ -208,6 +196,55 @@ Self.prototype._initLayouts = function () {
   //self.layout.force.on('tick', self.updatePosition.bind(self))
 }
 
+Self.prototype._initBehaviors = function () {
+  var self = this
+  self.elements.svg.addClass('behavior')
+  self.drag = new Drag({
+    container: self.elements.svg,
+    node: self.p.node,
+  })
+  self.drag.enable()
+  self.drag.on('drop', self._onDrop.bind(self))
+  self.drag.on('move', self._onNodeMove.bind(self))
+
+  self.pan = new Pan({
+    container: self.elements.svg,
+    panElement: self.elements.canvas,
+  })
+  self.pan.enable()
+
+  self.selectioning = new Selectioning({
+    selection: self.selection,
+    container: self.elements.svg,
+    nodeSelector: self.selectors.node,
+  })
+  self.rectSelectioning = new RectSelectioning({
+    selection: self.selection,
+    nodes: self._nodes,
+    container: self.elements.root,
+    eventTarget: self.elements.svg,
+  })
+}
+
+Self.prototype._onDrop = function (targetNode) {
+  var self = this
+  if (!targetNode) return
+  self.actionman.get('itemLink').apply(targetNode[0].__data__.key)
+}
+
+Self.prototype._onNodeMove = function (delta) {
+  var self = this
+  // Fix item to dropped position
+  var keys = self.selection.getAll()
+  _.each(keys, function (key) {
+    var item = _.find(self._items, {key: key})
+    item.fixed = true
+    item.x = item.px = item.x + delta.x
+    item.y = item.py = item.y + delta.y
+  })
+  self.updatePosition()
+}
+
 Self.prototype._getLabel = function (d) {
   var self = this
   var value = d.value
@@ -234,13 +271,7 @@ Self.prototype._onDeselect = function (keys) {
 Self.prototype._onNodeDblClick = function (e) {
   var self = this
   var key = e.currentTarget.__data__.key
-  e.stopPropagation()
-  self.trigger('node-dblclick', key)
-}
-
-Self.prototype._onBgClick = function () {
-  var self = this
-  self.trigger('background-click')
+  self.actionman.get('itemShowChildren').apply()
 }
 
 module.exports = Self

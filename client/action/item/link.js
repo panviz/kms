@@ -2,20 +2,20 @@ var Action = require('../../action')
 var Self = function (p) {
   Action.call(this, p)
   var self = this
-  self.id = 'itemRemove'
-  self._label = 'Delete'
-  self._deny = true
-  self._icon = 'fa fa-remove'
-  self.group = 'item'
 
+  self.id = 'itemLink'
+  self._label = 'Link'
+  self._icon = 'fa fa-link'
+  self.group = 'item'
   self.registrar.selection.on('change', self.evaluate.bind(self, self.registrar.selection))
 }
 Self.prototype = Object.create(Action.prototype)
 
-Self.prototype._execute = function () {
+Self.prototype._execute = function (target) {
   var self = this
   var keys = self.registrar.selection.getAll()
-  self.registrar.removeItem(keys)
+  if (target && keys.length > 0) self.registrar.linkItems(target, keys)
+  else if (keys.length === 2) self.registrar.linkItems(keys[0], keys[1])
 }
 
 Self.prototype.evaluate = function (selection) {

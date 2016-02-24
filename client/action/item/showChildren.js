@@ -19,8 +19,8 @@ Self.prototype._execute = function () {
 
 Self.prototype.evaluate = function (selection) {
   var self = this
-  if (_.isEmpty(selection.getAll())) self.disable()
-  else self.enable()
+  if (selection.getCount()) self.enable()
+  else self.disable()
 }
 
 module.exports = Self

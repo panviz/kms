@@ -3,7 +3,7 @@
  * @event change fires on every little move
  * @event end fires on finishing move
  */
-var Behavior = require('./behavior')
+var Behavior = require('../behavior')
 /**
  * _startPoint - coordinates of pointing device relative to the canvas
  * @param Number p.wheelStep pixels to move on mouse wheel
@@ -22,28 +22,28 @@ var Self = function (p) {
   self._changed = false
 
   self.container = p.container
-  self._eventTarget = p.eventTarget
+  self._element = p.panElement
   $(document).on('keydown', self._onKeyDown.bind(self))
 }
 Self.prototype = Object.create(Behavior.prototype)
 
 Self.prototype.enable = function () {
   var self = this
-  self._eventTarget.on('mousedown', self._onMouseDown.bind(self))
-  self._eventTarget.on('mousemove', self._onMouseMove.bind(self))
-  self._eventTarget.on('mouseup', self._end.bind(self))
-  self._eventTarget.on('mousewheel', self._onScroll.bind(self))
-  self._eventTarget.addClass('pan')
+  self.container.on('mousedown', self._onMouseDown.bind(self))
+  self.container.on('mousemove', self._onMouseMove.bind(self))
+  self.container.on('mouseup', self._end.bind(self))
+  self.container.on('mousewheel', self._onScroll.bind(self))
+  self.container.addClass('pan')
   self._enabled = true
 }
 
 Self.prototype.disable = function () {
   var self = this
-  self._eventTarget.off('mousedown', self._onMouseDown)
-  self._eventTarget.off('mousemove', self._onMouseMove)
-  self._eventTarget.off('mouseup', self._end)
-  // self._eventTarget.off('mousewheel', self._onScroll)
-  self._eventTarget.removeClass('pan')
+  self.container.off('mousedown', self._onMouseDown)
+  self.container.off('mousemove', self._onMouseMove)
+  self.container.off('mouseup', self._end)
+   self.container.off('mousewheel', self._onScroll)
+  self.container.removeClass('pan')
   self._enabled = false
 }
 /**
@@ -52,8 +52,8 @@ Self.prototype.disable = function () {
 Self.prototype.getPosition = function () {
   var self = this
   var pos = {}
-  pos.x = _.toNumber(self.container.translateX())
-  pos.y = _.toNumber(self.container.translateY())
+  pos.x = _.toNumber(self._element.translateX())
+  pos.y = _.toNumber(self._element.translateY())
   return pos
 }
 /**
@@ -81,8 +81,8 @@ Self.prototype._moveOn = function (deltaX, deltaY) {
  */
 Self.prototype._moveTo = function (x, y, silent) {
   var self = this
-  if (y !== undefined) self.container.translateY(y)
-  if (x !== undefined) self.container.translateX(x)
+  if (y !== undefined) self._element.translateY(y)
+  if (x !== undefined) self._element.translateX(x)
   if (!silent) self.trigger('change')
 }
 /**
@@ -130,6 +130,7 @@ Self.prototype._end = function () {
 
 Self.prototype._onMouseDown = function (e) {
   var self = this
+  if (e.target !== e.currentTarget) return
   self._start(e.pageX, e.pageY)
 }
 

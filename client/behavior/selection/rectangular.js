@@ -34,7 +34,9 @@ Self.prototype.disable = function () {
   self._eventTarget.off('mouseup', self._end.bind(self))
   self._enabled = false
 }
-
+/**
+ * user starts drawing rectangular over items
+ */
 Self.prototype._start = function (e) {
   var self = this
   if (!self._enabled) return
@@ -49,7 +51,9 @@ Self.prototype._start = function (e) {
 
   self._element.show()
 }
-
+/**
+ * user is drawing rectangular over items
+ */
 Self.prototype._run = function (e) {
   var self = this
   if (!self._inProgress) return
@@ -66,12 +70,15 @@ Self.prototype._run = function (e) {
   self._element.cssInt('width', rect.width)
   self._element.cssInt('height', rect.height)
 }
-
+/**
+ * user finished drawing rectangular of items to select
+ */
 Self.prototype._end = function (e) {
   var self = this
   if (!self._enabled || !self._inProgress) return
   self._inProgress = false
 
+  // reset visual selectioning rectangle
   var rect = self._rect
   self._element.cssInt('top', 0)
   self._element.cssInt('left', 0)
@@ -79,6 +86,7 @@ Self.prototype._end = function (e) {
   self._element.cssInt('height', 0)
   self._element.hide()
 
+  // TODO replace global object usage
   var toSelect = _.map(G.graphView._nodes[0], function(node){
     if (self._isNodeSelected(node)) return node.__data__.key
   })

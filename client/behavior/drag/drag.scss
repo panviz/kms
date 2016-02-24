@@ -1,0 +1,27 @@
+.behavior.drag {
+  .node {
+    // draggable node
+    cursor: grab;
+    cursor: -webkit-grab;
+    cursor: -moz-grab;
+
+    &.dragging {
+      display: none;
+      z-index: 3;
+      pointer-events: none;
+    }
+  }
+  &.in-progress, &.in-progress .node {
+    cursor: grabbing;
+    cursor: -webkit-grabbing;
+    cursor: -moz-grabbing;
+
+    &.dropTarget {
+      cursor: alias;
+
+      circle {
+        stroke: #222;
+      }
+    }
+  }
+}
