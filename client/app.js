@@ -80,6 +80,7 @@ var Self = function (p) {
     require('./action/item/edit'),
     require('./action/item/save'),
     require('./action/item/link'),
+    require('./action/item/unlink'),
     require('./action/item/showChildren'),
     require('./action/item/hide'),
     require('./action/item/remove'),
@@ -149,6 +150,14 @@ Self.prototype.removeItem = function (keys) {
 Self.prototype.linkItems = function (source, targets) {
   var self = this
   self.provider.request('associate', source, targets)
+    .then(function (updated) {
+      self._onVisibleItemsChange()
+    })
+}
+
+Self.prototype.unlinkItems = function (source, targets) {
+  var self = this
+  self.provider.request('setDisassociate', source, targets)
     .then(function (updated) {
       self._onVisibleItemsChange()
     })

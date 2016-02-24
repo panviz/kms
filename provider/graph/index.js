@@ -222,7 +222,7 @@ Self.prototype._associate = function (key1, key2, weight, p) {
   return [key1, key2]
 }
 /**
- * unlink items
+ * unlink two items
  */
 Self.prototype._disassociate = function (key1, key2) {
   var self = this
@@ -231,7 +231,9 @@ Self.prototype._disassociate = function (key1, key2) {
   self._links[key2] = _.filter(self._links[key2], function (link) { return link[0] !== key1 })
   return [key1, key2]
 }
-
+/**
+ * TODO accept single argument Array: remove crosslink between each other
+ */
 Self.prototype.setDisassociate = function (key1, keys) {
   var self = this
   keys = Util.pluralize(keys)
