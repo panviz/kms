@@ -4,7 +4,10 @@ handlebars client > client/bundle/templates.js -e html -m -n "G.Templates"
 uglifyjs \
   node_modules/lodash/lodash.js \
   node_modules/jquery/dist/jquery.js \
+  node_modules/jquery.easing/jquery.easing.js \
   node_modules/handlebars/dist/handlebars.js \
   node_modules/d3/d3.js \
   node_modules/backbone-events-standalone/backbone-events-standalone.js \
+  node_modules/webcola/WebCola/cola.js \
+  client/util.js \
 -c -o client/bundle/libs.js

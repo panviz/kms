@@ -10,12 +10,12 @@ var Self = function (p) {
   self.name = "Force directed"
 
   self.force = webcola.d3adaptor()
-    .linkDistance(150)
+    .linkDistance(100)
     //.charge(-400)
     //.gravity(0)
-    .constraints([{axis: "y", left: 0, right: 1, gap: 25}])
-    .avoidOverlaps(true)
-    .symmetricDiffLinkLengths(50)
+    //.constraints([{axis: "y", left: 0, right: 1, gap: 25}])
+    //.avoidOverlaps(true)
+    //.symmetricDiffLinkLengths(30)
     .size([self.width, self.height])
 
   self.animation = self.force
@@ -39,8 +39,10 @@ Self.prototype.run = function (items, links) {
     .nodes(items)
     .links(links)
 
-  self.force.start(10, 15, 20)
-  for (var i = 1000; i > 0; --i) self.force.tick()
+  // do not use unconstraint iterations if view is updated on every tick
+  // self.force.start(10,15,20)
+  self.force.start()
+  for (var i = 100; i > 0; --i) self.force.tick()
   self.force.stop()
 }
 

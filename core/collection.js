@@ -1,5 +1,5 @@
 /**
- * Selection object
+ * Collection object
  * Operates on ids of data items
  * @event add fires on items added to collection
  * @event remove fires on items removed from collection

@@ -16,7 +16,7 @@ Self.prototype = Object.create(Action.prototype)
 Self.prototype._execute = function () {
   var self = this
   self.registrar.layout = self.registrar.layouts[self.id]
-  self.registrar.updatePosition()
+  self.registrar.updateLayout()
 }
 
 Self.prototype.evaluate = function () {

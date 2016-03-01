@@ -25,6 +25,8 @@ var Self = function (p) {
   self.selectors = {
     svg: 'svg',
     canvas: 'svg .canvas',
+    edgeGroup: '.edgeGroup',
+    nodeGroup: '.nodeGroup',
     link: '.link',
     node: '.node',
   }
@@ -67,12 +69,23 @@ Self.prototype = Object.create(View.prototype)
 
 Self.prototype.render = function (vGraph) {
   var self = this
+  // stash previous coordinates for seamless visualization
+  _.each(vGraph.items, function (item) {
+    var existItem = _.find(self._items, {key: item.key})
+    if (existItem) {
+      item.fixed = existItem.fixed
+      item.x = existItem.x
+      item.y = existItem.y
+    }
+  })
   self._items = vGraph.items
   self._links = vGraph.edges
    
-  self._edges = self.canvas.selectAll(self.selectors.link)
+  self._edges = self.canvas.select(self.selectors.edgeGroup)
+    .selectAll(self.selectors.link)
     .data(self._links)
-  self._nodes = self.canvas.selectAll(self.selectors.node)
+  self._nodes = self.canvas.select(self.selectors.nodeGroup)
+    .selectAll(self.selectors.node)
     .data(self._items, function (d) { return d.key })
 
   if (self.autoLayout) self.layout.run(self._items, self._links)
@@ -87,7 +100,6 @@ Self.prototype.render = function (vGraph) {
   
   enterEdges
     .attr('class', self.selectors.link.slice(1))
-    .style('stroke-width', function(d) { return Math.sqrt(d.value) })
   enterEdges
     .attr('x1', function (d) { return d.source.x })
     .attr('y1', function (d) { return d.source.y })
@@ -114,7 +126,7 @@ Self.prototype.render = function (vGraph) {
   exitEdges.remove()
   exitNodes.remove()
   // TODO do not trigger on first load (as everything is already made on enterNodes)
-  self.updatePosition()
+  self.updateLayout()
 }
 
 Self.prototype.update = function () {
@@ -124,21 +136,36 @@ Self.prototype.update = function () {
     .text(self._getLabel.bind(self))
 }
 
-Self.prototype.updatePosition = function () {
+Self.prototype.updateLayout = function () {
   var self = this
   if (self.autoLayout) self.layout.run(self._items, self._links)
-  self._edges
-    .transition()
-    .attr('x1', function (d) { return d.source.x })
-    .attr('y1', function (d) { return d.source.y })
-    .attr('x2', function (d) { return d.target.x })
-    .attr('y2', function (d) { return d.target.y })
+  self._updatePosition()
+}
 
-  self._nodes
-    .transition()
-    .attr('style', function (d) {
-      return 'transform: translate(' + d.x + 'px,' + d.y + 'px)'
-    })
+Self.prototype._updatePosition = function () {
+  var self = this
+  Util.animate(750, self._onAnimationStep.bind(self))
+}
+
+Self.prototype._onAnimationStep = function (progress, duration) {
+  var self = this
+  _.each(self._nodes[0], function (node) {
+    var $node = $(node)
+    var item = node.__data__
+    if (progress === 0) {
+      item.px = $node.translateX()
+      item.py = $node.translateY()
+    }
+    item.cx = $.easing.easeInOutCubic(undefined, progress, item.px, item.x - item.px, duration)
+    item.cy = $.easing.easeInOutCubic(undefined, progress, item.py, item.y - item.py, duration)
+    $node.translateX(item.cx)
+    $node.translateY(item.cy)
+  })
+  self._edges
+    .attr('x1', function (d) { return d.source.cx || d.source.x })
+    .attr('y1', function (d) { return d.source.cy || d.source.y })
+    .attr('x2', function (d) { return d.target.cx || d.source.x })
+    .attr('y2', function (d) { return d.target.cy || d.source.y })
 }
 /**
  * take all available space
@@ -154,7 +181,7 @@ Self.prototype.resize = function () {
     .height(self.p.height)
   if (self.layout) {
     self.layout.size(self.p.width, self.p.height)
-    self.updatePosition()
+    self.updateLayout()
   }
 }
 
@@ -165,7 +192,7 @@ Self.prototype.toggleAutoLayout = function () {
     self.layout.animation.stop()
     self.layout.setAnimationHandler()
   } else {
-    self.layout.setAnimationHandler(self.updatePosition.bind(self))
+    self.layout.setAnimationHandler(self.updateLayout.bind(self))
     self.layout.animation.start()
   }
 }
@@ -193,7 +220,7 @@ Self.prototype._initLayouts = function () {
     radial: radialLayout,
   }
   self.layout = self.layouts.force
-  //self.layout.force.on('tick', self.updatePosition.bind(self))
+  //self.layout.force.on('tick', self._updatePosition.bind(self))
 }
 
 Self.prototype._initBehaviors = function () {
@@ -234,6 +261,10 @@ Self.prototype._onDrop = function (targetNode) {
 
 Self.prototype._onNodeMove = function (delta) {
   var self = this
+  var panDelta = self.pan.getPosition()
+  // consider pan shift in resulting delta
+  delta.x = delta.x - panDelta.x
+  delta.y = delta.y - panDelta.y
   // Fix item to dropped position
   var keys = self.selection.getAll()
   _.each(keys, function (key) {
@@ -242,12 +273,12 @@ Self.prototype._onNodeMove = function (delta) {
     item.x = item.px = item.x + delta.x
     item.y = item.py = item.y + delta.y
   })
-  self.updatePosition()
+  self.updateLayout()
 }
 
 Self.prototype._getLabel = function (d) {
   var self = this
-  var value = d.value
+  var value = d.value.substr(0, d.value.indexOf('\n')) || d.value
   if (value.length > self.p.node.label.maxLength) value = value.slice(0, 15) + '...'
   return value
 }

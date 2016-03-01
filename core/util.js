@@ -9,13 +9,28 @@ Self.findElements = function (root, selectors) {
   })
   return elements
 }
-
-Self.pluralize = function(arg) {
-  return _.isArray(arg) ? arg : [arg]
-}
 // update elements reference
 Self.updateElements = function (control) {
   control.elements = Self.findElements(control.elements.root, control.selectors)
+}
+
+Self.animate = function (duration, draw) {
+  var start = undefined
+  function tick(timestamp) {
+    if (!start) start = timestamp
+    var progress = timestamp - start
+    if (progress < duration) {
+       id = requestAnimationFrame(tick)
+       draw(progress, duration)
+    } else {
+      cancelAnimationFrame(id)
+    } 
+  }
+  var id = requestAnimationFrame(tick)
+}
+
+Self.pluralize = function(arg) {
+  return _.isArray(arg) ? arg : [arg]
 }
 /**
  * @param min Integer

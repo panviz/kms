@@ -7,10 +7,9 @@ var Provider = require('../provider/api.client/index')
 , ListView = require('./view/list/list')
 , Editor = require('./view/editor/editor')
 , ActionsPanel = require('./ui/actions-panel/panel')
-, Selection = require('./selection')
+, Collection = require('../core/collection')
 , Actionman = require('./actionman')
 , Util = require('../core/util')
-require('./util')
 
 var Self = function (p) {
   var self = this
@@ -27,10 +26,10 @@ var Self = function (p) {
   }
   self.elements = Util.findElements('body', self.selectors)
 
-  self.selection = new Selection
+  self.selection = new Collection
   self.actionman = new Actionman()
   // IDs array of visible items
-  self.visibleItems = new Selection
+  self.visibleItems = new Collection
 
   var providerSet = {
     url: '/item'
@@ -221,6 +220,7 @@ Self.prototype._onSearch = function (data) {
 
 Self.prototype._onVisibleItemsRemove = function (keys) {
   var self = this
+  self.selection.remove(keys)
   self.provider.request('setDisassociate', self.serviceItem.visibleItem.key, keys)
 }
 

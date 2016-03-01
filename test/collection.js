@@ -1,12 +1,12 @@
 var assert = require('assert')
 _ = require('lodash')
 , BackboneEvents = require('backbone-events-standalone')
-, Selection = require('../client/selection')
+, Collection = require('../core/collection')
 
-describe('Selection', function() {
+describe('Collection', function() {
   var selection
   beforeEach(function () {
-    selection = new Selection
+    selection = new Collection
   })
   describe('CRUD', function () {
     it('should add item', function () {

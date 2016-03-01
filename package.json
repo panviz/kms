@@ -1,6 +1,6 @@
 {
   "name": "graphiy.kms",
-  "version": "0.0.3",
+  "version": "0.1.0",
   "description": "knowledge management system",
   "main": "graphiy",
   "repository": {
@@ -10,7 +10,8 @@
   "homepage": "",
   "keywords": [
     "knowledge management",
-    "graph data",
+    "dynamic graph",
+    "graph visualization",
     "network data",
     "data visualization",
     "cms"
@@ -30,6 +31,18 @@
     "watch-js": "watchify client/app.js -d -v -o client/bundle/bundle.js",
     "test": "mocha --recursive"
   },
+  "browserify": {
+    "transform": [
+      "browserify-shim"
+    ]
+  },
+  "browserify-shim": {
+    "jquery": "global:$",
+    "lodash": "global:_",
+    "handlebars": "global:Handlebars",
+    "webcola": "global:cola",
+    "d3": "d3"
+  },
   "dependencies": {
     "EasyTabs": "git+https://github.com/JangoSteve/jQuery-EasyTabs.git",
     "backbone-events-standalone": "^0.2.7",
@@ -45,6 +58,7 @@
     "isbinaryfile": "^3.0.0",
     "jQuery-Tags-Input": "git+https://github.com/xoxco/jQuery-Tags-Input.git",
     "jquery": "^2.2.0",
+    "jquery.easing": "^1.3.2",
     "js-yaml": "latest",
     "lodash": "4.3.0",
     "material-design-lite": "^1.1.1",
@@ -55,5 +69,11 @@
     "to-markdown": "^2.0.1",
     "webcola": "git+https://github.com/tgdwyer/WebCola.git"
   },
-  "devDependencies": {}
+  "devDependencies": {
+    "browserify": "^13.0.0",
+    "browserify-shim": "^3.8.12",
+    "jsdom": "^8.0.4",
+    "mocha": "^2.4.5",
+    "mocha-jsdom": "^1.1.0"
+  }
 }

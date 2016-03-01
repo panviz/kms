@@ -86,7 +86,7 @@ Self.prototype._moveTo = function (x, y, silent) {
   if (!silent) self.trigger('change')
 }
 /**
- * Sets self.startPoint
+ * Sets self._startPoint
  * @param Number x absolute window coordinate where movement starts
  * @param Number y absolute window coordinate where movement starts
  */
