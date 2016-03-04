@@ -30,7 +30,7 @@ Self.prototype.run = function () {
   var self = this
 
   self.server.listen(self.p.env.port, function() {
-    console.log('\x1b[36mGraph\x1b[90m v%s\x1b[0m running as \x1b[1m%s\x1b[0m on http://%s:%d'
+    console.log('\x1b[36mGraphiy\x1b[90m v%s\x1b[0m running as \x1b[1m%s\x1b[0m on http://%s:%d'
       , self.p.version
       , self.p.env.name
       , self.p.env.host
