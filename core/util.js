@@ -55,6 +55,7 @@ Self.between = function (min, value, max) {
   return result
 }
 /**
+ * TODO use https://github.com/substack/point-in-polygon
  * @param point Object {x, y}
  * @param rect Object {top, left, right, bottom}
  */
@@ -67,6 +68,63 @@ Self.pointInRectangle = function (point, rect) {
   return result
 }
 
+Self.log = function (message) {
+  if (typeof DEBUG !== 'undefined' && DEBUG) console.log(message)
+}
+/**
+ * requires sequential perimeter points
+ * polygon without intersections
+ */
+Self.centroid = function (points) {
+  points = Self.simplifyPolygon(points)
+  var i, j, p1, p2, f, area, x, y, center,
+    length = points.length
+
+  if (!length) { return null }
+  if (length === 2) return [(points[0][0] + points[1][0])/2, (points[0][1] + points[1][1])/2]
+  
+  area = x = y = 0
+
+  for (i = 0, j = length - 1; i < length; j = i++) {
+    p1 = points[i]
+    p2 = points[j]
+
+    f = p1[1] * p2[0] - p2[1] * p1[0];
+    x += (p1[0] + p2[0]) * f
+    y += (p1[1] + p2[1]) * f
+    area += f * 3
+  }
+
+  if (area === 0) {
+    // Polygon is so small that all points are on same pixel.
+    center = points[0]
+  } else {
+    center = [x / area, y / area]
+  }
+  return center
+}
+/**
+ * get circumscribing quadrilateral
+ */
+Self.simplifyPolygon = function (points) {
+  if (points.length < 4) return points
+  var left, right, top, bottom 
+  _.each(points, function (point) {
+    if (!left) {
+      left = point
+      right = point
+      top = point
+      bottom = point
+    }
+    if (point[0] < left[0]) left = point
+    if (point[0] > right[0]) right = point
+    if (point[1] < top[1]) top = point
+    if (point[1] > bottom[1]) bottom = point
+  })
+  return [left, top, right, bottom]
+}
+
 RegExp.prototype.toJSON = function() { return this.toString() }
 
 module.exports = Self
+$util = Self

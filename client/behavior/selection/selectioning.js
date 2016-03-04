@@ -8,6 +8,7 @@ var Behavior = require('../behavior')
 var Self = function (p) {
   Behavior.call(this, p)
   var self = this
+  self.modeKey = 'ctrlKey'
 
   self.selection = p.selection
   self.container = p.container
@@ -21,14 +22,14 @@ Self.prototype = Object.create(Behavior.prototype)
 Self.prototype._onMouseDownBase = function (e) {
   var self = this
   if (e.target !== e.currentTarget) return
-  if (e.shiftKey === false) self.selection.clear()
+  if (e[self.modeKey] === false) self.selection.clear()
 }
 
 Self.prototype._onMouseDownNode = function (e) {
   var self = this
-  var key = e.currentTarget.__data__.key
+  var key = e.currentTarget.__data__
 
-  if( e.shiftKey === false ) {
+  if( e[self.modeKey] === false ) {
     self.selection.add(key)
   } else {
     if (self.selection.get(key)) {
@@ -41,11 +42,11 @@ Self.prototype._onMouseDownNode = function (e) {
 
 Self.prototype._onMouseUpNode = function (e) {
   var self = this
-  var key = e.currentTarget.__data__.key
+  var key = e.currentTarget.__data__
   var selected = self.selection.getAll()
 
   // deselect all except current
-  if (e.shiftKey === false) {
+  if (e[self.modeKey] === false) {
     var unselect = _.without(selected, key)
     self.selection.remove(unselect)
   }

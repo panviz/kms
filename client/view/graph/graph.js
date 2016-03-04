@@ -13,7 +13,13 @@ var View = require('../view')
 , Pan = require('../../behavior/pan/pan')
 , Drag = require('../../behavior/drag/drag')
 , Util = require('../../../core/util')
-
+/**
+ * @param Object p.node Default spatial parameters for rendering node
+ * @inner Graph _graph rendered last time
+ * @inner Array _items array of keys of items actually
+ * @inner Array _nodes d3 selection of DOM nodes
+ * @inner Array _edges d3 selection of DOM edges
+ */
 var Self = function (p) {
   var self = this
   self.p = p || {}
@@ -29,15 +35,8 @@ var Self = function (p) {
     nodeGroup: '.nodeGroup',
     link: '.link',
     node: '.node',
+    hidden: '.hide',
   }
-  self.actions = [
-    require('./action/forceLayout'),
-    require('./action/gridLayout'),
-    require('./action/radialLayout')
-  ]
-  _.each(self.actions, function (action) {
-    self.actionman.set(action, self)
-  })
   var $html = $(G.Templates['view/graph/graph']())
   self.p.container.append($html)
   self.elements = Util.findElements($html, self.selectors)
@@ -48,17 +47,20 @@ var Self = function (p) {
       width: 32,
       height: 32
     },
+    gap: 8,
     label: {
       maxLength: 15,
     }
   }
+  self._graph
+  self._items = []
   self._edges = []
   self._nodes = []
 
   self.canvas = d3.select(self.selectors.canvas)
   self.resize()
   self._initLayouts()
-  self._initBehaviors()
+  self._initViewActions()
 
   self.selection.on('add', self._onSelect.bind(self))
   self.selection.on('remove', self._onDeselect.bind(self))
@@ -66,142 +68,15 @@ var Self = function (p) {
   $(window).on('resize', self.resize.bind(self))
 }
 Self.prototype = Object.create(View.prototype)
-
-Self.prototype.render = function (vGraph) {
-  var self = this
-  // stash previous coordinates for seamless visualization
-  _.each(vGraph.items, function (item) {
-    var existItem = _.find(self._items, {key: item.key})
-    if (existItem) {
-      item.fixed = existItem.fixed
-      item.x = existItem.x
-      item.y = existItem.y
-    }
-  })
-  self._items = vGraph.items
-  self._links = vGraph.edges
-   
-  self._edges = self.canvas.select(self.selectors.edgeGroup)
-    .selectAll(self.selectors.link)
-    .data(self._links)
-  self._nodes = self.canvas.select(self.selectors.nodeGroup)
-    .selectAll(self.selectors.node)
-    .data(self._items, function (d) { return d.key })
-
-  if (self.autoLayout) self.layout.run(self._items, self._links)
-
-  var updateEdges = self._edges
-  var enterEdges = self._edges.enter().append('line')
-  var exitEdges = self._edges.exit()
-
-  var enterNodes = self._nodes.enter().append('g')
-  var updateNodes = self._nodes
-  var exitNodes = self._nodes.exit()
-  
-  enterEdges
-    .attr('class', self.selectors.link.slice(1))
-  enterEdges
-    .attr('x1', function (d) { return d.source.x })
-    .attr('y1', function (d) { return d.source.y })
-    .attr('x2', function (d) { return d.target.x })
-    .attr('y2', function (d) { return d.target.y })
-
-  enterNodes
-    .attr('class', self.selectors.node.slice(1))
-    .attr('style', function (d) {
-      return 'transform: translate(' + d.x + 'px,' + d.y + 'px)'
-    })
-  enterNodes
-    .append('circle')
-    .attr('r', self.p.node.size.width/2)
-  enterNodes
-    .append('text')
-    .attr('x', 10)
-    .attr('dy', '.35em')
-    .attr('dx', '.70em')
-    .text(self._getLabel.bind(self))
-
-  self.update()
-
-  exitEdges.remove()
-  exitNodes.remove()
-  // TODO do not trigger on first load (as everything is already made on enterNodes)
-  self.updateLayout()
-}
-
-Self.prototype.update = function () {
-  var self = this
-  self._nodes
-    .select('text')
-    .text(self._getLabel.bind(self))
-}
-
-Self.prototype.updateLayout = function () {
-  var self = this
-  if (self.autoLayout) self.layout.run(self._items, self._links)
-  self._updatePosition()
-}
-
-Self.prototype._updatePosition = function () {
-  var self = this
-  Util.animate(750, self._onAnimationStep.bind(self))
-}
-
-Self.prototype._onAnimationStep = function (progress, duration) {
-  var self = this
-  _.each(self._nodes[0], function (node) {
-    var $node = $(node)
-    var item = node.__data__
-    if (progress === 0) {
-      item.px = $node.translateX()
-      item.py = $node.translateY()
-    }
-    item.cx = $.easing.easeInOutCubic(undefined, progress, item.px, item.x - item.px, duration)
-    item.cy = $.easing.easeInOutCubic(undefined, progress, item.py, item.y - item.py, duration)
-    $node.translateX(item.cx)
-    $node.translateY(item.cy)
-  })
-  self._edges
-    .attr('x1', function (d) { return d.source.cx || d.source.x })
-    .attr('y1', function (d) { return d.source.cy || d.source.y })
-    .attr('x2', function (d) { return d.target.cx || d.source.x })
-    .attr('y2', function (d) { return d.target.cy || d.source.y })
-}
 /**
- * take all available space
+ * initialize all available layouts in view
  */
-Self.prototype.resize = function () {
-  var self = this
-  self.elements.svg.detach()
-  self.p.height = self.elements.root.height()
-  self.p.width = self.elements.root.width()
-  self.elements.root.append(self.elements.svg)
-  self.elements.svg
-    .width(self.p.width)
-    .height(self.p.height)
-  if (self.layout) {
-    self.layout.size(self.p.width, self.p.height)
-    self.updateLayout()
-  }
-}
-
-Self.prototype.toggleAutoLayout = function () {
-  var self = this
-  self.autoLayout = !self.autoLayout
-  if (!self.autoLayout) {
-    self.layout.animation.stop()
-    self.layout.setAnimationHandler()
-  } else {
-    self.layout.setAnimationHandler(self.updateLayout.bind(self))
-    self.layout.animation.start()
-  }
-}
-
 Self.prototype._initLayouts = function () {
   var self = this
   var forceLayout = new ForceLayout({
     width: self.p.width,
     height: self.p.height,
+    node: self.p.node,
   })
   var gridLayout = new GridLayout({
     width: self.p.width,
@@ -219,11 +94,22 @@ Self.prototype._initLayouts = function () {
     grid: gridLayout,
     radial: radialLayout,
   }
+  // TODO change Grid and Radial layouts firing
+  //self.actions = [
+    //require('./action/forceLayout'),
+    //require('./action/gridLayout'),
+    //require('./action/radialLayout')
+  //]
+  //_.each(self.actions, function (action) {
+    //self.actionman.set(action, self)
+  //})
   self.layout = self.layouts.force
-  //self.layout.force.on('tick', self._updatePosition.bind(self))
+  self.layout.on('tick', self._updatePosition, self)
 }
-
-Self.prototype._initBehaviors = function () {
+/**
+ * initialize View actions and their functions
+ */
+Self.prototype._initViewActions = function () {
   var self = this
   self.elements.svg.addClass('behavior')
   self.drag = new Drag({
@@ -252,41 +138,193 @@ Self.prototype._initBehaviors = function () {
     eventTarget: self.elements.svg,
   })
 }
+/**
+ * render new graph in the view using current layout
+ */
+Self.prototype.render = function (graph) {
+  var self = this
+  self._graph = graph
+  self._items = graph.getItemKeys()
+   
+  // bind DOM nodes to items
+  self._nodes = self.canvas.select(self.selectors.nodeGroup)
+    .selectAll(self.selectors.node)
+    .data(self._items, function (d) { return d})
+
+  self._enterNodes()
+  self._updateNodes()
+  self._exitNodes()
+
+  self.layout.update(graph, self._enteredNodes[0])
+  // init edges only after its coord are ready
+  self._edges = self.canvas.select(self.selectors.edgeGroup)
+    .selectAll(self.selectors.link)
+    .data(self._graph.getLinksArray())
+  self._enterEdges()
+  self._exitEdges()
+
+  self._updatePosition()
+  self.layout.once('tick', function () {
+    self._enteredNodes.classed(self.selectors.hidden.slice(1), false)
+    self._enteredEdges.classed(self.selectors.hidden.slice(1), false)
+    self._exitedNodes.classed(self.selectors.hidden.slice(1), true)
+    self._exitedEdges.classed(self.selectors.hidden.slice(1), true)
+  })
+  self.updateLayout({duration: 1000})
+}
+/**
+ * take all available space
+ */
+Self.prototype.resize = function () {
+  var self = this
+  self.elements.svg.detach()
+  self.p.height = self.elements.root.height()
+  self.p.width = self.elements.root.width()
+  self.elements.root.append(self.elements.svg)
+  self.elements.svg
+    .width(self.p.width)
+    .height(self.p.height)
+}
+/**
+ * run current view layout for
+ */
+Self.prototype.updateLayout = function (p) {
+  var self = this
+  if (self.autoLayout) self.layout.run(p, self._graph)
+}
+/**
+ * TODO make action for it
+ */
+Self.prototype.toggleAutoLayout = function () {
+  var self = this
+  self.autoLayout = !self.autoLayout
+}
+/**
+ * append new Edges to DOM
+ */
+Self.prototype._enterEdges = function () {
+  var self = this
+
+  self._enteredEdges = self._edges.enter().append('line')
+  self._enteredEdges
+    .classed(self.selectors.link.slice(1) + ' ' + self.selectors.hidden.slice(1), true)
+}
+/**
+ * remove dropped off Edges from DOM
+ */
+Self.prototype._exitEdges = function () {
+  var self = this
+  self._exitedEdges = self._edges.exit()
+  self._exitedEdges
+    .classed(self.selectors.hidden.slice(1), true)
+  setTimeout(function () {
+    self._exitedEdges.remove()
+  }, 750)
+}
+/**
+ * append new nodes to DOM
+ */
+Self.prototype._enterNodes = function () {
+  var self = this
+  self._enteredNodes = self._nodes.enter().append('g')
+  self._enteredNodes
+    .classed(self.selectors.node.slice(1) + ' ' + self.selectors.hidden.slice(1), true)
+  self._enteredNodes
+    .append('circle')
+    .attr('r', self.p.node.size.width/2)
+  self._enteredNodes
+    .append('text')
+    .attr('x', self.p.node.size.width * 0.56)
+    .attr('y', self.p.node.size.width * -0.19)
+    .text(self._getLabel.bind(self))
+}
+/**
+ * update DOM nodes
+ */
+Self.prototype._updateNodes = function () {
+  var self = this
+  self._nodes
+    .select('text')
+    .text(self._getLabel.bind(self))
+}
+/**
+ * remove DOM nodes
+ */
+Self.prototype._exitNodes = function () {
+  var self = this
+  self._exitedNodes = self._nodes.exit()
+  self._exitedNodes
+    .classed(self.selectors.hidden.slice(1), true)
+  setTimeout(function () {
+    self._exitedNodes.remove()
+  }, 750)
+}
+/**
+ * update nodes and edges positions in DOM
+ */
+Self.prototype._updatePosition = function () {
+  var self = this
+  var items = self._items
+  var coords = self.layout.getCoords()
+  _.each(self._nodes[0], function (node) {
+    var $node = $(node)
+    var item = node.__data__
+    var coord = coords[items.indexOf(item)]
+    $node.translateX(coord.x)
+    $node.translateY(coord.y)
+    //if (item == 'job') console.log(coord.x + ', ' + coord.y);
+  })
+  _.each(self._edges[0], function (edge) {
+    var source = edge.__data__[0]
+    var target = edge.__data__[1]
+    var sCoord = coords[items.indexOf(source)]
+    var tCoord = coords[items.indexOf(target)]
+    edge.setAttribute('x1', sCoord.x)
+    edge.setAttribute('y1', sCoord.y)
+    edge.setAttribute('x2', tCoord.x)
+    edge.setAttribute('y2', tCoord.y)
+  })
+}
+
+Self.prototype._getLabel = function (d) {
+  var self = this
+  var value = self._graph.get(d)
+  value = value.substr(0, value.indexOf('\n')) || value
+  if (value.length > self.p.node.label.maxLength) value = value.slice(0, 15) + '...'
+  return value
+}
 
 Self.prototype._onDrop = function (targetNode) {
   var self = this
   if (!targetNode) return
-  self.actionman.get('itemLink').apply(targetNode[0].__data__.key)
+  self.actionman.get('itemLink').apply(targetNode[0].__data__)
 }
 
 Self.prototype._onNodeMove = function (delta) {
   var self = this
   var panDelta = self.pan.getPosition()
-  // consider pan shift in resulting delta
-  delta.x = delta.x - panDelta.x
-  delta.y = delta.y - panDelta.y
-  // Fix item to dropped position
   var keys = self.selection.getAll()
   _.each(keys, function (key) {
-    var item = _.find(self._items, {key: key})
-    item.fixed = true
-    item.x = item.px = item.x + delta.x
-    item.y = item.py = item.y + delta.y
-  })
-  self.updateLayout()
-}
+    var node = _.find(self._nodes[0], function (node) {return node.__data__ === key})
+    var item = node.__data__
+    d3.select(node).append('image')
+      .attr('x', 0)
+      .attr('y', -self.p.node.size.width*0.68)
+      .attr('width', self.p.node.size.width/2)
+      .attr('height', self.p.node.size.width/2)
+      .attr('xlink:href', '/client/view/graph/pin.svg')
 
-Self.prototype._getLabel = function (d) {
-  var self = this
-  var value = d.value.substr(0, d.value.indexOf('\n')) || d.value
-  if (value.length > self.p.node.label.maxLength) value = value.slice(0, 15) + '...'
-  return value
+    // Fix item to dropped position
+    self.layout.move(item, delta)
+    self.layout.fix(item)
+  })
+  self.updateLayout({duration: 200})
 }
 
 Self.prototype._onSelect = function (keys) {
   var self = this
   _.each(keys, function (key) {
-    var node = _.find(self._nodes[0], function (node) {return node.__data__.key === key})
+    var node = _.find(self._nodes[0], function (node) {return node.__data__ === key})
     $(node).addClass('selected')
   })
 }
@@ -294,14 +332,14 @@ Self.prototype._onSelect = function (keys) {
 Self.prototype._onDeselect = function (keys) {
   var self = this
   _.each(keys, function (key) {
-    var node = _.find(self._nodes[0], function (node) {return node.__data__.key === key})
+    var node = _.find(self._nodes[0], function (node) {return node.__data__ === key})
     $(node).removeClass('selected')
   })
 }
 
 Self.prototype._onNodeDblClick = function (e) {
   var self = this
-  var key = e.currentTarget.__data__.key
+  var key = e.currentTarget.__data__
   self.actionman.get('itemShowChildren').apply()
 }
 

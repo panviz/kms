@@ -44,6 +44,7 @@ Self.prototype._start = function (e) {
   var self = this
   self._dragged = $(e.currentTarget)
   self._draggedClone = self._dragged.clone().addClass('dragging')
+  self._startPoint = {x: e.offsetX, y: e.offsetY}
 
   self.container.append(self._draggedClone)
   self.container.addClass('in-progress')
@@ -53,8 +54,8 @@ Self.prototype._start = function (e) {
 Self.prototype._run = function (e) {
   var self = this
   if (!self._inProgress) return
-  if ( Math.abs(e.offsetX - self._dragged.translateX()) < 2 &&
-       Math.abs(e.offsetY - self._dragged.translateY()) < 2) return
+  if ( Math.abs(e.offsetX - self._startPoint.x) < 2 &&
+       Math.abs(e.offsetY - self._startPoint.y) < 2) return
 
   if (!self._draggedClone.is(':visible')) {
     self._draggedClone.show()
@@ -88,8 +89,8 @@ Self.prototype._end = function (e) {
     self.trigger('drop', self._target)
   } else {
     var delta = {}
-    delta.x = e.offsetX - self._dragged.translateX()
-    delta.y = e.offsetY - self._dragged.translateY()
+    delta.x = e.offsetX - self._startPoint.x
+    delta.y = e.offsetY - self._startPoint.y
     
     var nodeHalfWidth = self.p.node.size.width/2
     if (Math.abs(delta.x) > nodeHalfWidth || Math.abs(delta.y) > nodeHalfWidth) {
@@ -97,6 +98,7 @@ Self.prototype._end = function (e) {
     }
   }
 
+  self._startPoint = undefined
   self._disposeDrop()
   self._draggedClone.remove()
   self.container.removeClass('in-progress')

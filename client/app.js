@@ -103,10 +103,9 @@ Self.prototype.showChildren = function (keys) {
       var linkedKeys = graph.getItemKeys()
       self.visibleItems.add(linkedKeys)
 
-      var vGraph = self._convert(graph)
       self.linkedList.show()
       // TODO when one view on common container is changed fire event and resize others
-      self.linkedList.render(vGraph)
+      self.linkedList.render(graph.getItemsMap())
     })
 }
 
@@ -188,6 +187,7 @@ Self.prototype._onSelect = function () {
   if (keys.length === 1) {
     var key = keys[0]
     if (!self.editor.isVisible()) return
+    // TODO make local _graph.get and retrieve value only for partially loaded items
     self.provider.request('get', key)
       .then(function (value) {
         self.editor.set(value, key)
@@ -199,10 +199,8 @@ Self.prototype._onSelect = function () {
  */
 Self.prototype._hideSecondaryViews = function () {
   var self = this
-  if (self.editor.isVisible() || self.linkedList.isVisible()) {
-    self.editor.hide()
-    self.linkedList.hide()
-  }
+  self.editor.hide()
+  self.linkedList.hide()
 }
 
 Self.prototype._layoutViews = function () {
@@ -240,8 +238,7 @@ Self.prototype._onVisibleItemsChange = function () {
 
 Self.prototype._updateGraphView = function (graph) {
   var self = this
-  var vGraph = self._convert(graph)
-  self.graphView.render(vGraph)
+  self.graphView.render(graph)
 }
 
 Self.prototype._filter = function (data) {
@@ -254,41 +251,6 @@ Self.prototype._filter = function (data) {
   } else {
     return _.without(keys, self.serviceItem.visibleItem.key) 
   }
-}
-/**
- * Prepare suitable for Views json
- */
-Self.prototype._convert = function (graph) {
-  var self = this
-  var obj = {}
-  obj.items = _.map(graph.getItemsMap(), function (value, key) {
-    return {key: key, value: value}
-  })
-  obj.links = _.map(graph.getLinksArray(), function (link) {
-    return {source: link[0], target: link[1]}
-  })
-  obj.edges = self._getEdges(obj.items, obj.links)
-  return obj
-}
-/**
- * @returns Array of formatted edges with nodes reference as source and target
- */
-Self.prototype._getEdges = function (items, links) {
-  var self = this
-  return _.map(links, function (link) {
-    var sourceNode = items.filter(function(n) {
-      return n.key === link.source
-    })[0],
-      targetNode = items.filter(function(n) {
-        return n.key === link.target
-      })[0]
-
-    return {
-      source: sourceNode,
-      target: targetNode,
-      value: link.Value
-    }
-  })
 }
 
 var templates = G.Templates

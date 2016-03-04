@@ -1,5 +1,5 @@
 var assert = require('assert')
-_ = require('lodash')
+, _ = require('lodash')
 , Graph = require('../../provider/graph/index')
 
 describe('Graph', function() {

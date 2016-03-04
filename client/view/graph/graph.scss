@@ -7,12 +7,16 @@
   .node {
     font-size: 12px;
     cursor: auto;
+    transition: opacity 750ms ease-in;
     &:hover {
       text-decoration: underline;
 
       circle {
         stroke-width: 2px;
       }
+    }
+    &.hide {
+      opacity: 0;
     }
     
     circle {
@@ -24,6 +28,11 @@
   .link {
     stroke: #999;
     stroke-opacity: .6;
+    transition: opacity 750ms ease-in;
+
+    &.hide {
+      opacity: 0;
+    }
   }
   text {
   }

@@ -1,6 +1,7 @@
-var assert = require('assert')
 _ = require('lodash')
-, BackboneEvents = require('backbone-events-standalone')
+BackboneEvents = require('backbone-events-standalone')
+
+var assert = require('assert')
 , Collection = require('../core/collection')
 
 describe('Collection', function() {

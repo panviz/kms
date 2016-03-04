@@ -12,6 +12,7 @@ var Self = function (p) {
     list: '.items-list',
   }
   var $html = $(G.Templates['view/list/list']())
+  self._rowTemplate = G.Templates['view/list/row']
   if (self.p.hidden) $html.css("display", "none")
   self.p.container.append($html)
   self.elements = Util.findElements($html, self.selectors)
@@ -23,10 +24,10 @@ Self.prototype = Object.create(View.prototype)
 /**
  * populate list with items 
  */
-Self.prototype.render = function (vGraph) {
+Self.prototype.render = function (itemsMap) {
   var self = this
-  var list = _.map(vGraph.items, function (item) {
-    return G.Templates['view/list/row'](item)
+  var list = _.map(itemsMap, function (value, key) {
+    return self._rowTemplate({value: value, key: key})
   }).join('')
   self.elements.list.html(list)
 }

@@ -88,7 +88,7 @@ Self.prototype._end = function (e) {
 
   // TODO replace global object usage
   var toSelect = _.map(G.graphView._nodes[0], function(node){
-    if (self._isNodeSelected(node)) return node.__data__.key
+    if (self._isNodeSelected(node)) return node.__data__
   })
   self.selection.add(toSelect)
   rect.width = rect.height = 0

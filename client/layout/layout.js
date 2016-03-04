@@ -7,6 +7,7 @@ var Self = function (p) {
   self.width = p.width || 0
   self.height = p.height || 0
 }
+BackboneEvents.mixin(Self.prototype)
 
 Self.prototype.size = function (width, height) {
   var self = this

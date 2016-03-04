@@ -3,7 +3,7 @@ var Self = function (p) {
   Action.call(this, p)
   var self = this
   self.id = 'force'
-  self._label = 'Force directed'
+  self._label = 'Graph'
   self._deny = false
   self._icon = 'fa fa-share-alt'
   self.group = 'layout'
@@ -16,7 +16,7 @@ Self.prototype = Object.create(Action.prototype)
 Self.prototype._execute = function () {
   var self = this
   self.registrar.layout = self.registrar.layouts[self.id]
-  self.registrar.updateLayout()
+  self.registrar.updateLayout({transit: false})
 }
 
 Self.prototype.evaluate = function () {
