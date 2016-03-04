@@ -7,7 +7,8 @@ Minimum Viable Product is planned for release this spring.
 
 Project description and documentation is available on [Wiki](http://github.com/graphiy/kms/wiki)
 
-Project development is fully open for everyone on [Trello](https://trello.com/b/W1Zvc6Pn/kms). And we would highly appreciate your feedback. Please, file an [issue](https://github.com/Graphiy/kms/issues) or drop a letter to [Dmitra](http://dmitra.com/contact)
+Project development is fully open for everyone on [Trello](https://trello.com/b/W1Zvc6Pn/kms).  
+And we highly appreciate your feedback.  
+Please, file an [issue](https://github.com/Graphiy/kms/issues), vote for [features](https://trello.com/b/W1Zvc6Pn/kms) or drop a [letter to Dmitra](http://dmitra.com/contact)
 
-Graphiy is open-source proprietary product available now for free.  
-
+Graphiy is open-source proprietary product available now for free.
