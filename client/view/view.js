@@ -13,6 +13,7 @@ Self.prototype.show = function () {
   if (self.isVisible()) return
   self.elements.root.show()
   self.trigger('show')
+  return true
 }
 
 Self.prototype.hide = function () {

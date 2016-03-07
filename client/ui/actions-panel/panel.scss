@@ -28,6 +28,9 @@
       color: rgb(118,118,118);
       border-bottom: 1px solid rgba(255, 255, 255, 0.05);
       transition: ease all 1s;
+      &:not(.enabled):hover {
+        background-color: initial;
+      }
 
       &.enabled {
         color: rgb(255,255,255);

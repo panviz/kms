@@ -33,11 +33,19 @@ Self.prototype.get = function () {
   return self.elements.text.val()
 }
 /**
- * ID of currently edited item
+ * @return ID of currently edited item
  */
 Self.prototype.getKey = function () {
   var self = this
   return self._item.key
+}
+/**
+ * extend View.show method
+ */
+Self.prototype._show = Self.prototype.show
+Self.prototype.show = function () {
+  var self = this
+  if (self._show()) self.elements.text.focus()
 }
 /**
  * override View.isFocused method

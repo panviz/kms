@@ -8,6 +8,8 @@ var Self = function (p) {
   self._icon = 'fa fa-pencil-square-o'
   self.group = 'item'
   self.registrar.selection.on('change', self.evaluate.bind(self, self.registrar.selection))
+  self.registrar.editor.on('show', self.evaluate.bind(self, self.registrar.selection))
+  self.registrar.editor.on('hide', self.evaluate.bind(self, self.registrar.selection))
 }
 Self.prototype = Object.create(Action.prototype)
 
@@ -19,7 +21,7 @@ Self.prototype._execute = function () {
 
 Self.prototype.evaluate = function (selection) {
   var self = this
-  if (selection.getCount()) self.enable()
+  if (selection.getCount() && !self.registrar.editor.isVisible()) self.enable()
   else self.disable()
 }
 
