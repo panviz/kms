@@ -36,6 +36,7 @@ var Self = function (p) {
     link: '.link',
     node: '.node',
     hidden: '.hide',
+    selected: '.selected',
   }
   var $html = $(G.Templates['view/graph/graph']())
   self.p.container.append($html)
@@ -229,6 +230,7 @@ Self.prototype._enterNodes = function () {
   self._enteredNodes = self._nodes.enter().append('g')
   self._enteredNodes
     .classed(self.selectors.node.slice(1) + ' ' + self.selectors.hidden.slice(1), true)
+    .classed(self.selectors.selected.slice(1), function (key) { return _.includes(self.selection.getAll(), key)})
   self._enteredNodes
     .append('circle')
     .attr('r', self.p.node.size.width/2)
@@ -325,7 +327,7 @@ Self.prototype._onSelect = function (keys) {
   var self = this
   _.each(keys, function (key) {
     var node = _.find(self._nodes[0], function (node) {return node.__data__ === key})
-    $(node).addClass('selected')
+    if (node) node.classList.add(self.selectors.selected.slice(1))
   })
 }
 
@@ -333,7 +335,7 @@ Self.prototype._onDeselect = function (keys) {
   var self = this
   _.each(keys, function (key) {
     var node = _.find(self._nodes[0], function (node) {return node.__data__ === key})
-    $(node).removeClass('selected')
+    if (node) node.classList.remove(self.selectors.selected.slice(1))
   })
 }
 

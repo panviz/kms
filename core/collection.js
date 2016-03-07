@@ -66,12 +66,12 @@ Self.prototype.clear = function () {
   var self = this
   if (_.isEmpty(self._items)) return
 
-  var deselected = self._items
+  var removed = self._items
   self._items = []
 
-  self.trigger('remove', deselected)
-  self.trigger('change', deselected)
-  return deselected
+  self.trigger('remove', removed)
+  self.trigger('change', removed)
+  return removed
 }
 
 module.exports = Self

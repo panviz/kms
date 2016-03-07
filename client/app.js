@@ -114,6 +114,7 @@ Self.prototype.createItem = function () {
   self.provider.request('set')
     .then(function (key) {
       self.visibleItems.add(key)
+      self.selection.add(key)
     })
 }
 
@@ -132,7 +133,7 @@ Self.prototype.saveItem = function (value, key) {
     .then(function (key) {
       if (key === key) {
         self.editor.saved()
-        self._onVisibleItemsChange()
+        self._reloadGraph()
       }
     })
 }
@@ -149,7 +150,7 @@ Self.prototype.linkItems = function (source, targets) {
   var self = this
   self.provider.request('associate', source, targets)
     .then(function (updated) {
-      self._onVisibleItemsChange()
+      self._reloadGraph()
     })
 }
 
@@ -157,7 +158,7 @@ Self.prototype.unlinkItems = function (source, targets) {
   var self = this
   self.provider.request('setDisassociate', source, targets)
     .then(function (updated) {
-      self._onVisibleItemsChange()
+      self._reloadGraph()
     })
 }
 /**
@@ -174,7 +175,7 @@ Self.prototype._loadVisibleItems = function () {
           var keys = graph.getItemKeys()
           self.visibleItems.add(keys)
           self._updateGraphView(graph)
-          self.visibleItems.on('change', self._onVisibleItemsChange.bind(self))
+          self.visibleItems.on('change', self._reloadGraph.bind(self))
           self.visibleItems.on('add', self._onVisibleItemsAdd.bind(self))
           self.visibleItems.on('remove', self._onVisibleItemsRemove.bind(self))
         })
@@ -186,12 +187,13 @@ Self.prototype._onSelect = function () {
   var keys = self.selection.getAll()
   if (keys.length === 1) {
     var key = keys[0]
-    if (!self.editor.isVisible()) return
-    // TODO make local _graph.get and retrieve value only for partially loaded items
-    self.provider.request('get', key)
-      .then(function (value) {
-        self.editor.set(value, key)
-      })
+    if (self.editor.isVisible()) {
+      // TODO make local _graph.get and retrieve value only for partially loaded items
+      self.provider.request('get', key)
+        .then(function (value) {
+          self.editor.set(value, key)
+        })
+    }
   } else if (keys.length === 0) self._hideSecondaryViews()
 }
 /**
@@ -221,13 +223,17 @@ Self.prototype._onVisibleItemsRemove = function (keys) {
   self.selection.remove(keys)
   self.provider.request('setDisassociate', self.serviceItem.visibleItem.key, keys)
 }
-
+/**
+ * store visible item
+ */
 Self.prototype._onVisibleItemsAdd = function (keys) {
   var self = this
   self.provider.request('associate', self.serviceItem.visibleItem.key, keys)
 }
-
-Self.prototype._onVisibleItemsChange = function () {
+/**
+ * sync graph with server
+ */
+Self.prototype._reloadGraph = function () {
   var self = this
   var keys = self.visibleItems.getAll()
   self.provider.request('getGraph', keys)

@@ -23,7 +23,7 @@
   },
   "license": "http://graphiy.com/licence",
   "scripts": {
-    "start": "static",
+    "start": "node server/index.js",
     "build-css": "sh bin/build-css",
     "build-js": "sh bin/build-js",
     "build-template": "sh bin/build-template",
