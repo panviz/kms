@@ -9,4 +9,7 @@
       bottom: 16px;
     }
   }
+  &>input[name="ignoreCase"], &>label {
+    display: none;
+  }
 }

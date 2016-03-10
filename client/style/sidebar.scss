@@ -1,0 +1,20 @@
+.sidebar {
+  position: relative;
+  flex: 0 0 160px;
+  background-color: rgb(50,50,58);
+
+  .footer {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    padding: 16px 0;
+    text-align: center;
+    border-top: 1px dashed;
+    border-color: unquote("rgb(#{$color-text})");
+
+    a {
+      color: unquote("rgb(#{$color-primary})");
+      text-decoration: none;
+    }
+  }
+}

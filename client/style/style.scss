@@ -2,15 +2,12 @@ body {
   display: flex;
   flex-direction: column;
   font-family: Verdana, Geneva, sans-serif;
+  font-size: 14px;
   margin: 0;
 
   .container {
     flex: 1 1 auto;
     display: flex;
-  }
-  .sidebar {
-    flex: 0 0 160px;
-    background-color: rgb(50,50,50);
   }
   .noselect {
     -webkit-touch-callout: none; /* iOS Safari */
@@ -20,5 +17,10 @@ body {
     -ms-user-select: none;       /* IE/Edge */
     user-select: none;           /* non-prefixed version, currently
                                     not supported by any browser */
+  }
+  a {
+    &:hover {
+      color: unquote("rgb(#{$color-primary})");
+    }
   }
 }
