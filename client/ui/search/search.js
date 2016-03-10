@@ -8,7 +8,7 @@ var Self = function (p) {
   self.p = p || {}
 
   self.selectors = {
-    input: 'input',
+    input: 'input[type="text"]',
     ignoreCase: 'input[name="ignoreCase"]',
   }
   var $html = $(G.Templates['ui/search/search']())

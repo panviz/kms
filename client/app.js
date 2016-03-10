@@ -3,6 +3,7 @@
  */
 var Provider = require('../provider/api.client/index')
 , Search = require('./ui/search/search')
+, Menu = require('./ui/main-menu/menu')
 , GraphView = require('./view/graph/graph')
 , ListView = require('./view/list/list')
 , Editor = require('./view/editor/editor')
@@ -89,6 +90,7 @@ var Self = function (p) {
   })
 
   self._loadVisibleItems()
+  self.menu = new Menu({container: self.elements.header})
 }
 
 Self.prototype.showChildren = function (keys) {

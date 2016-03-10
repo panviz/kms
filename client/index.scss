@@ -1,9 +1,11 @@
+@import 'style/variables';
 @import 'style/style';
 @import 'style/header';
 
 @import 'ui/actions-panel/panel';
 @import 'ui/search/search';
 @import 'ui/linkedList/linkedList';
+@import 'ui/main-menu/menu';
 
 @import 'view/graph/graph';
 @import 'view/list/list';

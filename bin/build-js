@@ -9,5 +9,8 @@ uglifyjs \
   node_modules/d3/d3.js \
   node_modules/backbone-events-standalone/backbone-events-standalone.js \
   node_modules/webcola/WebCola/cola.js \
+  node_modules/material-design-lite/src/mdlComponentHandler.js \
+  node_modules/material-design-lite/src/menu/menu.js \
+  node_modules/material-design-lite/src/textfield/textfield.js \
   client/util.js \
 -c -o client/bundle/libs.js

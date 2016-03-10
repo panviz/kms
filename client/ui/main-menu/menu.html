@@ -1,0 +1,14 @@
+<div class="main-menu">
+  <button id="main-menu" type="button" class="mdl-button">
+    <i class="fa fa-ellipsis-vertical"></i>
+  </button>
+  <ul class="mdl-menu mdl-menu--bottom-right mdl-js-menu" for="main-menu">
+    {{#each items }}
+      <a href="{{ this.url }}">
+        <li class="mdl-menu__item">
+          {{ this.title }}
+        </li>
+      </a>
+    {{/each}}
+  </ul>
+</div>

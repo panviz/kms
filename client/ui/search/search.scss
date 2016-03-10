@@ -1,7 +1,12 @@
 .search-bar {
   flex: 1 1 auto;
 
-  .input-string {
-    width: 100%;
+  .mdl-textfield {
+    width: 75%;
+    margin-left: 24px;
+    padding: 16px 0;
+    .mdl-textfield__label:after {
+      bottom: 16px;
+    }
   }
 }
