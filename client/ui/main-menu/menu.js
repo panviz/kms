@@ -12,6 +12,9 @@ var Self = function (p) {
   }
   self._menuItems = [
     {
+      title: 'Blog',
+      url: 'http://dmitra.com/graphiy'
+    }, {
       title: 'Documentation on Wiki',
       url: 'http://github.com/Graphiy/kms/wiki'
     }, {
