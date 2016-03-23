@@ -6,11 +6,11 @@
  * Link is an array of key and weight
  * Binary Items are only referenced by path
  */
-var _ = require('lodash')
-, dijkstra = require('../../core/dijkstra')
-, Util = require('../../core/util')
+import _ from 'lodash'
+import dijkstra from '../../core/dijkstra'
+import Util from '../../core/util'
 
-var Self = function (obj) {
+export default function Self(obj) {
   var self = this
   self.providerID = 'graph'
   obj = obj || {}
@@ -30,6 +30,7 @@ Self.prototype.set = function (data, key) {
   if (data === '' || _.isNil(data)) {
     if (key && _.isEmpty(self.getLinks(key))) return self.remove(key)
     key = key || generateID()
+
     //Ensure value is not undefined, as JSON stringify will omit it
     data = ''
   } else {
@@ -45,7 +46,7 @@ Self.prototype.remove = function (keys) {
   var self = this
   keys = Util.pluralize(keys)
   var changed = _.map(keys, self._remove.bind(self))
-  return _.union.apply(_, changed)
+  return _.union(...changed)
 }
 
 Self.prototype._remove = function (key) {
@@ -366,7 +367,7 @@ Self.prototype.findByKeys = function (keys) {
   var arrLinkedKeys = _.map(keys, function (key) {
     return self.getLinked(key)
   })
-  return _.intersection.apply(_, arrLinkedKeys)
+  return _.intersection(...arrLinkedKeys)
 }
 /** convenient way to find by values
  * @param {String|Array} values of items connected to the item looked for
@@ -440,7 +441,7 @@ Self.prototype.guess = function (func) {
   var keys = _.map(args, function (arg) {
     return self.getKey(arg)
   })
-  var result = func.apply(self, keys)
+  var result = func(...keys)
   return self.log(result)
 }
 /**
@@ -487,13 +488,15 @@ function filterKeys(obj, filter) {
   })
   return filtered
 }
-//Compare two Links
+/**
+ * Compare two Links
+ */
 function compareWeight(link1, link2) {
   return link1[1] > link2[1] ? 1 : -1
 }
-//generate random UUID
+/**
+ * generate random UUID
+ */
 function generateID(a) {return a?(a^Math.random()*16>>a/4).toString(16):([1e7]+-1e3+-4e3+-8e3+-1e11).replace(/[018]/g,generateID)}
 
 var idPattern = /[a-z0-9]{8}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{12}/g
-
-module.exports = Self

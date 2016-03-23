@@ -2,10 +2,10 @@
  * List view
  * Items are represented with rows
  */
-var View = require('../view')
-, Util = require('../../../core/util')
+import View from '../view'
+import Util from '../../../core/util'
 
-var Self = function (p) {
+export default function Self(p) {
   var self = this
   self.p = p || {}
   self.selectors = {
@@ -13,7 +13,7 @@ var Self = function (p) {
   }
   var $html = $(G.Templates['view/list/list']())
   self._rowTemplate = G.Templates['view/list/row']
-  if (self.p.hidden) $html.css("display", "none")
+  if (self.p.hidden) $html.css('display', 'none')
   self.p.container.append($html)
   self.elements = Util.findElements($html, self.selectors)
 
@@ -22,7 +22,7 @@ var Self = function (p) {
 }
 Self.prototype = Object.create(View.prototype)
 /**
- * populate list with items 
+ * populate list with items
  */
 Self.prototype.render = function (itemsMap) {
   var self = this
@@ -49,8 +49,6 @@ Self.prototype._onRowClick = function (e) {
 Self.prototype._onSelectionChange = function (selection) {
   var self = this
   _.each(selection, function (key) {
-    self.elements.list.find('li[data-key="'+key+'"]').toggleClass('selected')
+    self.elements.list.find(`li[data-key="${key}"]`).toggleClass('selected')
   })
 }
-
-module.exports = Self

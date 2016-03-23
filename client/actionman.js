@@ -1,42 +1,36 @@
 /**
- * Actions Manager
+ * Action Manager
  */
-var Self = function (p) {
-  var self = this;
-  self.p = p || {}
-  self._instances = {}
+export default function Self(p) {
+  this.p = p || {}
+  this._instances = {}
 }
 BackboneEvents.mixin(Self.prototype)
 
 Self.prototype.get = function (id) {
-  var self = this
-  return self._instances[id]
+  return this._instances[id]
 }
 
 Self.prototype.getAll = function () {
-  var self = this
-  return self._instances
+  return this._instances
 }
 
 Self.prototype.getActive = function () {
-  var self = this
-  return _.filter(self._instances, function (action, id) {
+  return _.filter(this._instances, (action, id) => {
     return action.isEnabled()
   })
 }
 
 Self.prototype.set = function (Action, registrar) {
-  var self = this
   var action = new Action({registrar: registrar})
-  self._instances[action.id] = action
-  self.trigger('add', action)
+  this._instances[action.id] = action
+  this.trigger('add', action)
 }
 /**
  * Updates all actions state
  */
 Self.prototype.update = function (selection) {
-  var self = this
-  _.values(self._instances).forEach(function (action) {
+  _.values(this._instances).forEach(action => {
     action.evaluate(selection)
   })
 }
@@ -45,13 +39,10 @@ Self.prototype.update = function (selection) {
 * @param actionName String The id of the action
 */
 Self.prototype.fire = function (actionName) {
-  var self = this
-  var action = self._instances[actionName]
-  
-  if (action != null) {
+  var action = this._instances[actionName]
+
+  if (action !== null) {
     var argsExceptFirst = Array.prototype.slice.call(arguments, 1)
-    action.apply.apply(self, argsExceptFirst)
+    action.apply(argsExceptFirst)
   }
 }
-
-module.exports = Self

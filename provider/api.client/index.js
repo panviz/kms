@@ -2,9 +2,9 @@
  * Web API provider for client to access server
  * TODO cache loaded graph
  */
-var Graph = require('../graph/index')
+import Graph from '../graph/index'
 
-var Self = function (p) {
+export default function Self(p) {
   var self = this
   self.p = p || {}
 }
@@ -17,7 +17,8 @@ Self.prototype.read = function () {
   var self = this
 
   return new Promise(function (resolve, reject) {
-    //self.getLinkedItem(self.p.root)
+
+    // self.getLinkedItem(self.p.root)
     d3.json(self.p.url, function (data) {
       var graph = new Graph(data)
       resolve(graph)
@@ -25,7 +26,7 @@ Self.prototype.read = function () {
   })
 }
 /**
- * translate graph function calls to server
+ * Translate graph function calls to server
  */
 Self.prototype.request = function (method) {
   var self = this
@@ -45,5 +46,3 @@ Self.prototype.request = function (method) {
   })
   return promise
 }
-
-module.exports = Self

@@ -1,5 +1,5 @@
-var Self = {}
 var _ = require('lodash')
+var Self = {}
 
 Self.findElements = function (root, selectors) {
   var elements = {}
@@ -9,7 +9,9 @@ Self.findElements = function (root, selectors) {
   })
   return elements
 }
-// update elements reference
+/**
+ * update elements reference
+ */
 Self.updateElements = function (control) {
   control.elements = Self.findElements(control.elements.root, control.selectors)
 }
@@ -24,12 +26,12 @@ Self.animate = function (duration, draw) {
        draw(progress, duration)
     } else {
       cancelAnimationFrame(id)
-    } 
+    }
   }
   var id = requestAnimationFrame(tick)
 }
 
-Self.pluralize = function(arg) {
+Self.pluralize = function (arg) {
   return _.isArray(arg) ? arg : [arg]
 }
 /**
@@ -81,21 +83,22 @@ Self.centroid = function (points) {
     length = points.length
 
   if (!length) { return null }
-  if (length === 2) return [(points[0][0] + points[1][0])/2, (points[0][1] + points[1][1])/2]
-  
+  if (length === 2) return [(points[0][0] + points[1][0])/2, (points[0][1] + points[1][1]) / 2]
+
   area = x = y = 0
 
   for (i = 0, j = length - 1; i < length; j = i++) {
     p1 = points[i]
     p2 = points[j]
 
-    f = p1[1] * p2[0] - p2[1] * p1[0];
+    f = p1[1] * p2[0] - p2[1] * p1[0]
     x += (p1[0] + p2[0]) * f
     y += (p1[1] + p2[1]) * f
     area += f * 3
   }
 
   if (area === 0) {
+
     // Polygon is so small that all points are on same pixel.
     center = points[0]
   } else {
@@ -108,7 +111,7 @@ Self.centroid = function (points) {
  */
 Self.simplifyPolygon = function (points) {
   if (points.length < 4) return points
-  var left, right, top, bottom 
+  var left, right, top, bottom
   _.each(points, function (point) {
     if (!left) {
       left = point
@@ -124,7 +127,7 @@ Self.simplifyPolygon = function (points) {
   return [left, top, right, bottom]
 }
 
-RegExp.prototype.toJSON = function() { return this.toString() }
+RegExp.prototype.toJSON = function () { return this.toString() }
 
-module.exports = Self
-$util = Self
+export default Self
+global.$util = Self

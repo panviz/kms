@@ -5,15 +5,15 @@
  * @event remove fires on items removed from collection
  * @event change fires on items collection changed
  */
-var Util = require('../core/util')
+import Util from '../core/util'
 
-var Self = function (p) {
+export default function Self(p) {
   var self = this
   self._items = []
 }
 BackboneEvents.mixin(Self.prototype)
 /**
- * @param {ID or Array} items 
+ * @param {ID or Array} items
  */
 Self.prototype.add = function (items) {
   var self = this
@@ -73,5 +73,3 @@ Self.prototype.clear = function () {
   self.trigger('change', removed)
   return removed
 }
-
-module.exports = Self

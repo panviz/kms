@@ -1,7 +1,7 @@
-var View = require('../view')
-, Util = require('../../../core/util')
+import View from '../view'
+import Util from '../../../core/util'
 
-var Self = function (p) {
+export default function Self(p) {
   var self = this
   self.p = p || {}
   self._item = {}
@@ -9,7 +9,7 @@ var Self = function (p) {
     text: 'textarea',
   }
   var $html = $(G.Templates['view/editor/editor']())
-  if (self.p.hidden) $html.css("display", "none")
+  if (self.p.hidden) $html.css('display', 'none')
   self.p.container.append($html)
   self.elements = Util.findElements($html, self.selectors)
   self.elements.text.on('input', self._onChange.bind(self))
@@ -74,5 +74,3 @@ Self.prototype._onChange = function () {
   var self = this
   self.trigger('change', self.get())
 }
-
-module.exports = Self

@@ -1,5 +1,6 @@
-var Action = require('../../action')
-var Self = function (p) {
+import Action from '../../action'
+
+export default function Self(p) {
   Action.call(this, p)
   var self = this
 
@@ -24,5 +25,3 @@ Self.prototype.evaluate = function (selection) {
   if (selection.getCount() && !self.registrar.editor.isVisible()) self.enable()
   else self.disable()
 }
-
-module.exports = Self

@@ -2,16 +2,16 @@
  * Grid view
  * Items are represented with tiles
  */
-var Layout = require('./layout')
+import Layout from './layout'
 /**
  * @param {Object || Number} p.spacing horizontal and vertical distance between items
  * @param Point p.offset {x,y} coordinates where to place first node
  * @param Object p.node {width, height} of node (add to spacing when calculating next node position)
  */
-var Self = function (p) {
+export default function Self(p) {
   Layout.call(this, p)
   var self = this
-  self.name = "Grid"
+  self.name = 'Grid'
 }
 Self.prototype = Object.create(Layout.prototype)
 
@@ -40,5 +40,3 @@ Self.prototype.run = function (items) {
     }
   })
 }
-
-module.exports = Self

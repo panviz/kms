@@ -2,10 +2,10 @@
 /**
  * Server launcher
  */
-var Path = require('path'),
-App = require('./app')
+import Path from 'path'
+import App from './app'
 
-ROOT_PATH = Path.join(__dirname, '/..');
+global.ROOT_PATH = Path.join(__dirname, '/../..')
 
-var app = new App
+const app = new App
 app.run()

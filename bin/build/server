@@ -1,0 +1,5 @@
+#!/bin/bash  
+babel server/ -d build/server
+babel provider/ -d build/provider
+babel core/ -d build/core
+cp package.json build/package.json

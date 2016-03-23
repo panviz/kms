@@ -1,0 +1,7 @@
+#!/bin/bash  
+./bin/build/js
+./bin/build/css
+./bin/build/template
+./bin/build/asset
+
+./bin/build/server

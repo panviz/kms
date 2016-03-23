@@ -1,2 +1,0 @@
-#!/bin/bash
-handlebars client > client/bundle/templates.js -e html -m -n "G.Templates"

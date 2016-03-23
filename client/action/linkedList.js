@@ -1,5 +1,6 @@
-var Action = require('../action')
-var Self = function (p) {
+import Action from '../../action'
+
+export default function Self(p) {
   Action.call(this, p)
   var self = this
 
@@ -13,5 +14,3 @@ Self.prototype._execute = function () {
   var self = this
   self.registrar.linkedList.toggle()
 }
-
-module.exports = Self

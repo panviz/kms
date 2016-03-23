@@ -1,5 +1,7 @@
 #!/bin/bash
-handlebars client > client/bundle/templates.js -e html -m -n "G.Templates"
+mkdir -p build/client
+browserify client/app.js -v -t [ babelify --presets [ es2015 ] ] | uglifyjs -o build/client/bundle.js 
+node_modules/babel-cli/bin/babel.js client/util.js -o build/client/util.js
 
 uglifyjs \
   node_modules/lodash/lodash.js \
@@ -12,5 +14,7 @@ uglifyjs \
   node_modules/material-design-lite/src/mdlComponentHandler.js \
   node_modules/material-design-lite/src/menu/menu.js \
   node_modules/material-design-lite/src/textfield/textfield.js \
-  client/util.js \
--c -o client/bundle/libs.js
+  build/client/util.js \
+-b -o build/client/libs.js
+
+rm build/client/util.js

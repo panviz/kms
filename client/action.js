@@ -1,9 +1,9 @@
-/** 
+/**
  * A "Command" object
  * @event enable
  * @event disable
  */
-var Self = function (p) {
+export default function Self(p) {
   var self = this
 
   p = p || {}
@@ -22,10 +22,12 @@ Self.prototype.apply = function () {
   if (self._deny) return
 
   if (self._execute) {
-    self._execute.apply(self, arguments)
+    self._execute(...arguments)
   }
 }
-// Override in Concrete Command
+/**
+ * Override in Concrete Command
+ */
 Self.prototype._execute = function () {
   var self = this
 }
@@ -75,7 +77,7 @@ Self.prototype.getLabel = function () {
 }
 /**
  * Changes enable/disable state
- * Notifies "disable" Event 
+ * Notifies "disable" Event
  */
 Self.prototype.disable = function () {
   var self = this
@@ -85,7 +87,7 @@ Self.prototype.disable = function () {
 }
 /**
  * Changes enable/disable state
- * Notifies "enable" Event 
+ * Notifies "enable" Event
  */
 Self.prototype.enable = function () {
   var self = this
@@ -93,5 +95,3 @@ Self.prototype.enable = function () {
   self._deny = false
   self.trigger('enable')
 }
-
-module.exports = Self

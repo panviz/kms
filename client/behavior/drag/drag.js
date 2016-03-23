@@ -1,15 +1,15 @@
 /*
  * Drag behavior
  */
-var Behavior = require('../behavior')
-, Util = require('../../../core/util')
+import Behavior from '../behavior'
+import Util from '../../../core/util'
 
 /**
  * self._dragged - node on which dragging started
  * self._draggedClone - copy of the node on which dragging started - to visualize dragging
  * self._target - node on which dragged node is dropped
  */
-var Self = function (p) {
+export default function Self(p) {
   Behavior.call(this, p)
   var self = this
 
@@ -39,7 +39,9 @@ Self.prototype.disable = function () {
   self.container.off('mouseup', self._end)
   self.container.removeClass('drag')
 }
-// TODO show all selected nodes while dragging?
+/**
+ * TODO show all selected nodes while dragging?
+ */
 Self.prototype._start = function (e) {
   var self = this
   self._dragged = $(e.currentTarget)
@@ -59,7 +61,7 @@ Self.prototype._run = function (e) {
 
   if (!self._draggedClone.is(':visible')) {
     self._draggedClone.show()
-  } 
+  }
   self._draggedClone.translate(e.offsetX, e.offsetY)
 }
 
@@ -91,8 +93,8 @@ Self.prototype._end = function (e) {
     var delta = {}
     delta.x = e.offsetX - self._startPoint.x
     delta.y = e.offsetY - self._startPoint.y
-    
-    var nodeHalfWidth = self.p.node.size.width/2
+
+    var nodeHalfWidth = self.p.node.size.width / 2
     if (Math.abs(delta.x) > nodeHalfWidth || Math.abs(delta.y) > nodeHalfWidth) {
       self.trigger('move', delta)
     }
@@ -104,5 +106,3 @@ Self.prototype._end = function (e) {
   self.container.removeClass('in-progress')
   self._inProgress = false
 }
-
-module.exports = Self

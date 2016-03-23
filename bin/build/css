@@ -1,0 +1,5 @@
+#!/bin/bash  
+cd client
+./../node_modules/node-sass/bin/node-sass index.scss |
+../node_modules/clean-css/bin/cleancss -o ../build/client/bundle.css
+

@@ -4,15 +4,15 @@
  * Here comes logic for handling visual "GUI-level" user input
  * like: click, hover, collapse/expand, right click, etc
  */
-var View = require('../view')
-, ForceLayout = require('../../layout/force')
-, GridLayout = require('../../layout/grid')
-, RadialLayout = require('../../layout/radial')
-, Selectioning = require('../../behavior/selection/selectioning')
-, RectSelectioning = require('../../behavior/selection/rectangular')
-, Pan = require('../../behavior/pan/pan')
-, Drag = require('../../behavior/drag/drag')
-, Util = require('../../../core/util')
+import View from '../view'
+import ForceLayout from '../../layout/force'
+import GridLayout from '../../layout/grid'
+import RadialLayout from '../../layout/radial'
+import Selectioning from '../../behavior/selection/selectioning'
+import RectSelectioning from '../../behavior/selection/rectangular'
+import Pan from '../../behavior/pan/pan'
+import Drag from '../../behavior/drag/drag'
+import Util from '../../../core/util'
 /**
  * @param Object p.node Default spatial parameters for rendering node
  * @inner Graph _graph rendered last time
@@ -20,7 +20,7 @@ var View = require('../view')
  * @inner Array _nodes d3 selection of DOM nodes
  * @inner Array _edges d3 selection of DOM edges
  */
-var Self = function (p) {
+export default function Self(p) {
   var self = this
   self.p = p || {}
 
@@ -46,12 +46,12 @@ var Self = function (p) {
     selector: self.selectors.node,
     size: {
       width: 32,
-      height: 32
+      height: 32,
     },
     gap: 8,
     label: {
       maxLength: 15,
-    }
+    },
   }
   self._graph
   self._items = []
@@ -95,6 +95,7 @@ Self.prototype._initLayouts = function () {
     grid: gridLayout,
     radial: radialLayout,
   }
+
   // TODO change Grid and Radial layouts firing
   //self.actions = [
     //require('./action/forceLayout'),
@@ -146,7 +147,7 @@ Self.prototype.render = function (graph) {
   var self = this
   self._graph = graph
   self._items = graph.getItemKeys()
-   
+
   // bind DOM nodes to items
   self._nodes = self.canvas.select(self.selectors.nodeGroup)
     .selectAll(self.selectors.node)
@@ -157,6 +158,7 @@ Self.prototype.render = function (graph) {
   self._exitNodes()
 
   self.layout.update(graph, self._enteredNodes[0])
+
   // init edges only after its coord are ready
   self._edges = self.canvas.select(self.selectors.edgeGroup)
     .selectAll(self.selectors.link)
@@ -233,7 +235,7 @@ Self.prototype._enterNodes = function () {
     .classed(self.selectors.selected.slice(1), function (key) { return _.includes(self.selection.getAll(), key)})
   self._enteredNodes
     .append('circle')
-    .attr('r', self.p.node.size.width/2)
+    .attr('r', self.p.node.size.width / 2)
   self._enteredNodes
     .append('text')
     .attr('x', self.p.node.size.width * 0.56)
@@ -274,11 +276,11 @@ Self.prototype._updatePosition = function () {
     var coord = coords[items.indexOf(item)]
     $node.translateX(coord.x)
     $node.translateY(coord.y)
+
     //if (item == 'job') console.log(coord.x + ', ' + coord.y);
   })
   _.each(self._edges[0], function (edge) {
-    var source = edge.__data__[0]
-    var target = edge.__data__[1]
+    var [source, target] = edge.__data__
     var sCoord = coords[items.indexOf(source)]
     var tCoord = coords[items.indexOf(target)]
     edge.setAttribute('x1', sCoord.x)
@@ -311,9 +313,9 @@ Self.prototype._onNodeMove = function (delta) {
     var item = node.__data__
     d3.select(node).append('image')
       .attr('x', 0)
-      .attr('y', -self.p.node.size.width*0.68)
-      .attr('width', self.p.node.size.width/2)
-      .attr('height', self.p.node.size.width/2)
+      .attr('y', -self.p.node.size.width * 0.68)
+      .attr('width', self.p.node.size.width / 2)
+      .attr('height', self.p.node.size.width / 2)
       .attr('xlink:href', '/client/view/graph/pin.svg')
 
     // Fix item to dropped position
@@ -344,5 +346,3 @@ Self.prototype._onNodeDblClick = function (e) {
   var key = e.currentTarget.__data__
   self.actionman.get('itemShowChildren').apply()
 }
-
-module.exports = Self

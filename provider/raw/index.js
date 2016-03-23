@@ -2,14 +2,15 @@
  * Raw provider
  * Items consistent FS-based storage
  */
-var fs = require('fs')
-, Path = require('path')
-, glob = require('glob')
-, isbinaryfile = require('isbinaryfile')
-, _ = require('lodash')
-, Graph = require('../graph/index')
+import fs from 'fs'
+import Path from 'path'
+import glob from 'glob'
+import isbinaryfile from 'isbinaryfile'
+import _ from 'lodash'
+import Graph from '../graph/index'
 
-var Self = function () {}
+const Self = {}
+export default Self
 Self.linksDelimiter = '\n'
 
 /**
@@ -17,8 +18,7 @@ Self.linksDelimiter = '\n'
  * @param String source folder name
  * @return Graph
  */
-Self.prototype.read = function (source) {
-  var self = this
+Self.read = function (source) {
   var obj = {items: {}, links: {}}
   return new Promise(function (resolve, reject) {
     var counter = 0
@@ -26,7 +26,7 @@ Self.prototype.read = function (source) {
     if (files.length === 0) resolve(new Graph)
     _.each(files, function (key) {
       var path = Path.join(source, key)
-      self._getFile(path)
+      Self._getFile(path)
         .then(function (data) {
           var links = JSON.parse(data.linksString)
           obj.items[key] = data.value
@@ -39,12 +39,11 @@ Self.prototype.read = function (source) {
 /**
  * Retrieve item
  */
-Self.prototype.get = function (key, p) {
-  var self = this
+Self.get = function (key, p) {
   var graph = new Graph
   var path = Path.join(p.source, key)
   return new Promise(function (resolve, reject) {
-    self._getFile(path, {getBinary: true})
+    Self._getFile(path, {getBinary: true})
       .then(function (data) {
         resolve(data.value)
       })
@@ -53,8 +52,7 @@ Self.prototype.get = function (key, p) {
 /**
  * TODO return binary data on getBinary flag
  */
-Self.prototype._getFile = function (path, p) {
-  var self = this
+Self._getFile = function (path, p) {
   p = p || {}
   var linksString = ''
   var value
@@ -84,8 +82,7 @@ Self.prototype._getFile = function (path, p) {
 /**
  * Save item
  */
-Self.prototype.set = function (key, value, links, p) {
-  var self = this
+Self.set = function (key, value, links, p) {
   var path = Path.join(p.target, key)
   if ((_.isNil(value) || value === '') && _.isEmpty(links)) {
     try {fs.unlinkSync(path)} catch (e) {}
@@ -96,22 +93,19 @@ Self.prototype.set = function (key, value, links, p) {
   content = JSON.stringify(links) + Self.linksDelimiter + content
   try {
     fs.writeFileSync(path, content)
-  } catch(e) {console.log(e)}
+  } catch (e) {console.log(e)}
 }
 /**
  * Writes items in one folder with IDs as filenames
  * Start of file contains utf8 encoded string of links Array []
  * @param Graph graph
  */
-Self.prototype.write = function (graph, p) {
-  var self = this
-  if (!p.target) return console.log("no path specified to write a file")
+Self.write = function (graph, p) {
+  if (!p.target) return console.log('no path specified to write a file')
   _.each(graph.getItemsMap(), function (value, key) {
     var links = graph.getLinks(key)
-    self.set(key, value, links, p)
+    Self.set(key, value, links, p)
   })
 
   console.log(_.keys(graph.getItemsMap()).length + ' Items written')
 }
-
-module.exports = new Self

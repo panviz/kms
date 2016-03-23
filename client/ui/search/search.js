@@ -1,9 +1,9 @@
 /**
  * Search widget with autocomplete
  */
-var Util = require('../../../core/util')
+import Util from '../../../core/util'
 
-var Self = function (p) {
+export default function Self(p) {
   var self = this
   self.p = p || {}
 
@@ -23,8 +23,6 @@ BackboneEvents.mixin(Self.prototype)
 Self.prototype._onChange = function (e) {
   var self = this
   var value = e.target.value
-  if (value.length < 3) return 
+  if (value.length < 3) return
   self.trigger('update', {str: value, flags: self.elements.ignoreCase.is(':checked') ? 'i' : ''})
 }
-
-module.exports = Self

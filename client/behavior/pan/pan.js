@@ -3,13 +3,13 @@
  * @event change fires on every little move
  * @event end fires on finishing move
  */
-var Behavior = require('../behavior')
+import Behavior from '../behavior'
 /**
  * _startPoint - coordinates of pointing device relative to the canvas
  * @param Number p.wheelStep pixels to move on mouse wheel
  * @param Number p.keyStep pixels to move on keyboard arrows
  */
-var Self = function (p) {
+export default function Self(p) {
   Behavior.call(this, p)
   var self = this
 
@@ -62,9 +62,9 @@ Self.prototype.getPosition = function () {
 Self.prototype.move = function (x, y, relative, silent) {
   var self = this
   if (relative) {
-    self._moveOn(x,y)
+    self._moveOn(x, y)
   } else {
-    self._moveTo(x,y,silent)
+    self._moveTo(x, y, silent)
   }
   if (!silent) self.trigger('end')
 }
@@ -104,6 +104,7 @@ Self.prototype._start = function (x, y, force) {
 Self.prototype._run = function (x, y) {
   var self = this
   if (!self._inProgress) return
+
   // Ignore small shift
   var current = self.getPosition()
   if ( Math.abs(x - self._startPoint.x - current.x) < 2 &&
@@ -142,18 +143,18 @@ Self.prototype._onMouseMove = function (e) {
 Self.prototype._onScroll = function (e) {
   var self = this
   var turnOff = false
-  if(!self._enabled){
+  if (!self._enabled) {
     self._enabled = true
     turnOff = true
   }
-  self._start(0,0)
+  self._start(0, 0)
   if (e.shiftKey) {
-    self._run(-e.wheelDeltaX/self.p.wheelStep, -e.wheelDeltaY/self.p.wheelStep)
+    self._run(-e.wheelDeltaX / self.p.wheelStep, -e.wheelDeltaY / self.p.wheelStep)
   } else {
-    self._run(e.wheelDeltaX/self.p.wheelStep, e.wheelDeltaY/self.p.wheelStep)
+    self._run(e.wheelDeltaX / self.p.wheelStep, e.wheelDeltaY / self.p.wheelStep)
   }
   self._end()
-  if( turnOff ) self._enabled = false
+  if ( turnOff ) self._enabled = false
 }
 
 Self.prototype._onKeyDown = function (e) {
@@ -165,15 +166,15 @@ Self.prototype._onKeyDown = function (e) {
   if (!_.includes(self._controlKeys, e.keyIdentifier)) return
 
   var turnOff = false
-  if(!self._enabled){
+  if (!self._enabled) {
     self._enabled = true
     turnOff = true
   }
-  self._start(0,0)
+  self._start(0, 0)
 
-  switch(e.keyIdentifier) {
+  switch (e.keyIdentifier) {
     case 'Up':
-      self._run(0, - self.p.keyStep)
+      self._run(0, -self.p.keyStep)
     break
     case 'Down':
       self._run(0, self.p.keyStep)
@@ -186,7 +187,5 @@ Self.prototype._onKeyDown = function (e) {
     break
   }
   self._end()
-  if( turnOff ) self._enabled = false
+  if ( turnOff ) self._enabled = false
 }
-
-module.exports = Self

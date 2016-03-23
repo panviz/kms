@@ -40,7 +40,7 @@ $.fn.scale = function (scale) {
 
 $.fn.transform = function (x, y, scale) {
   var transform = this.css('transform')
-  if (transform === 'none') transform = "matrix(1,0,0,1,0,0)"
+  if (transform === 'none') transform = 'matrix(1,0,0,1,0,0)'
   var matrix = transform.slice(7, -1).split(',')
   x = _.isNumber(x) ? x : _.toNumber(matrix[4])
   y = _.isNumber(y) ? y : _.toNumber(matrix[5])
@@ -49,7 +49,7 @@ $.fn.transform = function (x, y, scale) {
 
   if (_.isEmpty(arguments)) return matrix
 
-  this.css('transform', 'matrix('+ matrix.join(',') +')')
+  this.css('transform', `matrix(${ matrix.join(',') })`)
 }
 
 $.getStyle = function (selector) {

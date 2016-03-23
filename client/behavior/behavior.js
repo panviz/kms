@@ -1,7 +1,7 @@
 /**
  * Behavior interface
  */
-var Self = function (p) {
+export default function Self(p) {
   var self = this
   self.p = p || {}
 
@@ -29,5 +29,3 @@ Self.prototype.status = function () {
   var self = this
   return self._inProgress
 }
-
-module.exports = Self

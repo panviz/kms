@@ -1,0 +1,2 @@
+#!/bin/bash
+handlebars client > build/client/templates.js -e html -m -n "G.Templates"

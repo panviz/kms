@@ -2,7 +2,7 @@
  * Base object for views
  * @event focus fires on view gain focus
  */
-var Self = function (p) {
+export default function Self(p) {
   var self = this
   self.p = p || {}
 }
@@ -37,5 +37,3 @@ Self.prototype.isFocused = function () {
   var self = this
   return self.elements.root.is(':focus')
 }
-
-module.exports = Self

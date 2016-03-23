@@ -1,9 +1,9 @@
 /**
  * Actions panel control
  */
-var Util = require('../../../core/util')
+import Util from '../../../core/util'
 
-var Self = function (p) {
+export default function Self(p) {
   var self = this
   self.p = p || {}
   self.selectors = {
@@ -85,5 +85,3 @@ Self.prototype._onGroupClick = function (e) {
   $group.find('ul').slideToggle()
   $group.find('span').toggleClass('collapsed')
 }
-
-module.exports = Self

@@ -1,10 +1,10 @@
 /*
  * Rectangular selection
  */
-var Behavior = require('../behavior')
-, Util = require('../../../core/util')
+import Behavior from '../behavior'
+import Util from '../../../core/util'
 
-var Self = function (p) {
+export default function Self(p) {
   Behavior.call(this, p)
   var self = this
 
@@ -87,7 +87,7 @@ Self.prototype._end = function (e) {
   self._element.hide()
 
   // TODO replace global object usage
-  var toSelect = _.map(G.graphView._nodes[0], function(node){
+  var toSelect = _.map(G.graphView._nodes[0], function (node) {
     if (self._isNodeSelected(node)) return node.__data__
   })
   self.selection.add(toSelect)
@@ -100,15 +100,14 @@ Self.prototype._isNodeSelected = function (node) {
   var self = this
   var nodeBounding = node.getBoundingClientRect()
   var nodeCenter = {}
-  nodeCenter.x = nodeBounding.left + nodeBounding.width/2
-  nodeCenter.y = nodeBounding.top + nodeBounding.height/2
-  var rect = {left: self._rect.topLeftPoint.x
-    , top: self._rect.topLeftPoint.y
-    , right: self._rect.topLeftPoint.x + self._rect.width
-    , bottom: self._rect.topLeftPoint.y + self._rect.height 
+  nodeCenter.x = nodeBounding.left + nodeBounding.width / 2
+  nodeCenter.y = nodeBounding.top + nodeBounding.height / 2
+  var rect = {
+    left: self._rect.topLeftPoint.x,
+    top: self._rect.topLeftPoint.y,
+    right: self._rect.topLeftPoint.x + self._rect.width,
+    bottom: self._rect.topLeftPoint.y + self._rect.height,
   }
 
   return Util.pointInRectangle(nodeCenter, rect)
 }
-
-module.exports = Self

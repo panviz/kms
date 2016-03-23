@@ -1,5 +1,6 @@
-var Action = require('../../../action')
-var Self = function (p) {
+import Action from '../../../action'
+
+export default function Self(p) {
   Action.call(this, p)
   var self = this
   self.id = 'force'
@@ -24,5 +25,3 @@ Self.prototype.evaluate = function () {
   if (self.registrar && self.registrar.isVisible()) self.enable()
   else self.disable()
 }
-
-module.exports = Self

@@ -2,10 +2,10 @@
  * Selection by click
  * allows multiple
  */
-var Behavior = require('../behavior')
-, Util = require('../../../core/util')
+import Behavior from '../behavior'
+import Util from '../../../core/util'
 
-var Self = function (p) {
+export default function Self(p) {
   Behavior.call(this, p)
   var self = this
   self.modeKey = 'ctrlKey'
@@ -29,7 +29,7 @@ Self.prototype._onMouseDownNode = function (e) {
   var self = this
   var key = e.currentTarget.__data__
 
-  if( e[self.modeKey] === false ) {
+  if ( e[self.modeKey] === false ) {
     self.selection.add(key)
   } else {
     if (self.selection.get(key)) {
@@ -51,5 +51,3 @@ Self.prototype._onMouseUpNode = function (e) {
     self.selection.remove(unselect)
   }
 }
-
-module.exports = Self

@@ -1,5 +1,6 @@
-var Action = require('../../../action')
-var Self = function (p) {
+import Action from '../../../action'
+
+export default function Self(p) {
   Action.call(this, p)
   var self = this
   self.id = 'graphFixItemPosition'
@@ -9,5 +10,3 @@ Self.prototype = Object.create(Action.prototype)
 
 Self.prototype.execute = function () {
 }
-
-module.exports = Self

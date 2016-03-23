@@ -3,15 +3,15 @@
  * with constraints implemented with WebCola to decrease jitter and avoid nodes overlap
  * perform additional transition animation to decrease jitter
  */
-var Layout = require('./layout')
-, webcola = require('webcola')
-, Util = require('../../core/util')
+import Layout from './layout'
+import webcola from 'webcola'
+import Util from '../../core/util'
 
-var Self = function (p) {
+export default function Self(p) {
   Layout.call(this, p)
   var self = this
-  self.name = "Force directed"
-  self.p.iterations = p.iterations || [10,15,20]
+  self.name = 'Force directed'
+  self.p.iterations = p.iterations || [10, 15, 20]
   self.p.untangleIterations = self.p.iterations[0] + self.p.iterations[1]
   self.p.animationDuration = 750
   self._transitionStarted
@@ -54,7 +54,7 @@ Self.prototype.update = function (graph, enteredNodes) {
     if (existIndex > -1) {
       newShapes[index] = self._shapes[existIndex]
     } else {
-      var node = _.find(enteredNodes, {'__data__': newItem})
+      var node = _.find(enteredNodes, {__data__: newItem})
       var size = node.getBBox()
       var point = self._initPosition(newItem, graph)
       newShapes[index] = {
@@ -70,6 +70,7 @@ Self.prototype.update = function (graph, enteredNodes) {
   })
   self._items = newItems
   self._shapes = newShapes
+
   // TODO
   self._shapeLinks = _.map(links, function (link) {
     var source = self._shapes[self._items.indexOf(link[0])]
@@ -143,11 +144,12 @@ Self.prototype.move = function (item, delta) {
 Self.prototype._onTick = function () {
   var self = this
   Util.log('F TICK ' + self._forceCounter)
+
   // if _duration is not set there is always time left to finish
   var timeLeft = self._duration ? self._duration - (new Date - self._startTime) : 1
   if (timeLeft < 0) self._force.stop()
 
-  // untangle layout silently 
+  // untangle layout silently
   if (self._doUntangle && ++self._forceCounter < self.p.untangleIterations) return
   if (!self._transitionEnabled) {
     self.trigger('tick')
@@ -182,8 +184,9 @@ Self.prototype._initPosition = function (item, graph) {
   var self = this
   var allLinkedItems = graph.getLinked(item)
   var existLinkedItems = _.intersection(self._items, allLinkedItems)
+
   // nodes should appear near the center but not too close to not repel strongly
-  if (_.isEmpty(existLinkedItems)) return [self.width/2, self.height/2]
+  if (_.isEmpty(existLinkedItems)) return [self.width / 2, self.height / 2]
 
   var points = _.map(existLinkedItems, function (existLinkedItem) {
     var shape = self._shapes[self._items.indexOf(existLinkedItem)]
@@ -196,7 +199,7 @@ Self.prototype._startTransition = function (duration) {
   var self = this
   Util.log('Transition START')
   duration = duration || self.p.animationDuration
-  
+
   function tick(timestamp) {
     if (!self._transitionStarted) self._transitionStarted = timestamp
     var progress = timestamp - self._transitionStarted
@@ -205,7 +208,7 @@ Self.prototype._startTransition = function (duration) {
        self._makeTransition(progress, duration)
     } else {
       self._endTransition(id)
-    } 
+    }
   }
   var id = requestAnimationFrame(tick)
 }
@@ -219,6 +222,7 @@ Self.prototype._makeTransition = function (progress, duration) {
       shape.tpx = shape.px // Transition Previous X
       shape.tpy = shape.py
     }
+
     // Transition Current X
     shape.tcx = $.easing.easeInOutCubic(undefined, progress, shape.tpx, shape.x - shape.tpx, duration)
     shape.tcy = $.easing.easeInOutCubic(undefined, progress, shape.tpy, shape.y - shape.tpy, duration)
@@ -236,5 +240,3 @@ Self.prototype._boundConstraint = function () {
     d.y = Math.max(15, Math.min(self.height - 15, d.y))
   })
 }
-
-module.exports = Self
