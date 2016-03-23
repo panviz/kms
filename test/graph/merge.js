@@ -1,8 +1,8 @@
-var assert = require('assert')
-, _ = require('lodash')
-, Graph = require('../../provider/graph/index')
+import assert from 'assert'
+import _ from 'lodash'
+import Graph from '../../provider/graph/index'
 
-describe('Graph', function() {
+describe('Graph', function () {
   beforeEach(function () {
   })
 
@@ -18,10 +18,10 @@ describe('Graph', function() {
         i3: 3,
       },
       links: {
-        i1: [['i2', 0],['i3', 0]],
+        i1: [['i2', 0], ['i3', 0]],
         i2: [['i1', 0]],
         i3: [['i1', 0]],
-      }
+      },
     }
     /**
       j1 - j2
@@ -34,10 +34,10 @@ describe('Graph', function() {
         j3: 3,
       },
       links: {
-        j1: [['j2', 0],['j3', 0]],
+        j1: [['j2', 0], ['j3', 0]],
         j2: [['j1', 0]],
         j3: [['j1', 0]],
-      }
+      },
     }
     it('should include items from both graphs', function () {
       var g1 = new Graph(obj1)
@@ -67,10 +67,10 @@ describe('Graph', function() {
         i3: 3,
       },
       links: {
-        i1: [['i2', 0],['i3', 0]],
+        i1: [['i2', 0], ['i3', 0]],
         i2: [['i1', 0]],
         i3: [['i1', 0]],
-      }
+      },
     }
     /**
       i3 - i4
@@ -83,10 +83,10 @@ describe('Graph', function() {
         i5: 5,
       },
       links: {
-        i3: [['i4', 0],['i5', 0]],
+        i3: [['i4', 0], ['i5', 0]],
         i4: [['i3', 0]],
         i5: [['i3', 0]],
-      }
+      },
     }
     it('should not contain item duplicates', function () {
       var g1 = new Graph(obj1)
@@ -111,10 +111,10 @@ describe('Graph', function() {
         i3: 3,
       },
       links: {
-        i1: [['i2', 0],['i3', 0]],
+        i1: [['i2', 0], ['i3', 0]],
         i2: [['i1', 0]],
         i3: [['i1', 0]],
-      }
+      },
     }
     /**
       i1 - i2
@@ -128,10 +128,10 @@ describe('Graph', function() {
         i3: 3,
       },
       links: {
-        i1: [['i2', 0],['i3', 0]],
-        i2: [['i1', 0],['i3', 0]],
-        i3: [['i1', 0],['i2', 0]],
-      }
+        i1: [['i2', 0], ['i3', 0]],
+        i2: [['i1', 0], ['i3', 0]],
+        i3: [['i1', 0], ['i2', 0]],
+      },
     }
     it('should be the same as updated graph', function () {
       var g1 = new Graph(obj1)

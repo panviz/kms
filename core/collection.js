@@ -5,36 +5,35 @@
  * @event remove fires on items removed from collection
  * @event change fires on items collection changed
  */
+import _ from 'lodash'
+import BackboneEvents from 'backbone-events-standalone'
 import Util from '../core/util'
 
 export default function Self(p) {
-  var self = this
-  self._items = []
+  this._items = []
 }
 BackboneEvents.mixin(Self.prototype)
 /**
  * @param {ID or Array} items
  */
 Self.prototype.add = function (items) {
-  var self = this
   items = Util.pluralize(items)
 
   // Do not add existing items and non String values
-  items = _.filter(items, function (item) {
-    return _.isString(item) && item && !_.includes(self._items, item)
+  items = _.filter(items, item => {
+    return _.isString(item) && item && !_.includes(this._items, item)
   })
   if (_.isEmpty(items)) return []
 
-  self._items = _.union(self._items, items)
+  this._items = _.union(this._items, items)
 
-  self.trigger('add', items)
-  self.trigger('change', items)
+  this.trigger('add', items)
+  this.trigger('change', items)
   return items
 }
 
 Self.prototype.get = function (id) {
-  var self = this
-  return self._items.indexOf(id) > -1
+  return this._items.indexOf(id) > -1
 }
 
 Self.prototype.getAll = function () {
@@ -42,34 +41,31 @@ Self.prototype.getAll = function () {
 }
 
 Self.prototype.getCount = function () {
-  var self = this
-  return self._items.length
+  return this._items.length
 }
 
 Self.prototype.remove = function (items) {
-  var self = this
   items = Util.pluralize(items)
 
-  items = _.filter(items, function (item) {
-    return _.isString(item) && item && _.includes(self._items, item)
+  items = _.filter(items, item => {
+    return _.isString(item) && item && _.includes(this._items, item)
   })
   if (_.isEmpty(items)) return []
 
-  self._items = _.difference(self._items, items)
+  this._items = _.difference(this._items, items)
 
-  self.trigger('remove', items)
-  self.trigger('change', items)
+  this.trigger('remove', items)
+  this.trigger('change', items)
   return items
 }
 
 Self.prototype.clear = function () {
-  var self = this
-  if (_.isEmpty(self._items)) return
+  if (_.isEmpty(this._items)) return
 
-  var removed = self._items
-  self._items = []
+  var removed = this._items
+  this._items = []
 
-  self.trigger('remove', removed)
-  self.trigger('change', removed)
+  this.trigger('remove', removed)
+  this.trigger('change', removed)
   return removed
 }

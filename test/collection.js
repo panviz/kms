@@ -1,10 +1,10 @@
-_ = require('lodash')
-BackboneEvents = require('backbone-events-standalone')
+import _ from 'lodash'
+import BackboneEvents from 'backbone-events-standalone'
 
-var assert = require('assert')
-, Collection = require('../core/collection')
+import assert from 'assert'
+import Collection from '../core/collection'
 
-describe('Collection', function() {
+describe('Collection', function () {
   var selection
   beforeEach(function () {
     selection = new Collection

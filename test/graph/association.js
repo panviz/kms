@@ -1,8 +1,8 @@
-var assert = require('assert')
-, _ = require('lodash')
-, Graph = require('../../provider/graph/index')
+import assert from 'assert'
+import _ from 'lodash'
+import Graph from '../../provider/graph/index'
 
-describe('Graph', function() {
+describe('Graph', function () {
   var graph
   describe('associate items', function () {
     var obj = {

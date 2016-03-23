@@ -26,8 +26,8 @@
     "start": "node build/server/index.js",
     "build": "sh bin/build/all",
     "watch-css": "nodemon -w client -e scss -x sh bin/build/css",
-    "watch-js": "watchify client/app.js -d -v -o client/bundle/bundle.js -t [ babelify --presets [ es2015 ] ]",
-    "test": "mocha --recursive"
+    "watch-js": "watchify client/app.js -d -v -o build/client/bundle.js -t [ babelify --presets [ es2015 ] ]",
+    "test": "mocha --recursive --compilers js:babel-core/register"
   },
   "browserify": {
     "transform": [
@@ -37,6 +37,7 @@
   "browserify-shim": {
     "jquery": "global:$",
     "lodash": "global:_",
+    "BackboneEvents": "global:BackboneEvents",
     "handlebars": "global:Handlebars",
     "webcola": "global:cola",
     "d3": "d3"
