@@ -2,38 +2,32 @@
  * Base object for views
  * @event focus fires on view gain focus
  */
-export default function Self(p) {
-  var self = this
-  self.p = p || {}
+export default function Self (p) {
+  this.p = p || {}
 }
 BackboneEvents.mixin(Self.prototype)
 
 Self.prototype.show = function () {
-  var self = this
-  if (self.isVisible()) return
-  self.elements.root.show()
-  self.trigger('show')
+  if (this.isVisible()) return false
+  this.elements.root.show()
+  this.trigger('show')
   return true
 }
 
 Self.prototype.hide = function () {
-  var self = this
-  if (!self.isVisible()) return
-  self.elements.root.hide()
-  self.trigger('hide')
+  if (!this.isVisible()) return
+  this.elements.root.hide()
+  this.trigger('hide')
 }
 
 Self.prototype.toggle = function () {
-  var self = this
-  self.elements.root.toggle()
+  this.elements.root.toggle()
 }
 
 Self.prototype.isVisible = function () {
-  var self = this
-  return self.elements.root.is(':visible')
+  return this.elements.root.is(':visible')
 }
 
 Self.prototype.isFocused = function () {
-  var self = this
-  return self.elements.root.is(':focus')
+  return this.elements.root.is(':focus')
 }

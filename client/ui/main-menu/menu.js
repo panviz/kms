@@ -3,14 +3,13 @@
  */
 import Util from '../../../core/util'
 
-export default function Self(p) {
-  var self = this
-  self.p = p || {}
+export default function Self (p) {
+  this.p = p || {}
 
-  self.selectors = {
+  this.selectors = {
     input: 'input',
   }
-  self._menuItems = [
+  this._menuItems = [
     {
       title: 'Blog',
       url: 'http://dmitra.com/graphiy',
@@ -31,7 +30,7 @@ export default function Self(p) {
       url: '/graphitabs.html',
     },
   ]
-  var $html = $(G.Templates['ui/main-menu/menu']({items: self._menuItems}))
-  self.p.container.append($html)
-  self.elements = Util.findElements($html, self.selectors)
+  const $html = $(G.Templates['ui/main-menu/menu']({ items: this._menuItems }))
+  this.p.container.append($html)
+  this.elements = Util.findElements($html, this.selectors)
 }

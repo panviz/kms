@@ -9,20 +9,17 @@ import _ from 'lodash'
 import BackboneEvents from 'backbone-events-standalone'
 import Util from '../core/util'
 
-export default function Self(p) {
+export default function Self (p) {
   this._items = []
 }
 BackboneEvents.mixin(Self.prototype)
 /**
  * @param {ID or Array} items
  */
-Self.prototype.add = function (items) {
-  items = Util.pluralize(items)
-
+Self.prototype.add = function (itemS) {
+  let items = Util.pluralize(itemS)
   // Do not add existing items and non String values
-  items = _.filter(items, item => {
-    return _.isString(item) && item && !_.includes(this._items, item)
-  })
+  items = _.filter(items, item => _.isString(item) && item && !_.includes(this._items, item))
   if (_.isEmpty(items)) return []
 
   this._items = _.union(this._items, items)
@@ -44,12 +41,9 @@ Self.prototype.getCount = function () {
   return this._items.length
 }
 
-Self.prototype.remove = function (items) {
-  items = Util.pluralize(items)
-
-  items = _.filter(items, item => {
-    return _.isString(item) && item && _.includes(this._items, item)
-  })
+Self.prototype.remove = function (itemS) {
+  let items = Util.pluralize(itemS)
+  items = _.filter(items, item => _.isString(item) && item && _.includes(this._items, item))
   if (_.isEmpty(items)) return []
 
   this._items = _.difference(this._items, items)
@@ -60,9 +54,9 @@ Self.prototype.remove = function (items) {
 }
 
 Self.prototype.clear = function () {
-  if (_.isEmpty(this._items)) return
+  if (_.isEmpty(this._items)) return []
 
-  var removed = this._items
+  const removed = this._items
   this._items = []
 
   this.trigger('remove', removed)

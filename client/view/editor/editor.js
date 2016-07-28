@@ -1,18 +1,17 @@
 import View from '../view'
 import Util from '../../../core/util'
 
-export default function Self(p) {
-  var self = this
-  self.p = p || {}
-  self._item = {}
-  self.selectors = {
+export default function Self (p = {}) {
+  this.p = p
+  this._item = {}
+  this.selectors = {
     text: 'textarea',
   }
-  var $html = $(G.Templates['view/editor/editor']())
-  if (self.p.hidden) $html.css('display', 'none')
-  self.p.container.append($html)
-  self.elements = Util.findElements($html, self.selectors)
-  self.elements.text.on('input', self._onChange.bind(self))
+  const $html = $(G.Templates['view/editor/editor']())
+  if (this.p.hidden) $html.css('display', 'none')
+  this.p.container.append($html)
+  this.elements = Util.findElements($html, this.selectors)
+  this.elements.text.on('input', this._onChange.bind(this))
 }
 Self.prototype = Object.create(View.prototype)
 /**
@@ -20,57 +19,49 @@ Self.prototype = Object.create(View.prototype)
  * @param String value of item
  */
 Self.prototype.set = function (value, key) {
-  var self = this
-  self._item.key = key
-  self._item.value = value
-  self.elements.text.val(value)
+  this._item.key = key
+  this._item.value = value
+  this.elements.text.val(value)
 }
 /**
  * @return String value of item edited
  */
 Self.prototype.get = function () {
-  var self = this
-  return self.elements.text.val()
+  return this.elements.text.val()
 }
 /**
  * @return ID of currently edited item
  */
 Self.prototype.getKey = function () {
-  var self = this
-  return self._item.key
+  return this._item.key
 }
 /**
  * extend View.show method
  */
 Self.prototype._show = Self.prototype.show
 Self.prototype.show = function () {
-  var self = this
-  if (self._show()) self.elements.text.focus()
+  if (this._show()) this.elements.text.focus()
 }
 /**
  * override View.isFocused method
  */
 Self.prototype.isFocused = function (value) {
-  var self = this
-  self.elements.text.is(':focus')
+  this.elements.text.is(':focus')
 }
 /**
  * @return Boolean whether initial value of item was changed
  */
 Self.prototype.isChanged = function () {
-  var self = this
-  return self._item.value !== self.get()
+  return this._item.value !== this.get()
 }
 /**
  * notifies editor that changed value is saved
  */
 Self.prototype.saved = function () {
-  var self = this
-  self._item.value = self.get()
-  self.trigger('change')
+  this._item.value = this.get()
+  this.trigger('change')
 }
 
 Self.prototype._onChange = function () {
-  var self = this
-  self.trigger('change', self.get())
+  this.trigger('change', this.get())
 }

@@ -3,33 +3,28 @@
  * @event enable
  * @event disable
  */
-export default function Self(p) {
-  var self = this
-
-  p = p || {}
-  self.registrar = p.registrar
-  self.id = p.id
-  self._label = p.label
-  self._icon = p.icon || 'fa fa-check-square-o'
-  self._deny = true
+export default function Self (p = {}) {
+  this.registrar = p.registrar
+  this.id = p.id
+  this._label = p.label
+  this._icon = p.icon || 'fa fa-check-square-o'
+  this._deny = true
 }
 BackboneEvents.mixin(Self.prototype)
 /**
  * Execute the action code
  */
-Self.prototype.apply = function () {
-  var self = this
-  if (self._deny) return
+Self.prototype.apply = function (...args) {
+  if (this._deny) return
 
-  if (self._execute) {
-    self._execute(...arguments)
+  if (this._execute) {
+    this._execute(args)
   }
 }
 /**
  * Override in Concrete Command
  */
 Self.prototype._execute = function () {
-  var self = this
 }
 /**
  * Evaluate enabled state on selection change
@@ -41,25 +36,21 @@ Self.prototype.evaluate = function (selection) {
  * @returns Boolean whether Action has undo method
  */
 Self.prototype.canUndo = function () {
-  var self = this
-  return !!self._undo
+  return !!this._undo
 }
 
 Self.prototype.isEnabled = function () {
-  var self = this
-  return !self._deny
+  return !this._deny
 }
 /**
  * Change icon
  * @param String cssClass
  */
 Self.prototype.setIcon = function (cssClass) {
-  var self = this
-  self._icon = cssClass
+  this._icon = cssClass
 }
 Self.prototype.getIcon = function () {
-  var self = this
-  return self._icon
+  return this._icon
 }
 /**
  * Refresh the action label
@@ -67,31 +58,27 @@ Self.prototype.getIcon = function () {
  * @param newTitle String the new tooltip
  */
 Self.prototype.setLabel = function (newLabel, newTitle) {
-  var self = this
-  self._label = newLabel
+  this._label = newLabel
 }
 
 Self.prototype.getLabel = function () {
-  var self = this
-  return self._label
+  return this._label
 }
 /**
  * Changes enable/disable state
  * Notifies "disable" Event
  */
 Self.prototype.disable = function () {
-  var self = this
-  if (self._deny) return
-  self._deny = true
-  self.trigger('disable')
+  if (this._deny) return
+  this._deny = true
+  this.trigger('disable')
 }
 /**
  * Changes enable/disable state
  * Notifies "enable" Event
  */
 Self.prototype.enable = function () {
-  var self = this
-  if (!self._deny) return
-  self._deny = false
-  self.trigger('enable')
+  if (!this._deny) return
+  this._deny = false
+  this.trigger('enable')
 }

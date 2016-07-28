@@ -3,26 +3,27 @@
  */
 import Util from '../../../core/util'
 
-export default function Self(p) {
-  var self = this
-  self.p = p || {}
+export default function Self (p) {
+  this.p = p || {}
 
-  self.selectors = {
+  this.selectors = {
     input: 'input[type="text"]',
     ignoreCase: 'input[name="ignoreCase"]',
   }
-  var $html = $(G.Templates['ui/search/search']())
-  self.p.container.append($html)
-  self.elements = Util.findElements($html, self.selectors)
+  const $html = $(G.Templates['ui/search/search']())
+  this.p.container.append($html)
+  this.elements = Util.findElements($html, this.selectors)
 
-  self.elements.input.on('keyup', self._onChange.bind(self))
-  self.elements.ignoreCase.on('click', self._onChange.bind(self))
+  this.elements.input.on('keyup', this._onChange.bind(this))
+  this.elements.ignoreCase.on('click', this._onChange.bind(this))
 }
 BackboneEvents.mixin(Self.prototype)
 
 Self.prototype._onChange = function (e) {
-  var self = this
-  var value = e.target.value
+  const value = e.target.value
   if (value.length < 3) return
-  self.trigger('update', {str: value, flags: self.elements.ignoreCase.is(':checked') ? 'i' : ''})
+  this.trigger('update', {
+    str: value,
+    flags: this.elements.ignoreCase.is(':checked') ? 'i' : '',
+  })
 }

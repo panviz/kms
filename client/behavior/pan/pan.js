@@ -9,183 +9,168 @@ import Behavior from '../behavior'
  * @param Number p.wheelStep pixels to move on mouse wheel
  * @param Number p.keyStep pixels to move on keyboard arrows
  */
-export default function Self(p) {
+export default function Self (p) {
   Behavior.call(this, p)
-  var self = this
 
-  self.p = _.extend({
+  this.p = _.extend({
     wheelStep: 10,
-    keyStep:  30,
+    keyStep: 30,
   }, p)
-  self._controlKeys = ['Up', 'Down', 'Left', 'Right']
-  self._startPoint = {}
-  self._changed = false
+  this._controlKeys = ['Up', 'Down', 'Left', 'Right']
+  this._startPoint = {}
+  this._changed = false
 
-  self.container = p.container
-  self._element = p.panElement
-  $(document).on('keydown', self._onKeyDown.bind(self))
+  this.container = p.container
+  this._element = p.panElement
+  $(document).on('keydown', this._onKeyDown.bind(this))
 }
 Self.prototype = Object.create(Behavior.prototype)
 
 Self.prototype.enable = function () {
-  var self = this
-  self.container.on('mousedown', self._onMouseDown.bind(self))
-  self.container.on('mousemove', self._onMouseMove.bind(self))
-  self.container.on('mouseup', self._end.bind(self))
-  self.container.on('mousewheel', self._onScroll.bind(self))
-  self.container.addClass('pan')
-  self._enabled = true
+  this.container.on('mousedown', this._onMouseDown.bind(this))
+  this.container.on('mousemove', this._onMouseMove.bind(this))
+  this.container.on('mouseup', this._end.bind(this))
+  this.container.on('mousewheel', this._onScroll.bind(this))
+  this.container.addClass('pan')
+  this._enabled = true
 }
 
 Self.prototype.disable = function () {
-  var self = this
-  self.container.off('mousedown', self._onMouseDown)
-  self.container.off('mousemove', self._onMouseMove)
-  self.container.off('mouseup', self._end)
-   self.container.off('mousewheel', self._onScroll)
-  self.container.removeClass('pan')
-  self._enabled = false
+  this.container.off('mousedown', this._onMouseDown)
+  this.container.off('mousemove', this._onMouseMove)
+  this.container.off('mouseup', this._end)
+  this.container.off('mousewheel', this._onScroll)
+  this.container.removeClass('pan')
+  this._enabled = false
 }
 /**
  * @return {x,y} current canvas absolute position
  */
 Self.prototype.getPosition = function () {
-  var self = this
-  var pos = {}
-  pos.x = _.toNumber(self._element.translateX())
-  pos.y = _.toNumber(self._element.translateY())
+  const pos = {}
+  pos.x = _.toNumber(this._element.translateX())
+  pos.y = _.toNumber(this._element.translateY())
   return pos
 }
 /**
  * Move canvas either absolute or relative
  */
 Self.prototype.move = function (x, y, relative, silent) {
-  var self = this
   if (relative) {
-    self._moveOn(x, y)
+    this._moveOn(x, y)
   } else {
-    self._moveTo(x, y, silent)
+    this._moveTo(x, y, silent)
   }
-  if (!silent) self.trigger('end')
+  if (!silent) this.trigger('end')
 }
 /**
  * shift canvas on specified distance {deltaX, deltaY}
  */
 Self.prototype._moveOn = function (deltaX, deltaY) {
-  var self = this
-  var current = self.getPosition()
-  self._moveTo(current.x + deltaX, current.y + deltaY)
+  const current = this.getPosition()
+  this._moveTo(current.x + deltaX, current.y + deltaY)
 }
 /**
  * Move canvas to absolute position {x,y}
  */
 Self.prototype._moveTo = function (x, y, silent) {
-  var self = this
-  if (y !== undefined) self._element.translateY(y)
-  if (x !== undefined) self._element.translateX(x)
-  if (!silent) self.trigger('change')
+  if (y !== undefined) this._element.translateY(y)
+  if (x !== undefined) this._element.translateX(x)
+  if (!silent) this.trigger('change')
 }
 /**
- * Sets self._startPoint
+ * Sets this._startPoint
  * @param Number x absolute window coordinate where movement starts
  * @param Number y absolute window coordinate where movement starts
  */
 Self.prototype._start = function (x, y, force) {
-  var self = this
-  if (!self._enabled) return
-  self._inProgress = true
-  self._changed = false
-  var current = self.getPosition()
+  if (!this._enabled) return
+  this._inProgress = true
+  this._changed = false
+  const current = this.getPosition()
 
-  self._startPoint.x = x - current.x
-  self._startPoint.y = y - current.y
+  this._startPoint.x = x - current.x
+  this._startPoint.y = y - current.y
 }
 
 Self.prototype._run = function (x, y) {
-  var self = this
-  if (!self._inProgress) return
+  if (!this._inProgress) return
 
   // Ignore small shift
-  var current = self.getPosition()
-  if ( Math.abs(x - self._startPoint.x - current.x) < 2 &&
-       Math.abs(y - self._startPoint.y - current.y) < 2) {
+  const current = this.getPosition()
+  if (Math.abs(x - this._startPoint.x - current.x) < 2 &&
+       Math.abs(y - this._startPoint.y - current.y) < 2) {
     return
   }
 
-  self._changed = true
-  var posX = x - self._startPoint.x
-  var posY = y - self._startPoint.y
-  self._moveTo(posX, posY)
+  this._changed = true
+  const posX = x - this._startPoint.x
+  const posY = y - this._startPoint.y
+  this._moveTo(posX, posY)
 }
 
 Self.prototype._end = function () {
-  var self = this
-  if (self._inProgress && self._changed) {
-    var posX = self.getPosition().x
-    var posY = self.getPosition().y
-    self.trigger('end')
+  if (this._inProgress && this._changed) {
+    this.trigger('end')
   }
-  self._inProgress = false
-  self._changed = false
+  this._inProgress = false
+  this._changed = false
 }
 
 Self.prototype._onMouseDown = function (e) {
-  var self = this
   if (e.target !== e.currentTarget) return
-  self._start(e.pageX, e.pageY)
+  this._start(e.pageX, e.pageY)
 }
 
 Self.prototype._onMouseMove = function (e) {
-  var self = this
-  self._run(e.pageX, e.pageY)
+  this._run(e.pageX, e.pageY)
 }
 
 Self.prototype._onScroll = function (e) {
-  var self = this
-  var turnOff = false
-  if (!self._enabled) {
-    self._enabled = true
+  let turnOff = false
+  if (!this._enabled) {
+    this._enabled = true
     turnOff = true
   }
-  self._start(0, 0)
+  this._start(0, 0)
   if (e.shiftKey) {
-    self._run(-e.wheelDeltaX / self.p.wheelStep, -e.wheelDeltaY / self.p.wheelStep)
+    this._run(-e.wheelDeltaX / this.p.wheelStep, -e.wheelDeltaY / this.p.wheelStep)
   } else {
-    self._run(e.wheelDeltaX / self.p.wheelStep, e.wheelDeltaY / self.p.wheelStep)
+    this._run(e.wheelDeltaX / this.p.wheelStep, e.wheelDeltaY / this.p.wheelStep)
   }
-  self._end()
-  if ( turnOff ) self._enabled = false
+  this._end()
+  if (turnOff) this._enabled = false
 }
 
 Self.prototype._onKeyDown = function (e) {
-  var self = this
-  e = e.originalEvent
-  if ( !('keyIdentifier' in e) ) {
-    e.keyIdentifier = e.key
+  e = e.originalEvent // eslint-disable-line
+  if (!('keyIdentifier' in e)) {
+    e.keyIdentifier = e.key // eslint-disable-line
   }
-  if (!_.includes(self._controlKeys, e.keyIdentifier)) return
+  if (!_.includes(this._controlKeys, e.keyIdentifier)) return
 
-  var turnOff = false
-  if (!self._enabled) {
-    self._enabled = true
+  let turnOff = false
+  if (!this._enabled) {
+    this._enabled = true
     turnOff = true
   }
-  self._start(0, 0)
+  this._start(0, 0)
 
   switch (e.keyIdentifier) {
-    case 'Up':
-      self._run(0, -self.p.keyStep)
+  case 'Up':
+    this._run(0, -this.p.keyStep)
     break
-    case 'Down':
-      self._run(0, self.p.keyStep)
+  case 'Down':
+    this._run(0, this.p.keyStep)
     break
-    case 'Left':
-      self._run(-self.p.keyStep, 0)
+  case 'Left':
+    this._run(-this.p.keyStep, 0)
     break
-    case 'Right':
-      self._run(self.p.keyStep, 0)
+  case 'Right':
+    this._run(this.p.keyStep, 0)
     break
+  default:
   }
-  self._end()
-  if ( turnOff ) self._enabled = false
+  this._end()
+  if (turnOff) this._enabled = false
 }

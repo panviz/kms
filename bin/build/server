@@ -1,5 +1,5 @@
 #!/bin/bash  
-babel server/ -d build/server
-babel provider/ -d build/provider
-babel core/ -d build/core
+node_modules/babel-cli/bin/babel.js server/ -d build/server
+node_modules/babel-cli/bin/babel.js provider/ -d build/provider
+node_modules/babel-cli/bin/babel.js core/ -d build/core
 cp package.json build/package.json

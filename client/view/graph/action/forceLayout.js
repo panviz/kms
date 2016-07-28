@@ -1,27 +1,24 @@
 import Action from '../../../action'
 
-export default function Self(p) {
+export default function Self (p) {
   Action.call(this, p)
-  var self = this
-  self.id = 'force'
-  self._label = 'Graph'
-  self._deny = false
-  self._icon = 'fa fa-share-alt'
-  self.group = 'layout'
+  this.id = 'force'
+  this._label = 'Graph'
+  this._deny = false
+  this._icon = 'fa fa-share-alt'
+  this.group = 'layout'
 
-  self.registrar.on('show', self.enable.bind(self))
-  self.registrar.on('hide', self.disable.bind(self))
+  this.registrar.on('show', this.enable.bind(this))
+  this.registrar.on('hide', this.disable.bind(this))
 }
 Self.prototype = Object.create(Action.prototype)
 
 Self.prototype._execute = function () {
-  var self = this
-  self.registrar.layout = self.registrar.layouts[self.id]
-  self.registrar.updateLayout({transit: false})
+  this.registrar.layout = this.registrar.layouts[this.id]
+  this.registrar.updateLayout({ transit: false })
 }
 
 Self.prototype.evaluate = function () {
-  var self = this
-  if (self.registrar && self.registrar.isVisible()) self.enable()
-  else self.disable()
+  if (this.registrar && this.registrar.isVisible()) this.enable()
+  else this.disable()
 }

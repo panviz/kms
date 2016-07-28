@@ -11,11 +11,21 @@ import ActionsPanel from './ui/actions-panel/panel'
 import Collection from '../core/collection'
 import Actionman from './actionman'
 import Util from '../core/util'
+const _actions = [
+  require('./action/item/create').default,
+  require('./action/item/edit').default,
+  require('./action/item/save').default,
+  require('./action/item/link').default,
+  require('./action/item/unlink').default,
+  require('./action/item/showChildren').default,
+  require('./action/item/hide').default,
+  require('./action/item/remove').default,
+]
 
 class Self {
   constructor () {
     this.serviceItem = {
-      visibleItem: {value: 'visibleItem'},
+      visibleItem: { value: 'visibleItem' },
       searchItem: {},
     }
 
@@ -32,29 +42,29 @@ class Self {
     // IDs array of visible items
     this.visibleItems = new Collection()
 
-    var providerSet = {
+    const providerSet = {
       url: '/item',
     }
     this.provider = new Provider(providerSet)
-    var graphViewSet = {
+    const graphViewSet = {
       actionman: this.actionman,
       container: this.elements.container,
       selection: this.selection,
     }
-    var listViewSet = {
+    const listViewSet = {
       actionman: this.actionman,
       container: this.elements.container,
       selection: this.selection,
       hidden: true,
     }
-    var editorSet = {
+    const editorSet = {
       actionman: this.actionman,
       container: this.elements.container,
       hidden: true,
     }
 
     this.selection.on('change', this._onSelect.bind(this))
-    this.search = new Search({container: this.elements.header})
+    this.search = new Search({ container: this.elements.header })
     this.search.on('update', this._onSearch.bind(this))
     this.actionsPanel = new ActionsPanel({
       container: this.elements.sidebar,
@@ -75,32 +85,23 @@ class Self {
     this.editor.on('show', this._layoutViews.bind(this))
     this.editor.on('hide', this._layoutViews.bind(this))
 
-    this.actions = [
-      require('./action/item/create').default,
-      require('./action/item/edit').default,
-      require('./action/item/save').default,
-      require('./action/item/link').default,
-      require('./action/item/unlink').default,
-      require('./action/item/showChildren').default,
-      require('./action/item/hide').default,
-      require('./action/item/remove').default,
-    ]
+    this.actions = _actions
     _.each(this.actions, action => this.actionman.set(action, this))
 
     this._loadVisibleItems()
-    this.menu = new Menu({container: this.elements.header})
+    this.menu = new Menu({ container: this.elements.header })
   }
 
-  showChildren (keys) {
-    keys = Util.pluralize(keys)
+  showChildren (keyS) {
+    const keys = Util.pluralize(keyS)
 
-    //TODO multiple
-    var rootKey = keys[0]
+    // TODO multiple
+    const rootKey = keys[0]
     this.provider.request('getGraph', rootKey, 1)
       .then(graph => {
         graph.remove(rootKey)
         this._filter(graph)
-        var linkedKeys = graph.getItemKeys()
+        const linkedKeys = graph.getItemKeys()
         this.visibleItems.add(linkedKeys)
 
         this.linkedList.show()
@@ -128,8 +129,8 @@ class Self {
 
   saveItem (value, key) {
     this.provider.request('set', value, key)
-      .then(key => {
-        if (key === key) {
+      .then(_key => {
+        if (_key === key) {
           this.editor.saved()
           this._reloadGraph()
         }
@@ -166,7 +167,7 @@ class Self {
         this.provider.request('getGraph', this.serviceItem.visibleItem.key, 1)
           .then(graph => {
             this._filter(graph)
-            var keys = graph.getItemKeys()
+            const keys = graph.getItemKeys()
             this.visibleItems.add(keys)
             this._updateGraphView(graph)
             this.visibleItems.on('change', this._reloadGraph.bind(this))
@@ -177,11 +178,10 @@ class Self {
   }
 
   _onSelect () {
-    var keys = this.selection.getAll()
+    const keys = this.selection.getAll()
     if (keys.length === 1) {
-      var key = keys[0]
+      const key = keys[0]
       if (this.editor.isVisible()) {
-
         // TODO make local _graph.get and retrieve value only for partially loaded items
         this.provider.request('get', key)
           .then(value => {
@@ -223,7 +223,7 @@ class Self {
    * Sync graph with server
    */
   _reloadGraph () {
-    var keys = this.visibleItems.getAll()
+    const keys = this.visibleItems.getAll()
     this.provider.request('getGraph', keys)
       .then(graph => {
         this._updateGraphView(graph)
@@ -235,17 +235,18 @@ class Self {
   }
 
   _filter (data) {
-    var graph, keys
+    let graph
+    let keys
     if (data.providerID) graph = data
     if (_.isArray(data)) keys = data
     if (graph) {
       graph.remove(this.serviceItem.visibleItem.key)
-    } else {
-      return _.without(keys, this.serviceItem.visibleItem.key)
+      return graph
     }
+    return _.without(keys, this.serviceItem.visibleItem.key)
   }
 }
 
-var templates = G.Templates
+const templates = G.Templates
 G = new Self()
 G.Templates = templates

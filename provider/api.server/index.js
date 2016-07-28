@@ -5,46 +5,41 @@
 import _ from 'lodash'
 import Raw from '../raw/index'
 
-export default function Self(p) {
-  var self = this
-  self.p = p || {}
+export default function Self (p) {
+  this.p = p || {}
 
-  self.provider = Raw
-  self.provider.read(self.p.source)
-    .then(function (graph) {
-      self.graph = graph
-      console.log('Serving items total: ' + graph.getItemKeys().length)
+  this.provider = Raw
+  this.provider.read(this.p.source)
+    .then((graph) => {
+      this.graph = graph
+      console.info(`Serving items total: ${graph.getItemKeys().length}`)
     })
 }
 
 Self.prototype.request = function (params) {
-  var self = this
-  console.log('Request params: ' + JSON.stringify(params))
-  var args = JSON.parse(params.args)
-  var result = self.graph[params.method](...args)
+  console.info(`Request params: ${JSON.stringify(params)}`)
+  const args = JSON.parse(params.args)
+  const result = this.graph[params.method](...args)
 
-  return new Promise(function (resolve, reject) {
+  return new Promise((resolve, reject) => {
     if (params.method === 'get') {
-      args.push(self.p)
+      args.push(this.p)
 
       // TODO handle items (binary) not in the graph
-      self.provider.get(...args)
-        .then(function (data) { resolve(data)})
+      this.provider.get(...args)
+        .then((data) => { resolve(data) })
     } else if (params.method === 'set') {
-      self.provider.set(result, self.graph.get(result), self.graph.getLinks(result), self.p)
+      this.provider.set(result, this.graph.get(result), this.graph.getLinks(result), this.p)
       resolve(result)
     } else if (_.includes(['associate', 'remove', 'setDisassociate'], params.method)) {
-
       // TODO _.includes(params.method, 'set')
-      _.each(result, function (key) {
-
+      _.each(result, (key) => {
         // TODO do not write items not in the graph (they may be just external links)
-        self.provider.set(key, self.graph.get(key), self.graph.getLinks(key), self.p)
+        this.provider.set(key, this.graph.get(key), this.graph.getLinks(key), this.p)
       })
       resolve(result)
     } else {
-
-      //TODO store searches to provider
+      // TODO store searches to provider
       resolve(result)
     }
   })

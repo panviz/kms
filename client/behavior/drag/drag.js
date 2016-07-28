@@ -2,107 +2,97 @@
  * Drag behavior
  */
 import Behavior from '../behavior'
-import Util from '../../../core/util'
 
 /**
- * self._dragged - node on which dragging started
- * self._draggedClone - copy of the node on which dragging started - to visualize dragging
- * self._target - node on which dragged node is dropped
+ * this._dragged - node on which dragging started
+ * this._draggedClone - copy of the node on which dragging started - to visualize dragging
+ * this._target - node on which dragged node is dropped
  */
-export default function Self(p) {
+export default function Self (p) {
   Behavior.call(this, p)
-  var self = this
 
-  self.container = p.container
+  this.container = p.container
 }
 Self.prototype = Object.create(Behavior.prototype)
 
 Self.prototype.enable = function () {
-  var self = this
-  self.container.on('mousedown', self.p.node.selector, self._start.bind(self))
-  self.container.on('mousemove', self._run.bind(self))
-  self.container.on('mouseenter', self.p.node.selector, self._prepareDrop.bind(self))
-  self.container.on('mouseleave', self.p.node.selector, self._disposeDrop.bind(self))
-  self.container.on('mouseup', self.p.node.selector, self._end.bind(self))
-  self.container.on('mouseup', self._end.bind(self))
-  self.container.addClass('drag')
-  self._enabled = true
+  this.container.on('mousedown', this.p.node.selector, this._start.bind(this))
+  this.container.on('mousemove', this._run.bind(this))
+  this.container.on('mouseenter', this.p.node.selector, this._prepareDrop.bind(this))
+  this.container.on('mouseleave', this.p.node.selector, this._disposeDrop.bind(this))
+  this.container.on('mouseup', this.p.node.selector, this._end.bind(this))
+  this.container.on('mouseup', this._end.bind(this))
+  this.container.addClass('drag')
+  this._enabled = true
 }
 
 Self.prototype.disable = function () {
-  var self = this
-  self.container.off('mousedown', self._start)
-  self.container.off('mousemove', self._run)
-  self.container.off('mouseenter', self._prepareDrop)
-  self.container.off('mouseleave', self._disposeDrop)
-  self.container.off('mouseup', self._end)
-  self.container.off('mouseup', self._end)
-  self.container.removeClass('drag')
+  this.container.off('mousedown', this._start)
+  this.container.off('mousemove', this._run)
+  this.container.off('mouseenter', this._prepareDrop)
+  this.container.off('mouseleave', this._disposeDrop)
+  this.container.off('mouseup', this._end)
+  this.container.off('mouseup', this._end)
+  this.container.removeClass('drag')
 }
 /**
  * TODO show all selected nodes while dragging?
  */
 Self.prototype._start = function (e) {
-  var self = this
-  self._dragged = $(e.currentTarget)
-  self._draggedClone = self._dragged.clone().addClass('dragging')
-  self._startPoint = {x: e.offsetX, y: e.offsetY}
+  this._dragged = $(e.currentTarget)
+  this._draggedClone = this._dragged.clone().addClass('dragging')
+  this._startPoint = { x: e.offsetX, y: e.offsetY }
 
-  self.container.append(self._draggedClone)
-  self.container.addClass('in-progress')
-  self._inProgress = true
+  this.container.append(this._draggedClone)
+  this.container.addClass('in-progress')
+  this._inProgress = true
 }
 
 Self.prototype._run = function (e) {
-  var self = this
-  if (!self._inProgress) return
-  if ( Math.abs(e.offsetX - self._startPoint.x) < 2 &&
-       Math.abs(e.offsetY - self._startPoint.y) < 2) return
+  if (!this._inProgress) return
+  if (Math.abs(e.offsetX - this._startPoint.x) < 2 &&
+       Math.abs(e.offsetY - this._startPoint.y) < 2) return
 
-  if (!self._draggedClone.is(':visible')) {
-    self._draggedClone.show()
+  if (!this._draggedClone.is(':visible')) {
+    this._draggedClone.show()
   }
-  self._draggedClone.translate(e.offsetX, e.offsetY)
+  this._draggedClone.translate(e.offsetX, e.offsetY)
 }
 
 Self.prototype._prepareDrop = function (e) {
-  var self = this
-  if (!self._inProgress) return
+  if (!this._inProgress) return
 
-  // restrict self dropping
-  if (e.currentTarget === self._dragged[0]) return
-  self._target = $(e.currentTarget)
-  self._target.addClass('dropTarget')
+  // restrict this dropping
+  if (e.currentTarget === this._dragged[0]) return
+  this._target = $(e.currentTarget)
+  this._target.addClass('dropTarget')
 }
 
 Self.prototype._disposeDrop = function (e) {
-  var self = this
-  if (!self._inProgress || !self._target) return
-  self._target.removeClass('dropTarget')
-  self._target = undefined
+  if (!this._inProgress || !this._target) return
+  this._target.removeClass('dropTarget')
+  this._target = undefined
 }
 
 Self.prototype._end = function (e) {
-  var self = this
-  if (!self._inProgress) return
+  if (!this._inProgress) return
 
-  var target = {}
-  if (self._target) {
-    self.trigger('drop', self._target)
+  if (this._target) {
+    this.trigger('drop', this._target)
   } else {
-    var delta = {}
-    delta.x = e.offsetX - self._startPoint.x
-    delta.y = e.offsetY - self._startPoint.y
+    const delta = {}
+    delta.x = e.offsetX - this._startPoint.x
+    delta.y = e.offsetY - this._startPoint.y
 
-    var nodeHalfWidth = self.p.node.size.width / 2
+    const nodeHalfWidth = this.p.node.size.width / 2
     if (Math.abs(delta.x) > nodeHalfWidth || Math.abs(delta.y) > nodeHalfWidth) {
-      self.trigger('move', delta)
+      this.trigger('move', delta)
     }
   }
 
-  self._startPoint = undefined
-  self._disposeDrop()
-  self._draggedClone.remove()
-  self.container.removeClass('in-progress')
-  self._inProgress = false
+  this._startPoint = undefined
+  this._disposeDrop()
+  this._draggedClone.remove()
+  this.container.removeClass('in-progress')
+  this._inProgress = false
 }

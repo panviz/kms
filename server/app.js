@@ -6,71 +6,64 @@ import Path from 'path'
 import APIServer from '../provider/api.server/index'
 import bodyParser from 'body-parser'
 import multer from 'multer'
-var upload = multer() // for parsing multipart/form-data
+const upload = multer() // for parsing multipart/form-data
+const config = require('./config.json')
+const packageConf = require('../package.json')
 
-export default function Self() {
-  var self = this
-  self.p = require('./config.json')
-  var packageConf = require('../package.json')
-  self.p.version = packageConf.version
-  self.provider = new APIServer({
-    source: self.p.repository.path,
-    target: self.p.repository.path,
-    provider: self.p.repository.provider,
+export default function Self () {
+  this.p = config
+  this.p.version = packageConf.version
+  this.provider = new APIServer({
+    source: this.p.repository.path,
+    target: this.p.repository.path,
+    provider: this.p.repository.provider,
   })
 
-  self.server = express()
-  self.server.use(bodyParser.json())
-  self.server.use(bodyParser.urlencoded({ extended: true }))
-  self.initRoutes()
+  this.server = express()
+  this.server.use(bodyParser.json())
+  this.server.use(bodyParser.urlencoded({ extended: true }))
+  this.initRoutes()
 }
 
 Self.prototype.run = function () {
-  var self = this
-
-  self.server.listen(self.p.env.port, function () {
-    console.log('\x1b[36mGraphiy\x1b[90m v%s\x1b[0m running as \x1b[1m%s\x1b[0m on http://%s:%d'
-      , self.p.version
-      , self.p.env.name
-      , self.p.env.host
-      , self.p.env.port
+  this.server.listen(this.p.env.port, () => {
+    console.warn('\x1b[36mGraphiy\x1b[90m v%s\x1b[0m running as \x1b[1m%s\x1b[0m on http://%s:%d'
+      , this.p.version
+      , this.p.env.name
+      , this.p.env.host
+      , this.p.env.port
     )
   })
 }
 
 Self.prototype.initRoutes = function (req, res) {
-  var self = this
-  self.server.get('/', self._onRootRequest.bind(self))
-  self.server.get(/client*/, self._onResourceRequest.bind(self))
-  self.server.get(/node_modules*/, self._on3dpartyRequest.bind(self))
-  self.server.post(/item/, upload.array(), self._onAppRequest.bind(self))
-  self.server.get(/^(.+)$/, self._onOtherRequest.bind(self))
+  this.server.get('/', this._onRootRequest.bind(this))
+  this.server.get(/client*/, this._onResourceRequest.bind(this))
+  this.server.get(/node_modules*/, this._on3dpartyRequest.bind(this))
+  this.server.post(/item/, upload.array(), this._onAppRequest.bind(this))
+  this.server.get(/^(.+)$/, this._onOtherRequest.bind(this))
 }
 
 Self.prototype._onRootRequest = function (req, res) {
-  var self = this
-  res.sendFile(Path.join(ROOT_PATH, 'build/client/index.html'))
+  res.sendFile(Path.join(global.ROOT_PATH, 'build/client/index.html'))
 }
 
 Self.prototype._onResourceRequest = function (req, res) {
-  res.sendFile(Path.join(ROOT_PATH, 'build', req.path))
+  res.sendFile(Path.join(global.ROOT_PATH, 'build', req.path))
 }
 
 Self.prototype._on3dpartyRequest = function (req, res) {
-  res.sendFile(Path.join(ROOT_PATH, req.path))
+  res.sendFile(Path.join(global.ROOT_PATH, req.path))
 }
 
 Self.prototype._onAppRequest = function (req, res) {
-  var self = this
-  self.provider.request(req.body)
-    .then(function (data) {
+  this.provider.request(req.body)
+    .then((data) => {
       res.send(data)
     })
 }
 
 Self.prototype._onOtherRequest = function (req, res) {
-  var self = this
-  console.log('other static request: ' + req.params[0])
-  res.sendFile(Path.join(self.p.static + req.params[0]))
+  console.info(`other static request: ${req.params[0]}`)
+  res.sendFile(Path.join(this.p.static + req.params[0]))
 }
-var idPattern = /^[a-z0-9]{8}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{12}$/

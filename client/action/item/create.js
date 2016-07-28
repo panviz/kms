@@ -1,18 +1,16 @@
 import Action from '../../action'
 
-export default function Self(p) {
+export default function Self (p) {
   Action.call(this, p)
-  var self = this
 
-  self.id = 'itemCreate'
-  self._label = 'Create'
-  self._deny = false
-  self._icon = 'fa fa-square-o'
-  self.group = 'item'
+  this.id = 'itemCreate'
+  this._label = 'Create'
+  this._deny = false
+  this._icon = 'fa fa-square-o'
+  this.group = 'item'
 }
 Self.prototype = Object.create(Action.prototype)
 
 Self.prototype._execute = function () {
-  var self = this
-  self.registrar.createItem()
+  this.registrar.createItem()
 }

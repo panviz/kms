@@ -1,16 +1,14 @@
-import Action from '../../action'
+import Action from '../action'
 
-export default function Self(p) {
+export default function Self (p) {
   Action.call(this, p)
-  var self = this
 
-  self.id = 'showLinkedList'
-  self._label = 'Linked Items List'
-  self.group = 'item'
+  this.id = 'showLinkedList'
+  this._label = 'Linked Items List'
+  this.group = 'item'
 }
 Self.prototype = Object.create(Action.prototype)
 
 Self.prototype._execute = function () {
-  var self = this
-  self.registrar.linkedList.toggle()
+  this.registrar.linkedList.toggle()
 }

@@ -1,9 +1,9 @@
 #!/bin/bash
 mkdir -p build/client
-browserify client/app.js -v -t [ babelify --presets [ es2015 ] ] | uglifyjs -o build/client/bundle.js 
+node_modules/browserify/bin/cmd.js client/app.js -v -t [ babelify --presets [ es2015 ] ] | node_modules/uglifyjs/bin/uglifyjs -o build/client/bundle.js 
 node_modules/babel-cli/bin/babel.js client/util.js -o build/client/util.js
 
-uglifyjs \
+node_modules/uglifyjs/bin/uglifyjs \
   node_modules/lodash/lodash.js \
   node_modules/jquery/dist/jquery.js \
   node_modules/jquery.easing/jquery.easing.js \

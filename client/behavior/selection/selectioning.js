@@ -3,51 +3,46 @@
  * allows multiple
  */
 import Behavior from '../behavior'
-import Util from '../../../core/util'
 
-export default function Self(p) {
+export default function Self (p) {
   Behavior.call(this, p)
-  var self = this
-  self.modeKey = 'ctrlKey'
+  this.modeKey = 'ctrlKey'
 
-  self.selection = p.selection
-  self.container = p.container
-  self._nodeSelector = p.nodeSelector
-  self.container.on('mousedown', self._nodeSelector, self._onMouseDownNode.bind(self))
-  self.container.on('mouseup', self._nodeSelector, self._onMouseUpNode.bind(self))
-  self.container.on('mousedown', self._onMouseDownBase.bind(self))
+  this.selection = p.selection
+  this.container = p.container
+  this._nodeSelector = p.nodeSelector
+  this.container.on('mousedown', this._nodeSelector, this._onMouseDownNode.bind(this))
+  this.container.on('mouseup', this._nodeSelector, this._onMouseUpNode.bind(this))
+  this.container.on('mousedown', this._onMouseDownBase.bind(this))
 }
 Self.prototype = Object.create(Behavior.prototype)
 
 Self.prototype._onMouseDownBase = function (e) {
-  var self = this
   if (e.target !== e.currentTarget) return
-  if (e[self.modeKey] === false) self.selection.clear()
+  if (e[this.modeKey] === false) this.selection.clear()
 }
 
 Self.prototype._onMouseDownNode = function (e) {
-  var self = this
-  var key = e.currentTarget.__data__
+  const key = e.currentTarget.__data__
 
-  if ( e[self.modeKey] === false ) {
-    self.selection.add(key)
+  if (e[this.modeKey] === false) {
+    this.selection.add(key)
   } else {
-    if (self.selection.get(key)) {
-      self.selection.remove(key)
+    if (this.selection.get(key)) {
+      this.selection.remove(key)
     } else {
-      self.selection.add(key)
+      this.selection.add(key)
     }
   }
 }
 
 Self.prototype._onMouseUpNode = function (e) {
-  var self = this
-  var key = e.currentTarget.__data__
-  var selected = self.selection.getAll()
+  const key = e.currentTarget.__data__
+  const selected = this.selection.getAll()
 
   // deselect all except current
-  if (e[self.modeKey] === false) {
-    var unselect = _.without(selected, key)
-    self.selection.remove(unselect)
+  if (e[this.modeKey] === false) {
+    const unselect = _.without(selected, key)
+    this.selection.remove(unselect)
   }
 }

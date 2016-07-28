@@ -20,15 +20,14 @@ import Util from '../../../core/util'
  * @inner Array _nodes d3 selection of DOM nodes
  * @inner Array _edges d3 selection of DOM edges
  */
-export default function Self(p) {
-  var self = this
-  self.p = p || {}
+export default function Self (p = {}) {
+  this.p = p
 
-  self.autoLayout = true
-  self.actionman = p.actionman
-  self.selection = p.selection
+  this.autoLayout = true
+  this.actionman = p.actionman
+  this.selection = p.selection
 
-  self.selectors = {
+  this.selectors = {
     svg: 'svg',
     canvas: 'svg .canvas',
     edgeGroup: '.edgeGroup',
@@ -38,12 +37,12 @@ export default function Self(p) {
     hidden: '.hide',
     selected: '.selected',
   }
-  var $html = $(G.Templates['view/graph/graph']())
-  self.p.container.append($html)
-  self.elements = Util.findElements($html, self.selectors)
+  const $html = $(G.Templates['view/graph/graph']())
+  this.p.container.append($html)
+  this.elements = Util.findElements($html, this.selectors)
 
-  self.p.node = {
-    selector: self.selectors.node,
+  this.p.node = {
+    selector: this.selectors.node,
     size: {
       width: 32,
       height: 32,
@@ -53,236 +52,223 @@ export default function Self(p) {
       maxLength: 15,
     },
   }
-  self._graph
-  self._items = []
-  self._edges = []
-  self._nodes = []
+  this._graph = undefined
+  this._items = []
+  this._edges = []
+  this._nodes = []
 
-  self.canvas = d3.select(self.selectors.canvas)
-  self.resize()
-  self._initLayouts()
-  self._initViewActions()
+  this.canvas = d3.select(this.selectors.canvas)
+  this.resize()
+  this._initLayouts()
+  this._initViewActions()
 
-  self.selection.on('add', self._onSelect.bind(self))
-  self.selection.on('remove', self._onDeselect.bind(self))
-  self.elements.svg.on('dblclick', self.selectors.node, self._onNodeDblClick.bind(self))
-  $(window).on('resize', self.resize.bind(self))
+  this.selection.on('add', this._onSelect.bind(this))
+  this.selection.on('remove', this._onDeselect.bind(this))
+  this.elements.svg.on('dblclick', this.selectors.node, this._onNodeDblClick.bind(this))
+  $(window).on('resize', this.resize.bind(this))
 }
 Self.prototype = Object.create(View.prototype)
 /**
  * initialize all available layouts in view
  */
 Self.prototype._initLayouts = function () {
-  var self = this
-  var forceLayout = new ForceLayout({
-    width: self.p.width,
-    height: self.p.height,
-    node: self.p.node,
+  const forceLayout = new ForceLayout({
+    width: this.p.width,
+    height: this.p.height,
+    node: this.p.node,
   })
-  var gridLayout = new GridLayout({
-    width: self.p.width,
-    height: self.p.height,
-    node: self.p.node.size,
-    offset: {x: self.p.node.size.width, y: self.p.node.size.height},
+  const gridLayout = new GridLayout({
+    width: this.p.width,
+    height: this.p.height,
+    node: this.p.node.size,
+    offset: { x: this.p.node.size.width, y: this.p.node.size.height },
     spacing: 100,
   })
-  var radialLayout = new RadialLayout({
-    width: self.p.width,
-    height: self.p.height,
+  const radialLayout = new RadialLayout({
+    width: this.p.width,
+    height: this.p.height,
   })
-  self.layouts = {
+  this.layouts = {
     force: forceLayout,
     grid: gridLayout,
     radial: radialLayout,
   }
 
   // TODO change Grid and Radial layouts firing
-  //self.actions = [
-    //require('./action/forceLayout'),
-    //require('./action/gridLayout'),
-    //require('./action/radialLayout')
-  //]
-  //_.each(self.actions, function (action) {
-    //self.actionman.set(action, self)
-  //})
-  self.layout = self.layouts.force
-  self.layout.on('tick', self._updatePosition, self)
+  // this.actions = [
+    // require('./action/forceLayout'),
+    // require('./action/gridLayout'),
+    // require('./action/radialLayout')
+  // ]
+  // _.each(this.actions, (action) => {
+    // this.actionman.set(action, this)
+  // })
+  this.layout = this.layouts.force
+  this.layout.on('tick', this._updatePosition, this)
 }
 /**
  * initialize View actions and their functions
  */
 Self.prototype._initViewActions = function () {
-  var self = this
-  self.elements.svg.addClass('behavior')
-  self.drag = new Drag({
-    container: self.elements.svg,
-    node: self.p.node,
+  this.elements.svg.addClass('behavior')
+  this.drag = new Drag({
+    container: this.elements.svg,
+    node: this.p.node,
   })
-  self.drag.enable()
-  self.drag.on('drop', self._onDrop.bind(self))
-  self.drag.on('move', self._onNodeMove.bind(self))
+  this.drag.enable()
+  this.drag.on('drop', this._onDrop.bind(this))
+  this.drag.on('move', this._onNodeMove.bind(this))
 
-  self.pan = new Pan({
-    container: self.elements.svg,
-    panElement: self.elements.canvas,
+  this.pan = new Pan({
+    container: this.elements.svg,
+    panElement: this.elements.canvas,
   })
-  self.pan.enable()
+  this.pan.enable()
 
-  self.selectioning = new Selectioning({
-    selection: self.selection,
-    container: self.elements.svg,
-    nodeSelector: self.selectors.node,
+  this.selectioning = new Selectioning({
+    selection: this.selection,
+    container: this.elements.svg,
+    nodeSelector: this.selectors.node,
   })
-  self.rectSelectioning = new RectSelectioning({
-    selection: self.selection,
-    nodes: self._nodes,
-    container: self.elements.root,
-    eventTarget: self.elements.svg,
+  this.rectSelectioning = new RectSelectioning({
+    selection: this.selection,
+    nodes: this._nodes,
+    container: this.elements.root,
+    eventTarget: this.elements.svg,
   })
 }
 /**
  * render new graph in the view using current layout
  */
 Self.prototype.render = function (graph) {
-  var self = this
-  self._graph = graph
-  self._items = graph.getItemKeys()
+  this._graph = graph
+  this._items = graph.getItemKeys()
 
   // bind DOM nodes to items
-  self._nodes = self.canvas.select(self.selectors.nodeGroup)
-    .selectAll(self.selectors.node)
-    .data(self._items, function (d) { return d})
+  this._nodes = this.canvas.select(this.selectors.nodeGroup)
+    .selectAll(this.selectors.node)
+    .data(this._items, d => d)
 
-  self._enterNodes()
-  self._updateNodes()
-  self._exitNodes()
+  this._enterNodes()
+  this._updateNodes()
+  this._exitNodes()
 
-  self.layout.update(graph, self._enteredNodes[0])
+  this.layout.update(graph, this._enteredNodes[0])
 
   // init edges only after its coord are ready
-  self._edges = self.canvas.select(self.selectors.edgeGroup)
-    .selectAll(self.selectors.link)
-    .data(self._graph.getLinksArray())
-  self._enterEdges()
-  self._exitEdges()
+  this._edges = this.canvas.select(this.selectors.edgeGroup)
+    .selectAll(this.selectors.link)
+    .data(this._graph.getLinksArray())
+  this._enterEdges()
+  this._exitEdges()
 
-  self._updatePosition()
-  self.layout.once('tick', function () {
-    self._enteredNodes.classed(self.selectors.hidden.slice(1), false)
-    self._enteredEdges.classed(self.selectors.hidden.slice(1), false)
-    self._exitedNodes.classed(self.selectors.hidden.slice(1), true)
-    self._exitedEdges.classed(self.selectors.hidden.slice(1), true)
+  this._updatePosition()
+  this.layout.once('tick', () => {
+    this._enteredNodes.classed(this.selectors.hidden.slice(1), false)
+    this._enteredEdges.classed(this.selectors.hidden.slice(1), false)
+    this._exitedNodes.classed(this.selectors.hidden.slice(1), true)
+    this._exitedEdges.classed(this.selectors.hidden.slice(1), true)
   })
-  self.updateLayout({duration: 1000})
+  this.updateLayout({ duration: 1000 })
 }
 /**
  * take all available space
  */
 Self.prototype.resize = function () {
-  var self = this
-  self.elements.svg.detach()
-  self.p.height = self.elements.root.height()
-  self.p.width = self.elements.root.width()
-  self.elements.root.append(self.elements.svg)
-  self.elements.svg
-    .width(self.p.width)
-    .height(self.p.height)
+  this.elements.svg.detach()
+  this.p.height = this.elements.root.height()
+  this.p.width = this.elements.root.width()
+  this.elements.root.append(this.elements.svg)
+  this.elements.svg
+    .width(this.p.width)
+    .height(this.p.height)
 }
 /**
  * run current view layout for
  */
 Self.prototype.updateLayout = function (p) {
-  var self = this
-  if (self.autoLayout) self.layout.run(p, self._graph)
+  if (this.autoLayout) this.layout.run(p, this._graph)
 }
 /**
  * TODO make action for it
  */
 Self.prototype.toggleAutoLayout = function () {
-  var self = this
-  self.autoLayout = !self.autoLayout
+  this.autoLayout = !this.autoLayout
 }
 /**
  * append new Edges to DOM
  */
 Self.prototype._enterEdges = function () {
-  var self = this
-
-  self._enteredEdges = self._edges.enter().append('line')
-  self._enteredEdges
-    .classed(self.selectors.link.slice(1) + ' ' + self.selectors.hidden.slice(1), true)
+  this._enteredEdges = this._edges.enter().append('line')
+  this._enteredEdges
+    .classed(`${this.selectors.link.slice(1)} ${this.selectors.hidden.slice(1)}`, true)
 }
 /**
  * remove dropped off Edges from DOM
  */
 Self.prototype._exitEdges = function () {
-  var self = this
-  self._exitedEdges = self._edges.exit()
-  self._exitedEdges
-    .classed(self.selectors.hidden.slice(1), true)
-  setTimeout(function () {
-    self._exitedEdges.remove()
+  this._exitedEdges = this._edges.exit()
+  this._exitedEdges
+    .classed(this.selectors.hidden.slice(1), true)
+  setTimeout(() => {
+    this._exitedEdges.remove()
   }, 750)
 }
 /**
  * append new nodes to DOM
  */
 Self.prototype._enterNodes = function () {
-  var self = this
-  self._enteredNodes = self._nodes.enter().append('g')
-  self._enteredNodes
-    .classed(self.selectors.node.slice(1) + ' ' + self.selectors.hidden.slice(1), true)
-    .classed(self.selectors.selected.slice(1), function (key) { return _.includes(self.selection.getAll(), key)})
-  self._enteredNodes
+  this._enteredNodes = this._nodes.enter().append('g')
+  this._enteredNodes
+    .classed(`${this.selectors.node.slice(1)} ${this.selectors.hidden.slice(1)}`, true)
+    .classed(this.selectors.selected.slice(1), key => _.includes(this.selection.getAll(), key))
+  this._enteredNodes
     .append('circle')
-    .attr('r', self.p.node.size.width / 2)
-  self._enteredNodes
+    .attr('r', this.p.node.size.width / 2)
+  this._enteredNodes
     .append('text')
-    .attr('x', self.p.node.size.width * 0.56)
-    .attr('y', self.p.node.size.width * -0.19)
-    .text(self._getLabel.bind(self))
+    .attr('x', this.p.node.size.width * 0.56)
+    .attr('y', this.p.node.size.width * -0.19)
+    .text(this._getLabel.bind(this))
 }
 /**
  * update DOM nodes
  */
 Self.prototype._updateNodes = function () {
-  var self = this
-  self._nodes
+  this._nodes
     .select('text')
-    .text(self._getLabel.bind(self))
+    .text(this._getLabel.bind(this))
 }
 /**
  * remove DOM nodes
  */
 Self.prototype._exitNodes = function () {
-  var self = this
-  self._exitedNodes = self._nodes.exit()
-  self._exitedNodes
-    .classed(self.selectors.hidden.slice(1), true)
-  setTimeout(function () {
-    self._exitedNodes.remove()
+  this._exitedNodes = this._nodes.exit()
+  this._exitedNodes
+    .classed(this.selectors.hidden.slice(1), true)
+  setTimeout(() => {
+    this._exitedNodes.remove()
   }, 750)
 }
 /**
  * update nodes and edges positions in DOM
  */
 Self.prototype._updatePosition = function () {
-  var self = this
-  var items = self._items
-  var coords = self.layout.getCoords()
-  _.each(self._nodes[0], function (node) {
-    var $node = $(node)
-    var item = node.__data__
-    var coord = coords[items.indexOf(item)]
+  const items = this._items
+  const coords = this.layout.getCoords()
+  _.each(this._nodes[0], (node) => {
+    const $node = $(node)
+    const item = node.__data__
+    const coord = coords[items.indexOf(item)]
     $node.translateX(coord.x)
     $node.translateY(coord.y)
 
-    //if (item == 'job') console.log(coord.x + ', ' + coord.y);
+    // if (item == 'job') console.log(coord.x + ', ' + coord.y);
   })
-  _.each(self._edges[0], function (edge) {
-    var [source, target] = edge.__data__
-    var sCoord = coords[items.indexOf(source)]
-    var tCoord = coords[items.indexOf(target)]
+  _.each(this._edges[0], (edge) => {
+    const [source, target] = edge.__data__
+    const sCoord = coords[items.indexOf(source)]
+    const tCoord = coords[items.indexOf(target)]
     edge.setAttribute('x1', sCoord.x)
     edge.setAttribute('y1', sCoord.y)
     edge.setAttribute('x2', tCoord.x)
@@ -291,58 +277,50 @@ Self.prototype._updatePosition = function () {
 }
 
 Self.prototype._getLabel = function (d) {
-  var self = this
-  var value = self._graph.get(d)
+  let value = this._graph.get(d)
   value = value.substr(0, value.indexOf('\n')) || value
-  if (value.length > self.p.node.label.maxLength) value = value.slice(0, 15) + '...'
+  if (value.length > this.p.node.label.maxLength) value = `${value.slice(0, 15)}...`
   return value
 }
 
 Self.prototype._onDrop = function (targetNode) {
-  var self = this
   if (!targetNode) return
-  self.actionman.get('itemLink').apply(targetNode[0].__data__)
+  this.actionman.get('itemLink').apply(targetNode[0].__data__)
 }
 
 Self.prototype._onNodeMove = function (delta) {
-  var self = this
-  var panDelta = self.pan.getPosition()
-  var keys = self.selection.getAll()
-  _.each(keys, function (key) {
-    var node = _.find(self._nodes[0], function (node) {return node.__data__ === key})
-    var item = node.__data__
+  const keys = this.selection.getAll()
+  _.each(keys, (key) => {
+    const node = _.find(this._nodes[0], _node => _node.__data__ === key)
+    const item = node.__data__
     d3.select(node).append('image')
       .attr('x', 0)
-      .attr('y', -self.p.node.size.width * 0.68)
-      .attr('width', self.p.node.size.width / 2)
-      .attr('height', self.p.node.size.width / 2)
+      .attr('y', -this.p.node.size.width * 0.68)
+      .attr('width', this.p.node.size.width / 2)
+      .attr('height', this.p.node.size.width / 2)
       .attr('xlink:href', '/client/view/graph/pin.svg')
 
     // Fix item to dropped position
-    self.layout.move(item, delta)
-    self.layout.fix(item)
+    this.layout.move(item, delta)
+    this.layout.fix(item)
   })
-  self.updateLayout({duration: 200})
+  this.updateLayout({ duration: 200 })
 }
 
 Self.prototype._onSelect = function (keys) {
-  var self = this
-  _.each(keys, function (key) {
-    var node = _.find(self._nodes[0], function (node) {return node.__data__ === key})
-    if (node) node.classList.add(self.selectors.selected.slice(1))
+  _.each(keys, (key) => {
+    const node = _.find(this._nodes[0], _node => _node.__data__ === key)
+    if (node) node.classList.add(this.selectors.selected.slice(1))
   })
 }
 
 Self.prototype._onDeselect = function (keys) {
-  var self = this
-  _.each(keys, function (key) {
-    var node = _.find(self._nodes[0], function (node) {return node.__data__ === key})
-    if (node) node.classList.remove(self.selectors.selected.slice(1))
+  _.each(keys, (key) => {
+    const node = _.find(this._nodes[0], _node => _node.__data__ === key)
+    if (node) node.classList.remove(this.selectors.selected.slice(1))
   })
 }
 
 Self.prototype._onNodeDblClick = function (e) {
-  var self = this
-  var key = e.currentTarget.__data__
-  self.actionman.get('itemShowChildren').apply()
+  this.actionman.get('itemShowChildren').apply()
 }

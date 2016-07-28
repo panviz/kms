@@ -1,10 +1,9 @@
 /**
  * JSON graph dump provider
  */
-var _ = require('lodash')
-, Graph = require('../graph/index')
+const Graph = require('../graph/index')
 
-var Self = function () {
+const Self = function () {
 }
 /**
  * Reads json object into Associated storage
@@ -16,9 +15,8 @@ Self.prototype.readSync = function (obj) {
 }
 
 Self.prototype.read = function (obj) {
-  var self = this
-  return new Promise(function (resolve, reject) {
-    resolve(self.readSync(obj))
+  return new Promise((resolve, reject) => {
+    resolve(this.readSync(obj))
   })
 }
 /**

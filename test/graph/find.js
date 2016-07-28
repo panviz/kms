@@ -2,8 +2,8 @@ import assert from 'assert'
 import _ from 'lodash'
 import Graph from '../../provider/graph/index'
 
-describe('Graph', function () {
-  describe('find graph by value', function () {
+describe('Graph', () => {
+  describe('find graph by value', () => {
     var graph
     /**
       i1 - i2
@@ -21,23 +21,23 @@ describe('Graph', function () {
         i3: [['i1', 0]],
       },
     }
-    beforeEach(function () {
+    beforeEach(() => {
       graph = new Graph(obj)
     })
-    it('should return subgraph with lookup item and found items linked to it', function () {
+    it('should return subgraph with lookup item and found items linked to it', () => {
       var lookupValue = 'NOT'
       var subGraph = graph.find(lookupValue, 'i')
 
       //assert.equal(subGraph.getItemKeys().length, 2)
       //assert.equal(subGraph.getLinks(subGraph.getKey(lookupValue)).length, 1)
     })
-    it('subGraph should not contain linked items of search results', function () {
+    it('subGraph should not contain linked items of search results', () => {
       var lookupValue = 'ano'
       var subGraph = graph.find(lookupValue)
 
       //assert.equal(subGraph.getLinks('i3').length, 1)
     })
-    it('should return subgraph with lookup item only', function () {
+    it('should return subgraph with lookup item only', () => {
       var lookupValue = 'miss'
       var subGraph = graph.find(lookupValue, 'i')
 

@@ -3,85 +3,78 @@
  */
 import Util from '../../../core/util'
 
-export default function Self(p) {
-  var self = this
-  self.p = p || {}
-  self.selectors = {
+export default function Self (p) {
+  this.p = p || {}
+  this.selectors = {
     panel: '.actions-panel',
     group: '.group',
     action: '.action',
   }
-  self.actions = self.p.actions
+  this.actions = this.p.actions
 
-  var $html = $(G.Templates['ui/actions-panel/panel']())
-  self.p.container.append($html)
-  self.elements = Util.findElements($html, self.selectors)
+  const $html = $(G.Templates['ui/actions-panel/panel']())
+  this.p.container.append($html)
+  this.elements = Util.findElements($html, this.selectors)
 
-  self.actionTemplate = G.Templates['ui/actions-panel/action']
-  self.groupTemplate = G.Templates['ui/actions-panel/group']
+  this.actionTemplate = G.Templates['ui/actions-panel/action']
+  this.groupTemplate = G.Templates['ui/actions-panel/group']
 
-  _.each(self.actions, function (action) {
-    self.addMenuItem(action)
+  _.each(this.actions, function (action) {
+    this.addMenuItem(action)
   })
-  self.elements.root.on('click', self.selectors.action, self._onMenuItemClick.bind(self))
-  self.elements.root.on('click', self.selectors.group, self._onGroupClick.bind(self))
+  this.elements.root.on('click', this.selectors.action, this._onMenuItemClick.bind(this))
+  this.elements.root.on('click', this.selectors.group, this._onGroupClick.bind(this))
 }
 BackboneEvents.mixin(Self.prototype)
 
 Self.prototype.addMenuItem = function (action) {
-  var self = this
-  action.on('enable', self.enableMenuItem.bind(self, action))
-  action.on('disable', self.disableMenuItem.bind(self, action))
-  action.on('show', self.addMenuItem.bind(self, action))
-  action.on('hide', self.removeMenuItem.bind(self, action))
+  action.on('enable', this.enableMenuItem.bind(this, action))
+  action.on('disable', this.disableMenuItem.bind(this, action))
+  action.on('show', this.addMenuItem.bind(this, action))
+  action.on('hide', this.removeMenuItem.bind(this, action))
 
-  var actionData = {
+  const actionData = {
     id: action.id,
     label: action.getLabel(),
     icon: action.getIcon(),
   }
-  var actionHTML = self.actionTemplate(actionData)
-  var $actionHTML = $(actionHTML).toggleClass('enabled', action.isEnabled())
-  var group = action.group || 'main'
-  var $group = self.elements.root.find('.' + group)
+  const actionHTML = this.actionTemplate(actionData)
+  const $actionHTML = $(actionHTML).toggleClass('enabled', action.isEnabled())
+  const group = action.group || 'main'
+  let $group = this.elements.root.find(`.${group}`)
   if (_.isEmpty($group)) {
-    var $group = $(self.groupTemplate({group: group}))
-    self.elements.root.append($group)
+    $group = $(this.groupTemplate({ group }))
+    this.elements.root.append($group)
   }
   $group.find('ul').append($actionHTML)
-  Util.updateElements(self)
+  Util.updateElements(this)
 }
 
 Self.prototype.removeMenuItem = function (action) {
-  var self = this
-  var menuItem = self.elements.root.find('[data-id="' + action.id + '"]')
+  const menuItem = this.elements.root.find(`[data-id="${action.id}"]`)
   menuItem.remove()
-  Util.updateElements(self)
+  Util.updateElements(this)
 }
 
 Self.prototype.enableMenuItem = function (action) {
-  var self = this
-  var menuItem = self.elements.root.find('[data-id="' + action.id + '"]')
+  const menuItem = this.elements.root.find(`[data-id="${action.id}"]`)
   menuItem.addClass('enabled')
 }
 
 Self.prototype.disableMenuItem = function (action) {
-  var self = this
-  var menuItem = self.elements.root.find('[data-id="' + action.id + '"]')
+  const menuItem = this.elements.root.find(`[data-id="${action.id}"]`)
   menuItem.removeClass('enabled')
 }
 
 Self.prototype._onMenuItemClick = function (e) {
-  var self = this
   e.stopPropagation()
-  var data = $(e.target).data()
-  var action = self.actions[data.id]
+  const data = $(e.target).data()
+  const action = this.actions[data.id]
   action.apply(data)
 }
 
 Self.prototype._onGroupClick = function (e) {
-  var self = this
-  var $group = $(e.currentTarget)
+  const $group = $(e.currentTarget)
   $group.find('ul').slideToggle()
   $group.find('span').toggleClass('collapsed')
 }

@@ -1,27 +1,24 @@
 import Action from '../../action'
 
-export default function Self(p) {
+export default function Self (p) {
   Action.call(this, p)
-  var self = this
 
-  self.id = 'itemEdit'
-  self._label = 'Edit'
-  self._icon = 'fa fa-pencil-square-o'
-  self.group = 'item'
-  self.registrar.selection.on('change', self.evaluate.bind(self, self.registrar.selection))
-  self.registrar.editor.on('show', self.evaluate.bind(self, self.registrar.selection))
-  self.registrar.editor.on('hide', self.evaluate.bind(self, self.registrar.selection))
+  this.id = 'itemEdit'
+  this._label = 'Edit'
+  this._icon = 'fa fa-pencil-square-o'
+  this.group = 'item'
+  this.registrar.selection.on('change', this.evaluate.bind(this, this.registrar.selection))
+  this.registrar.editor.on('show', this.evaluate.bind(this, this.registrar.selection))
+  this.registrar.editor.on('hide', this.evaluate.bind(this, this.registrar.selection))
 }
 Self.prototype = Object.create(Action.prototype)
 
 Self.prototype._execute = function () {
-  var self = this
-  var keys = self.registrar.selection.getAll()
-  self.registrar.editItem(keys[0])
+  const keys = this.registrar.selection.getAll()
+  this.registrar.editItem(keys[0])
 }
 
 Self.prototype.evaluate = function (selection) {
-  var self = this
-  if (selection.getCount() && !self.registrar.editor.isVisible()) self.enable()
-  else self.disable()
+  if (selection.getCount() && !this.registrar.editor.isVisible()) this.enable()
+  else this.disable()
 }

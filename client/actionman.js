@@ -1,7 +1,7 @@
 /**
  * Action Manager
  */
-export default function Self(p) {
+export default function Self (p) {
   this.p = p || {}
   this._instances = {}
 }
@@ -16,13 +16,11 @@ Self.prototype.getAll = function () {
 }
 
 Self.prototype.getActive = function () {
-  return _.filter(this._instances, (action, id) => {
-    return action.isEnabled()
-  })
+  return _.filter(this._instances, action => action.isEnabled())
 }
 
 Self.prototype.set = function (Action, registrar) {
-  var action = new Action({registrar: registrar})
+  const action = new Action({ registrar })
   this._instances[action.id] = action
   this.trigger('add', action)
 }
@@ -38,11 +36,10 @@ Self.prototype.update = function (selection) {
 * Fire an action based on its id
 * @param actionName String The id of the action
 */
-Self.prototype.fire = function (actionName) {
-  var action = this._instances[actionName]
+Self.prototype.fire = function (actionName, ...args) {
+  const action = this._instances[actionName]
 
   if (action !== null) {
-    var argsExceptFirst = Array.prototype.slice.call(arguments, 1)
-    action.apply(argsExceptFirst)
+    action.apply(args)
   }
 }

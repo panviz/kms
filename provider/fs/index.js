@@ -3,17 +3,16 @@
  * Can read arbitrary directory tree
  * TODO? Consider same name tags in different paths as the same tag
  */
-var fs = require('fs-extra')
-, Path = require('path')
-, _ = require('lodash')
-, glob = require('glob')
-, Graph = require('../graph/index')
-, isbinaryfile = require('isbinaryfile')
+import _ from 'lodash'
+import fs from 'fs-extra'
+import Path from 'path'
+import glob from 'glob'
+import Graph from '../graph/index'
+import isbinaryfile from 'isbinaryfile'
 
-var Self = function (p) {
-  var self = this
-  self.p = p || {}
-  self.storage = new Graph()
+export default function Self (p = {}) {
+  this.p = p
+  this.storage = new Graph()
 }
 /**
   find duplicates
@@ -24,80 +23,77 @@ var Self = function (p) {
   connect folder name (with groups) with each other
 */
 Self.prototype.read = function () {
-  var self = this
-  self.inDir = Path.normalize(self.p.source || '.')
-  self.outDir = Path.normalize(self.p.target || '.')
-  var files = glob.sync(Path.join(self.inDir, '**/*'))
-  console.log(files.length + ' paths read');
+  this.inDir = Path.normalize(this.p.source || '.')
+  this.outDir = Path.normalize(this.p.target || '.')
+  const files = glob.sync(Path.join(this.inDir, '**/*'))
+  console.info(`${files.length} paths read`)
 
-  self.tagPaths = {}
-  self.items = {}
-  self.duplicates = {}
-  self.tagIds = {}
+  this.tagPaths = {}
+  this.items = {}
+  this.duplicates = {}
+  this.tagIds = {}
 
-  files.forEach(self.findTagDuplicates.bind(self))
-  files.forEach(self.parse.bind(self))
-  //console.log(self.duplicates);
-  //console.log(_.keys(self.duplicates).sort())
-  return self.storage
+  files.forEach(this.findTagDuplicates.bind(this))
+  files.forEach(this.parse.bind(this))
+  // console.log(this.duplicates);
+  // console.log(_.keys(this.duplicates).sort())
+  return this.storage
 }
 
 Self.prototype.findTagDuplicates = function (path) {
-  var self = this
-  var relative = Path.relative(self.inDir, path)
-  var names = self._getTagsFromPath(path)
+  const relative = Path.relative(this.inDir, path)
+  const names = this._getTagsFromPath(path)
 
-  var last = _.last(names)
-  if (self.tagPaths[last]) {
-    if (!self.duplicates[last]) self.duplicates[last] = []
-    if (!_.contains(self.duplicates[last], self.tagPaths[last])) self.duplicates[last].push(self.tagPaths[last])
-    self.duplicates[last].push(relative)
+  const last = _.last(names)
+  if (this.tagPaths[last]) {
+    if (!this.duplicates[last]) this.duplicates[last] = []
+    if (!_.contains(this.duplicates[last], this.tagPaths[last])) {
+      this.duplicates[last].push(this.tagPaths[last])
+    }
+    this.duplicates[last].push(relative)
   }
-  self.tagPaths[last] = relative
+  this.tagPaths[last] = relative
 }
 
 Self.prototype.parse = function (path) {
-  var self = this
-  var names = self._getTagsFromPath(path)
-  var items = []
+  const names = this._getTagsFromPath(path)
+  const items = []
 
-  names.forEach(function (name, index) {
-    //Disable Groups for development simplicity
-    //skip folders in the root for composing Groups
-    //if (index > 0 && _.contains(_.keys(self.duplicates), name)) {
-      //items[items.length -1] = [items[items.length -1], name]
-    //} else 
-      items.push(name)
+  names.forEach((name, index) => {
+    // Disable Groups for development simplicity
+    // skip folders in the root for composing Groups
+    // if (index > 0 && _.contains(_.keys(this.duplicates), name)) {
+      // items[items.length -1] = [items[items.length -1], name]
+    // } else
+    items.push(name)
   })
 
-  //add text content
+  // add text content
   if (!fs.lstatSync(path).isDirectory()) {
-    var content = isbinaryfile(path) || self.p.noTextParsing ? path : fs.readFileSync(path, 'utf8')
-    if (content !== '') {
-      items.push(content)
-    }
+    const doParsing = isbinaryfile(path) || this.p.noTextParsing
+    const content = doParsing ? path : fs.readFileSync(path, 'utf8')
+    if (content !== '') items.push(content)
   }
 
-  self.parseSequence(items)
+  this.parseSequence(items)
 }
-//Link parent-child
+// Link parent-child
 Self.prototype.parseSequence = function (items) {
-  var self = this
-  items.forEach(function (item, index) {
+  items.forEach((item, index) => {
     if (_.isArray(item)) {
-      var groupedIds = self.parseGroup(item)
-      var groupId = self.storage.setUniq(groupedIds)
-      self.tagIds[groupId] = groupId
+      const groupedIds = this.parseGroup(item)
+      const groupId = this.storage.setUniq(groupedIds)
+      this.tagIds[groupId] = groupId
 
-      //replace array with ID
+      // replace array with ID
       items[index] = groupId
     } else {
-      self.tagIds[item] = self.storage.setUniq(item)
+      this.tagIds[item] = this.storage.setUniq(item)
     }
 
-    //Link parent-child folders
-    if (items[index -1]) {
-      self.storage.associate(self.tagIds[items[index]], self.tagIds[items[index -1]])
+    // Link parent-child folders
+    if (items[index - 1]) {
+      this.storage.associate(this.tagIds[items[index]], this.tagIds[items[index - 1]])
     }
   })
 }
@@ -106,26 +102,22 @@ Self.prototype.parseSequence = function (items) {
  * @returns Array grouped Items ids
  */
 Self.prototype.parseGroup = function (items) {
-  var self = this
-  var groupedItemIds = []
-  items.forEach(function (item, index) {
-    self.tagIds[item] = self.storage.setUniq(item)
-    groupedItemIds.push(self.tagIds[item])
+  const groupedItemIds = []
+  items.forEach((item, index) => {
+    this.tagIds[item] = this.storage.setUniq(item)
+    groupedItemIds.push(this.tagIds[item])
   })
   return groupedItemIds
 }
 
 Self.prototype._getTagsFromPath = function (path) {
-  var self = this
-  var relative = Path.relative(self.inDir, path)
-  //ignore file extension
+  let relative = Path.relative(this.inDir, path)
+  // ignore file extension
   if (!fs.lstatSync(path).isDirectory()) {
     relative = relative.replace(Path.extname(path), '')
   }
-  var tags = relative.split(/[\\\/\.]+/)
-  if (_.isArray(self.p.ignore)) tags = _.difference(tags, self.p.ignore)
-  if (self.p.root) tags.unshift(self.p.root)
+  let tags = relative.split(/[\\\/\.]+/)
+  if (_.isArray(this.p.ignore)) tags = _.difference(tags, this.p.ignore)
+  if (this.p.root) tags.unshift(this.p.root)
   return tags
 }
-
-module.exports = Self

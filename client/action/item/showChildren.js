@@ -1,25 +1,22 @@
 import Action from '../../action'
 
-export default function Self(p) {
+export default function Self (p) {
   Action.call(this, p)
-  var self = this
 
-  self.id = 'itemShowChildren'
-  self._label = 'Show Children'
-  self._icon = 'fa fa-plus-circle'
-  self.group = 'item'
-  self.registrar.selection.on('change', self.evaluate.bind(self, self.registrar.selection))
+  this.id = 'itemShowChildren'
+  this._label = 'Show Children'
+  this._icon = 'fa fa-plus-circle'
+  this.group = 'item'
+  this.registrar.selection.on('change', this.evaluate.bind(this, this.registrar.selection))
 }
 Self.prototype = Object.create(Action.prototype)
 
 Self.prototype._execute = function () {
-  var self = this
-  var keys = self.registrar.selection.getAll()
-  self.registrar.showChildren(keys)
+  const keys = this.registrar.selection.getAll()
+  this.registrar.showChildren(keys)
 }
 
 Self.prototype.evaluate = function (selection) {
-  var self = this
-  if (selection.getCount()) self.enable()
-  else self.disable()
+  if (selection.getCount()) this.enable()
+  else this.disable()
 }

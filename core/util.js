@@ -1,10 +1,10 @@
-var _ = require('lodash')
-var Self = {}
+import _ from 'lodash'
+const Self = {}
 
 Self.findElements = function (root, selectors) {
-  var elements = {}
+  const elements = {}
   elements.root = root instanceof $ ? root : $(root)
-  _.forEach(selectors, function (selector, key) {
+  _.forEach(selectors, (selector, key) => {
     elements[key] = elements.root.find(selector)
   })
   return elements
@@ -13,22 +13,25 @@ Self.findElements = function (root, selectors) {
  * update elements reference
  */
 Self.updateElements = function (control) {
+  /* eslint-disable no-param-reassign */
   control.elements = Self.findElements(control.elements.root, control.selectors)
+  /* eslint-enable */
 }
 
 Self.animate = function (duration, draw) {
-  var start = undefined
-  function tick(timestamp) {
+  let start = undefined
+  let id
+  const tick = (timestamp) => {
     if (!start) start = timestamp
-    var progress = timestamp - start
+    const progress = timestamp - start
     if (progress < duration) {
-       id = requestAnimationFrame(tick)
-       draw(progress, duration)
+      id = requestAnimationFrame(tick)
+      draw(progress, duration)
     } else {
       cancelAnimationFrame(id)
     }
   }
-  var id = requestAnimationFrame(tick)
+  id = requestAnimationFrame(tick)
 }
 
 Self.pluralize = function (arg) {
@@ -40,18 +43,18 @@ Self.pluralize = function (arg) {
  * @param max Integer
  */
 Self.between = function (min, value, max) {
-  var result = false
-  if ( min < max ) {
-    if ( value > min && value < max ) {
+  let result = false
+  if (min < max) {
+    if (value > min && value < max) {
       result = true
     }
   }
-  if ( min > max ) {
-    if ( value > max && value < min) {
+  if (min > max) {
+    if (value > max && value < min) {
       result = true
     }
   }
-  if ( value == min || value == max ) {
+  if (value === min || value === max) {
     result = true
   }
   return result
@@ -62,28 +65,29 @@ Self.between = function (min, value, max) {
  * @param rect Object {top, left, right, bottom}
  */
 Self.pointInRectangle = function (point, rect) {
-  var result = false
+  let result = false
 
-  if (Self.between(rect.left, point.x, rect.right) && Self.between(rect.top, point.y, rect.bottom)) {
+  if (Self.between(rect.left, point.x, rect.right) &&
+      Self.between(rect.top, point.y, rect.bottom)) {
     result = true
   }
   return result
 }
 
 Self.log = function (message) {
-  if (typeof DEBUG !== 'undefined' && DEBUG) console.log(message)
+  if (typeof DEBUG !== 'undefined' && DEBUG) console.info(message)
 }
 /**
  * requires sequential perimeter points
  * polygon without intersections
  */
-Self.centroid = function (points) {
-  points = Self.simplifyPolygon(points)
-  var i, j, p1, p2, f, area, x, y, center,
-    length = points.length
+Self.centroid = function (_points) {
+  const points = Self.simplifyPolygon(_points)
+  let i, j, p1, p2, f, area, x, y, center // eslint-disable-line
+  const length = points.length
 
   if (!length) { return null }
-  if (length === 2) return [(points[0][0] + points[1][0])/2, (points[0][1] + points[1][1]) / 2]
+  if (length === 2) return [(points[0][0] + points[1][0]) / 2, (points[0][1] + points[1][1]) / 2]
 
   area = x = y = 0
 
@@ -98,7 +102,6 @@ Self.centroid = function (points) {
   }
 
   if (area === 0) {
-
     // Polygon is so small that all points are on same pixel.
     center = points[0]
   } else {
@@ -111,8 +114,8 @@ Self.centroid = function (points) {
  */
 Self.simplifyPolygon = function (points) {
   if (points.length < 4) return points
-  var left, right, top, bottom
-  _.each(points, function (point) {
+  var left, right, top, bottom // eslint-disable-line
+  _.each(points, (point) => {
     if (!left) {
       left = point
       right = point
@@ -127,7 +130,7 @@ Self.simplifyPolygon = function (points) {
   return [left, top, right, bottom]
 }
 
-RegExp.prototype.toJSON = function () { return this.toString() }
+RegExp.prototype.toJSON = function () { return this.toString() } // eslint-disable-line
 
 export default Self
 global.$util = Self

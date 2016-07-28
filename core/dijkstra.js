@@ -1,7 +1,7 @@
 /*
  * Dijkstra Algorythm
  */
-module.exports = function (undefined) {
+module.exports = function () {
   var extractKeys = function (obj) {
     var keys = [], key
     for (key in obj) {
