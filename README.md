@@ -1,3 +1,4 @@
+[![Build Status](https://travis-ci.org/Graphiy/kms.svg?branch=master)](https://travis-ci.org/Graphiy/kms)
 # Graphiy - Knowledge Management System
 Based on general-purpose graph/network data editing software.
 
