@@ -6,11 +6,12 @@ import Path from 'path'
 import APIServer from '../provider/api.server/index'
 import bodyParser from 'body-parser'
 import multer from 'multer'
+import chalk from 'chalk'
 const upload = multer() // for parsing multipart/form-data
 const config = require('./config.json')
 const packageConf = require('../package.json')
 
-export default function Self () {
+function Self () {
   this.p = config
   this.p.version = packageConf.version
   this.provider = new APIServer({
@@ -23,15 +24,12 @@ export default function Self () {
   this.server.use(bodyParser.json())
   this.server.use(bodyParser.urlencoded({ extended: true }))
   this.initRoutes()
-}
-
-Self.prototype.run = function () {
   this.server.listen(this.p.env.port, () => {
-    console.warn('\x1b[36mGraphiy\x1b[90m v%s\x1b[0m running as \x1b[1m%s\x1b[0m on http://%s:%d'
-      , this.p.version
-      , this.p.env.name
-      , this.p.env.host
-      , this.p.env.port
+    console.info(chalk.cyan('Graphiy'),
+      chalk.grey(this.p.version),
+      'running as ',
+      chalk.white(this.p.env.name),
+      ` on http://${this.p.env.host}:${this.p.env.port}`
     )
   })
 }
@@ -45,15 +43,15 @@ Self.prototype.initRoutes = function (req, res) {
 }
 
 Self.prototype._onRootRequest = function (req, res) {
-  res.sendFile(Path.join(global.ROOT_PATH, 'build/client/index.html'))
+  res.sendFile(Path.join(this.p.app.path, '/client/index.html'))
 }
 
 Self.prototype._onResourceRequest = function (req, res) {
-  res.sendFile(Path.join(global.ROOT_PATH, 'build', req.path))
+  res.sendFile(Path.join(this.p.app.path, req.path))
 }
 
 Self.prototype._on3dpartyRequest = function (req, res) {
-  res.sendFile(Path.join(global.ROOT_PATH, req.path))
+  res.sendFile(Path.join(this.p.app.path, '..', req.path))
 }
 
 Self.prototype._onAppRequest = function (req, res) {
@@ -67,3 +65,5 @@ Self.prototype._onOtherRequest = function (req, res) {
   console.info(`other static request: ${req.params[0]}`)
   res.sendFile(Path.join(this.p.static + req.params[0]))
 }
+
+export default new Self

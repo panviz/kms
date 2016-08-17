@@ -1,3 +1,4 @@
+const _ = require('lodash')// eslint-disable-line
 const gulp = require('gulp')
 const concat = require('gulp-concat')
 const uglify = require('gulp-uglify')
@@ -7,7 +8,15 @@ const handlebars = require('gulp-handlebars')
 const tap = require('gulp-tap')
 const declare = require('gulp-declare')
 const babel = require('gulp-babel')
+const gutil = require('gulp-util')
+const livereload = require('gulp-livereload')
+const wrap = require('gulp-wrap')
+const mocha = require('gulp-mocha')
 
+// required for mocha
+require('babel-core/register')
+
+const fs = require('fs-extra')
 const del = require('del')
 const Handlebars = require('handlebars')
 const source = require('vinyl-source-stream')
@@ -18,133 +27,181 @@ const babelify = require('babelify')
 const Path = require('path')
 
 const indexLibs = require('./client/indexLibs.json')
+const appConfig = require('./server/config.json')
+const runner = require('./server/runner')
 
+if (!_.get(appConfig, 'app.path')) throw new Error('specify build path')
+
+const NODE_ENV = process.env.NODE_ENV || appConfig.env.name
+const DEV = NODE_ENV === 'DEV'
 const path = {
   styles: 'client/**/*.scss',
-  js: 'client/js/**/*.js',
-  lib: indexLibs,
+  stylesIndex: 'client/index.scss',
+  js: {
+    client: 'client/js/**/*.js',
+    clientIndex: 'client/app.js',
+    serverIndex: `${appConfig.app.path}/server/instance.js`,
+    lib: indexLibs,
+  },
+  // TODO if there is templates compilation why to add htmls to assets?
   asset: ['client/**/*.svg', 'client/**/*.html'],
   template: 'client/**/*.html',
-  server: ['core', 'server', 'provider'],
+  core: 'core/**/*.js',
+  server: 'server/**/*.js',
+  provider: 'provider/**/*.js',
+  app: {
+    root: appConfig.app.path,
+    client: `${appConfig.app.path}/client`,
+    core: `${appConfig.app.path}/core`,
+    server: `${appConfig.app.path}/server`,
+    provider: `${appConfig.app.path}/provider`,
+  },
+  test: 'test/**/*.js',
 }
+runner.config(path.js.serverIndex)
+const babelConfig = { plugins: ['transform-es2015-modules-commonjs'] }
+const sassConfig = { outputStyle: 'compressed' }
+
+// add custom browserify options here
+const clientJSConfig = {
+  entries: [path.js.clientIndex],
+  debug: true,
+}
+const bundlerOptions = _.assign({}, watchify.args, clientJSConfig)
+
+function makeBundler (doWatch) {
+  let bundler = browserify(bundlerOptions)
+  if (doWatch) bundler = watchify(bundler)
+  function bundle () {
+    return bundler.bundle()
+      // log errors if they happen
+      .on('error', gutil.log.bind(gutil, 'Browserify Error'))
+      .pipe(source('bundle.js'))
+      // optional, remove if you don't need to buffer file contents
+      .pipe(buffer())
+      .pipe(DEV ? gutil.noop() : uglify())
+      // loads map from browserify file
+      .pipe(DEV ? sourcemaps.init({ loadMaps: true }) : gutil.noop())
+      .pipe(DEV ? sourcemaps.write('./') : gutil.noop()) // writes .map file
+      .pipe(gulp.dest(path.app.client))
+      .pipe(DEV ? livereload() : gutil.noop())
+  }
+  bundler.transform(babelify.configure(babelConfig))
+  bundler.on('update', bundle) // on any dep update, runs the bundler
+  bundler.on('log', gutil.log) // output build logs to terminal
+  return bundle
+}
+
+gulp.task('client', () => {
+  makeBundler()()
+})
+
+gulp.task('core', () => {
+  gulp.src(path.core)
+    .pipe(babel(babelConfig))
+    .on('error', (err) => console.error(err))
+    .pipe(gulp.dest(path.app.core))
+})
 
 gulp.task('server', () => {
-  path.server.forEach((serverPath) => {
-    gulp.src(`${serverPath}/**/*.js`)
-      .pipe(sourcemaps.init())
-      .pipe(babel({
-        presets: ['es2015'],
-      }))
-      .pipe(sourcemaps.write('.'))
-      .pipe(gulp.dest(`build/${serverPath}`))
-  })
+  fs.copy('./package.json', Path.join(path.app.root, 'package.json'))
+  fs.copy('./server/config.json', Path.join(path.app.server, 'config.json'))
+  gulp.src(path.server)
+    .pipe(babel(babelConfig))
+    .on('error', (err) => console.error(err))
+    .pipe(gulp.dest(path.app.server))
 })
 
-function compile (doWatch) {
-  const bundler = watchify(browserify('./client/app.js', { debug: true })
-    .transform(babelify.configure({
-      presets: ['es2015'],
-    }))
-  )
-
-  function rebundle () {
-    bundler.bundle()
-      .on('error', (err) => {
-        console.error(err)
-        this.emit('end')
-      })
-      .pipe(source('build.js'))
-      .pipe(buffer())
-      .pipe(sourcemaps.init({ loadMaps: true }))
-      .pipe(sourcemaps.write('./'))
-      .pipe(gulp.dest('build/client/'))
-  }
-
-  if (doWatch) {
-    bundler.on('update', () => {
-      console.info('-> bundling...')
-      rebundle()
-    })
-  }
-
-  rebundle()
-}
-
-function watch () {
-  return compile(true)
-}
-
-gulp.task('build-styles', () => {
-  gulp.src('client/index.scss')
-    .pipe(sass({ outputStyle: 'compressed' }).on('error', sass.logError))
-    .pipe(concat('bundle.css'))
-    .pipe(gulp.dest('./build/client/'))
-})
-
-gulp.task('styles', () => {
-  gulp.src('client/index.scss')
-    .pipe(sass().on('error', sass.logError))
-    .pipe(concat('bundle.css'))
-    .pipe(gulp.dest('./build/client/'))
+gulp.task('provider', () => {
+  gulp.src(path.provider)
+    .pipe(sourcemaps.init())
+    .pipe(babel(babelConfig))
+    .on('error', (err) => console.error(err))
+    .pipe(DEV ? sourcemaps.write('.') : gutil.noop())
+    .pipe(gulp.dest(path.app.provider))
 })
 
 gulp.task('clean', () =>
-  del(['build'])
+  del([path.app.root])
 )
 
-gulp.task('js', () => compile())
 gulp.task('lib', () =>
-  // Minify and copy all JavaScript (except vendor scripts)
-  // with sourcemaps all the way down
-  gulp.src(path.lib)
-    .pipe(uglify())
+  gulp.src(path.js.lib)
+    .pipe(DEV ? gutil.noop() : uglify())
     .pipe(concat('libs.js'))
-    .pipe(gulp.dest('build/client'))
+    .pipe(gulp.dest(path.app.client))
 )
+
+gulp.task('styles', () => {
+  gulp.src(path.stylesIndex)
+    .pipe(sass(sassConfig).on('error', sass.logError))
+    .pipe(concat('bundle.css'))
+    .pipe(gulp.dest(path.app.client))
+    .pipe(DEV ? livereload() : gutil.noop())
+})
 
 gulp.task('template', () => {
   gulp.src(path.template)
     .pipe(tap((file, t) => {
-      file.path = Path.relative(file.base, file.path)
+      file.path = Path.relative(file.base, file.path) //eslint-disable-line
     }))
     .pipe(handlebars({
       handlebars: Handlebars,
     }))
+    .pipe(wrap('Handlebars.template(<%= contents %>)'))
     .pipe(declare({
       namespace: 'G.Templates',
       processName (filePath) {
-        return filePath
+        // strip .js extension out
+        return filePath.slice(0, -3)
       },
       noRedeclare: true,
     }))
     .pipe(uglify())
     .pipe(concat('templates.js'))
-    .pipe(gulp.dest('build/client/'))
+    .pipe(gulp.dest(path.app.client))
+    .pipe(DEV ? livereload() : gutil.noop())
 })
 
 // Copy all static assets
 gulp.task('asset', () =>
   gulp.src(path.asset)
-    .pipe(gulp.dest('build/client'))
+    .pipe(gulp.dest(path.app.client))
+    .pipe(DEV ? livereload() : gutil.noop())
 )
 
-gulp.task('watch', () => {
-  gulp.watch(path.styles, ['styles'])
-  //gulp.watch(path.js, ['js'])
-  gulp.watch(path.asset, ['asset'])
-  gulp.watch(path.template, ['template'])
+gulp.task('backend', ['core', 'server', 'provider'])
+
+gulp.task('frontend', ['client', 'template', 'lib', 'asset', 'styles'])
+
+gulp.task('start', () => {
+  runner.start()
 })
 
-//gulp.task('watch', function() { return watch() })
+gulp.task('restart', () => {
+  runner.restart(() => {
+    setTimeout(() => {
+      livereload.reload()
+    }, 1000)
+  })
+})
 
-gulp.task('build', [
-  'clean',
-  'server',
-  'build-css',
-  'build-js',
-  'lib',
-  'build-asset',
-  'build-template',
-])
-// The default task (called when you run `gulp` from cli)
-gulp.task('default', ['watch'])
+// TODO add js watcher
+gulp.task('watch', () => {
+  gulp.watch(path.styles, ['styles'])
+  gulp.watch(path.asset, ['asset'])
+  gulp.watch(path.template, ['template'])
+  gulp.watch(path.core, ['core', 'restart'])
+  gulp.watch(path.server, ['server', 'restart'])
+  gulp.watch(path.provider, ['provider', 'restart'])
+  makeBundler(true)()
+  if (DEV) livereload.listen()
+})
+
+gulp.task('test', () => {
+  gulp.src(path.test, { read: false })
+    .pipe(mocha())
+})
+
+gulp.task('build', ['clean', 'backend', 'frontend'])
+gulp.task('default', ['start', 'watch'])

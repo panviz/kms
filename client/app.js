@@ -11,6 +11,8 @@ import ActionsPanel from './ui/actions-panel/panel'
 import Collection from '../core/collection'
 import Actionman from './actionman'
 import Util from '../core/util'
+import ClientUtil from './util' //eslint-disable-line
+
 const _actions = [
   require('./action/item/create').default,
   require('./action/item/edit').default,
