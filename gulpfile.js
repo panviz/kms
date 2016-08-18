@@ -27,12 +27,15 @@ const babelify = require('babelify')
 const Path = require('path')
 
 const indexLibs = require('./client/indexLibs.json')
-const appConfig = require('./server/config.json')
+let appConfig = require('./server/config.json')
+const testConfig = require('./fixture/config.json')
 const runner = require('./server/runner')
+let NODE_ENV = process.env.NODE_ENV
 
+if (NODE_ENV === 'TEST') appConfig = testConfig
 if (!_.get(appConfig, 'app.path')) throw new Error('specify build path')
 
-const NODE_ENV = process.env.NODE_ENV || appConfig.env.name
+NODE_ENV = NODE_ENV || appConfig.env.name
 const DEV = NODE_ENV === 'DEV'
 const path = {
   styles: 'client/**/*.scss',
@@ -96,31 +99,6 @@ gulp.task('client', () => {
   makeBundler()()
 })
 
-gulp.task('core', () => {
-  gulp.src(path.core)
-    .pipe(babel(babelConfig))
-    .on('error', (err) => console.error(err))
-    .pipe(gulp.dest(path.app.core))
-})
-
-gulp.task('server', () => {
-  fs.copy('./package.json', Path.join(path.app.root, 'package.json'))
-  fs.copy('./server/config.json', Path.join(path.app.server, 'config.json'))
-  gulp.src(path.server)
-    .pipe(babel(babelConfig))
-    .on('error', (err) => console.error(err))
-    .pipe(gulp.dest(path.app.server))
-})
-
-gulp.task('provider', () => {
-  gulp.src(path.provider)
-    .pipe(sourcemaps.init())
-    .pipe(babel(babelConfig))
-    .on('error', (err) => console.error(err))
-    .pipe(DEV ? sourcemaps.write('.') : gutil.noop())
-    .pipe(gulp.dest(path.app.provider))
-})
-
 gulp.task('clean', () =>
   del([path.app.root])
 )
@@ -170,9 +148,34 @@ gulp.task('asset', () =>
     .pipe(DEV ? livereload() : gutil.noop())
 )
 
-gulp.task('backend', ['core', 'server', 'provider'])
-
 gulp.task('frontend', ['client', 'template', 'lib', 'asset', 'styles'])
+
+// BACKEND ----------------------------------------------
+
+gulp.task('core', () => {
+  gulp.src(path.core)
+    .pipe(babel(babelConfig))
+    .on('error', (err) => console.error(err))
+    .pipe(gulp.dest(path.app.core))
+})
+
+gulp.task('server', () => {
+  fs.copy('./package.json', Path.join(path.app.root, 'package.json'))
+  fs.copy('./server/config.json', Path.join(path.app.server, 'config.json'))
+  gulp.src(path.server)
+    .pipe(babel(babelConfig))
+    .on('error', (err) => console.error(err))
+    .pipe(gulp.dest(path.app.server))
+})
+
+gulp.task('provider', () => {
+  gulp.src(path.provider)
+    .pipe(sourcemaps.init())
+    .pipe(babel(babelConfig))
+    .on('error', (err) => console.error(err))
+    .pipe(DEV ? sourcemaps.write('.') : gutil.noop())
+    .pipe(gulp.dest(path.app.provider))
+})
 
 gulp.task('start', () => {
   runner.start()
@@ -186,7 +189,10 @@ gulp.task('restart', () => {
   })
 })
 
-// TODO add js watcher
+gulp.task('backend', ['core', 'server', 'provider'])
+
+// END BACKEND ---------------------------------------
+
 gulp.task('watch', () => {
   gulp.watch(path.styles, ['styles'])
   gulp.watch(path.asset, ['asset'])
@@ -196,6 +202,10 @@ gulp.task('watch', () => {
   gulp.watch(path.provider, ['provider', 'restart'])
   makeBundler(true)()
   if (DEV) livereload.listen()
+})
+
+gulp.task('fixture', () => {
+  fs.copy('fixture/config.json', Path.join(path.app.server, 'config.json'))
 })
 
 gulp.task('test', () => {
