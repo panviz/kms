@@ -6,6 +6,5 @@ install:
   - npm install
 before_script:
   - npm install -g gulp
-  - NODE_ENV=TEST gulp fixture
 script:
   - NODE_ENV=TEST gulp test

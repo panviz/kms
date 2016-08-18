@@ -1,6 +1,6 @@
 import assert from 'assert'
 import _ from 'lodash' // eslint-disable-line
-import Graph from '../../provider/graph/index'
+import Graph from '../../../provider/graph/index'
 
 describe('Graph', () => {
   describe('get subGraph', () => {

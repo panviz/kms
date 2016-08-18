@@ -1,5 +1,5 @@
 import assert from 'assert'
-import Util from '../core/util'
+import Util from '../../core/util'
 
 describe('Util', () => {
   // with intersections and lateral points

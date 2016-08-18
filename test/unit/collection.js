@@ -1,5 +1,5 @@
 import assert from 'assert'
-import Collection from '../core/collection'
+import Collection from '../../core/collection'
 
 describe('Collection', () => {
   let selection

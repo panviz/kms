@@ -27,12 +27,12 @@ const babelify = require('babelify')
 const Path = require('path')
 
 const indexLibs = require('./client/indexLibs.json')
-let appConfig = require('./server/config.json')
-const testConfig = require('./fixture/config.json')
 const runner = require('./server/runner')
 let NODE_ENV = process.env.NODE_ENV
 
-if (NODE_ENV === 'TEST') appConfig = testConfig
+const configFile = NODE_ENV === 'TEST' ? './test/fixture/config.json' : 'server/config.json'
+const appConfig = JSON.parse(fs.readFileSync(configFile))
+
 if (!_.get(appConfig, 'app.path')) throw new Error('specify build path')
 
 NODE_ENV = NODE_ENV || appConfig.env.name
@@ -59,7 +59,10 @@ const path = {
     server: `${appConfig.app.path}/server`,
     provider: `${appConfig.app.path}/provider`,
   },
-  test: 'test/**/*.js',
+  test: {
+    unit: 'test/unit/**/*.js',
+    e2e: 'test/e2e/**/*.js',
+  },
 }
 runner.config(path.js.serverIndex)
 const babelConfig = { plugins: ['transform-es2015-modules-commonjs'] }
@@ -205,13 +208,23 @@ gulp.task('watch', () => {
 })
 
 gulp.task('fixture', () => {
-  fs.copy('fixture/config.json', Path.join(path.app.server, 'config.json'))
+  appConfig.app.path = Path.join(__dirname, appConfig.app.path)
+  appConfig.repository.path = Path.join(__dirname, appConfig.repository.path)
+  appConfig.static = Path.join(__dirname, appConfig.static)
+  fs.writeFileSync(Path.join(path.app.server, 'config.json'), JSON.stringify(appConfig))
 })
 
-gulp.task('test', () => {
-  gulp.src(path.test, { read: false })
+gulp.task('unit', () => {
+  gulp.src(path.test.unit, { read: false })
+    .pipe(mocha())
+})
+
+gulp.task('e2e', () => {
+  gulp.src(path.test.e2e, { read: false })
     .pipe(mocha())
 })
 
 gulp.task('build', ['clean', 'backend', 'frontend'])
+// TODO e2e test task would depend on build
+gulp.task('test', ['fixture', 'unit'])
 gulp.task('default', ['start', 'watch'])

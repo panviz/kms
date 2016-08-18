@@ -8,8 +8,8 @@
     "path": "./build"
   },
   "repository": {
-    "path": "./fixture/raw",
+    "path": "./test/fixture/raw",
     "provider": "raw"
   },
-  "static": "./fixture/static"
+  "static": "./test/fixture/static"
 }
