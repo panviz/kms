@@ -17,7 +17,6 @@ const mocha = require('gulp-mocha')
 require('babel-core/register')
 
 const fs = require('fs-extra')
-const del = require('del')
 const Handlebars = require('handlebars')
 const source = require('vinyl-source-stream')
 const buffer = require('vinyl-buffer')
@@ -30,8 +29,15 @@ const indexLibs = require('./client/indexLibs.json')
 const runner = require('./server/runner')
 let NODE_ENV = process.env.NODE_ENV
 
-const configFile = NODE_ENV === 'TEST' ? './test/fixture/config.json' : 'server/config.json'
-const appConfig = JSON.parse(fs.readFileSync(configFile))
+const configFilePath = NODE_ENV === 'TEST' ? 'test/fixture/config.json' : 'server/config.json'
+const appConfig = JSON.parse(fs.readFileSync(configFilePath))
+if (NODE_ENV === 'TEST') {
+  // make paths absolute
+  appConfig.app.path = Path.join(__dirname, appConfig.app.path)
+  appConfig.repository.path = Path.join(__dirname, appConfig.repository.path)
+  appConfig.static = Path.join(__dirname, appConfig.static)
+  fs.writeFileSync(configFilePath, JSON.stringify(appConfig))
+}
 
 if (!_.get(appConfig, 'app.path')) throw new Error('specify build path')
 
@@ -65,8 +71,7 @@ const path = {
   },
 }
 runner.config(path.js.serverIndex)
-const babelConfig = { plugins: ['transform-es2015-modules-commonjs'] }
-const sassConfig = { outputStyle: 'compressed' }
+const sassConfig = DEV ? {} : { outputStyle: 'compressed' }
 
 // add custom browserify options here
 const clientJSConfig = {
@@ -92,19 +97,19 @@ function makeBundler (doWatch) {
       .pipe(gulp.dest(path.app.client))
       .pipe(DEV ? livereload() : gutil.noop())
   }
-  bundler.transform(babelify.configure(babelConfig))
+  bundler.transform(babelify.configure())
   bundler.on('update', bundle) // on any dep update, runs the bundler
   bundler.on('log', gutil.log) // output build logs to terminal
   return bundle
 }
 
+gulp.task('clean', () =>
+  fs.emptyDirSync(path.app.root)
+)
+
 gulp.task('client', () => {
   makeBundler()()
 })
-
-gulp.task('clean', () =>
-  del([path.app.root])
-)
 
 gulp.task('lib', () =>
   gulp.src(path.js.lib)
@@ -157,16 +162,16 @@ gulp.task('frontend', ['client', 'template', 'lib', 'asset', 'styles'])
 
 gulp.task('core', () => {
   gulp.src(path.core)
-    .pipe(babel(babelConfig))
+    .pipe(babel())
     .on('error', (err) => console.error(err))
     .pipe(gulp.dest(path.app.core))
 })
 
 gulp.task('server', () => {
   fs.copy('./package.json', Path.join(path.app.root, 'package.json'))
-  fs.copy('./server/config.json', Path.join(path.app.server, 'config.json'))
+  fs.copy(configFilePath, Path.join(path.app.server, 'config.json'))
   gulp.src(path.server)
-    .pipe(babel(babelConfig))
+    .pipe(babel())
     .on('error', (err) => console.error(err))
     .pipe(gulp.dest(path.app.server))
 })
@@ -174,7 +179,7 @@ gulp.task('server', () => {
 gulp.task('provider', () => {
   gulp.src(path.provider)
     .pipe(sourcemaps.init())
-    .pipe(babel(babelConfig))
+    .pipe(babel())
     .on('error', (err) => console.error(err))
     .pipe(DEV ? sourcemaps.write('.') : gutil.noop())
     .pipe(gulp.dest(path.app.provider))
@@ -207,24 +212,16 @@ gulp.task('watch', () => {
   if (DEV) livereload.listen()
 })
 
-gulp.task('fixture', () => {
-  appConfig.app.path = Path.join(__dirname, appConfig.app.path)
-  appConfig.repository.path = Path.join(__dirname, appConfig.repository.path)
-  appConfig.static = Path.join(__dirname, appConfig.static)
-  fs.writeFileSync(Path.join(path.app.server, 'config.json'), JSON.stringify(appConfig))
-})
-
 gulp.task('unit', () => {
   gulp.src(path.test.unit, { read: false })
     .pipe(mocha())
 })
 
-gulp.task('e2e', () => {
+gulp.task('e2e', ['build'], () => {
   gulp.src(path.test.e2e, { read: false })
     .pipe(mocha())
 })
 
 gulp.task('build', ['clean', 'backend', 'frontend'])
-// TODO e2e test task would depend on build
-gulp.task('test', ['fixture', 'unit'])
+gulp.task('test', ['unit'])
 gulp.task('default', ['start', 'watch'])
