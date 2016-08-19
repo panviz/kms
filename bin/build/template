@@ -1,2 +1,0 @@
-#!/bin/bash
-node_modules/handlebars/bin/handlebars client > build/client/templates.js -e html -m -n "G.Templates"

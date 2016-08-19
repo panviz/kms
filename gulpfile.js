@@ -36,7 +36,6 @@ if (NODE_ENV === 'TEST') {
   appConfig.app.path = Path.join(__dirname, appConfig.app.path)
   appConfig.repository.path = Path.join(__dirname, appConfig.repository.path)
   appConfig.static = Path.join(__dirname, appConfig.static)
-  fs.writeFileSync(configFilePath, JSON.stringify(appConfig))
 }
 
 if (!_.get(appConfig, 'app.path')) throw new Error('specify build path')
@@ -53,7 +52,7 @@ const path = {
     lib: indexLibs,
   },
   // TODO if there is templates compilation why to add htmls to assets?
-  asset: ['client/**/*.svg', 'client/**/*.html'],
+  asset: ['client/**/*.svg', 'client/index.html'],
   template: 'client/**/*.html',
   core: 'core/**/*.js',
   server: 'server/**/*.js',
@@ -90,7 +89,8 @@ function makeBundler (doWatch) {
       .pipe(source('bundle.js'))
       // optional, remove if you don't need to buffer file contents
       .pipe(buffer())
-      .pipe(DEV ? gutil.noop() : uglify())
+      // TODO uglifyJS2 currently doesn't support ES6
+      // .pipe(DEV ? gutil.noop() : uglify())
       // loads map from browserify file
       .pipe(DEV ? sourcemaps.init({ loadMaps: true }) : gutil.noop())
       .pipe(DEV ? sourcemaps.write('./') : gutil.noop()) // writes .map file
@@ -113,7 +113,7 @@ gulp.task('client', () => {
 
 gulp.task('lib', () =>
   gulp.src(path.js.lib)
-    .pipe(DEV ? gutil.noop() : uglify())
+     .pipe(DEV ? gutil.noop() : uglify())
     .pipe(concat('libs.js'))
     .pipe(gulp.dest(path.app.client))
 )
@@ -169,11 +169,13 @@ gulp.task('core', () => {
 
 gulp.task('server', () => {
   fs.copy('./package.json', Path.join(path.app.root, 'package.json'))
-  fs.copy(configFilePath, Path.join(path.app.server, 'config.json'))
-  gulp.src(path.server)
+  const stream = gulp.src(path.server)
     .pipe(babel())
     .on('error', (err) => console.error(err))
     .pipe(gulp.dest(path.app.server))
+  stream.on('end', () => {
+    fs.writeFileSync(Path.join(path.app.server, 'config.json'), JSON.stringify(appConfig))
+  })
 })
 
 gulp.task('provider', () => {
@@ -218,6 +220,8 @@ gulp.task('unit', () => {
 })
 
 gulp.task('e2e', ['build'], () => {
+  fs.mkdirsSync(Path.join(path.app.root, 'raw'))
+  fs.mkdirsSync(Path.join(path.app.root, 'static'))
   gulp.src(path.test.e2e, { read: false })
     .pipe(mocha())
 })
