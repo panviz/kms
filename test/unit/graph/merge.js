@@ -1,6 +1,6 @@
 import assert from 'assert'
 import _ from 'lodash'
-import Graph from '../../provider/graph/index'
+import Graph from '../../../provider/graph/index'
 
 describe('Graph', () => {
   beforeEach(() => {

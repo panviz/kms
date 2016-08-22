@@ -1,7 +1,5 @@
 import assert from 'assert'
-import _ from 'lodash' //eslint-disable-line
-import d3 from 'd3' //eslint-disable-line
-import Util from '../core/util'
+import Util from '../../core/util'
 
 describe('Util', () => {
   // with intersections and lateral points

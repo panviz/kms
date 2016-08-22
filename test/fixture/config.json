@@ -1,0 +1,15 @@
+{
+  "env": {
+    "name": "TEST",
+    "host": "localhost",
+    "port": 8000
+  },
+  "app": {
+    "path": "./build"
+  },
+  "repository": {
+    "path": "./build/raw",
+    "provider": "raw"
+  },
+  "static": "./build/static"
+}

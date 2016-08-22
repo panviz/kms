@@ -1,8 +1,5 @@
-import _ from 'lodash' // eslint-disable-line
-import BackboneEvents from 'backbone-events-standalone' // eslint-disable-line
-
 import assert from 'assert'
-import Collection from '../core/collection'
+import Collection from '../../core/collection'
 
 describe('Collection', () => {
   let selection

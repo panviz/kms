@@ -1,12 +1,15 @@
 {
   "env": {
-    "name": "local",
+    "name": "DEV",
     "host": "localhost",
     "port": 8000
   },
+  "app": {
+    "path": "absolute path to build"
+  },
   "repository": {
-    "path": "abs_path_to_repo",
+    "path": "absolute path to repo",
     "provider": "raw"
   },
-  "static": "abs_path_to_app"
+  "static": "absolute path to static files"
 }

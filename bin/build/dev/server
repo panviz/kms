@@ -1,5 +1,0 @@
-#!/bin/bash  
-babel server/ -d build/server --source-maps
-babel provider/ -d build/provider --source-maps
-babel core/ -d build/core --source-maps
-cp package.json build/package.json

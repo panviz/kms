@@ -1,11 +1,11 @@
 module.exports = {
-  'extends': 'airbnb',
-  'rules': {
+  extends: 'airbnb',
+  rules: {
     // Automatic semicolon insertion saves time and symbols
-    'semi': ['error', 'never'],
+    semi: ['error', 'never'],
     'func-names': 0,
     // 4 symbols is too much for max 100 string length
-    'indent': ['error', 2],
+    indent: ['error', 2],
     'vars-on-top': 0,
     'comma-dangle': ['error', 'always-multiline'],
     'space-before-function-paren': ['error', 'always'],
@@ -22,14 +22,14 @@ module.exports = {
     // non-critical errors can be just catched
     'no-empty': ['error', { 'allowEmptyCatch': true }],
   },
-  'globals': {
-    '_': true,
-    '$': true,
+  env: {
+    mocha: true,
+  },
+  globals: {
+    _: true,
+    $: true,
     BackboneEvents: true,
     d3: true,
-    describe: true,
-    it: true,
-    beforeEach: true,
     G: true,
     DEBUG: true,
   },

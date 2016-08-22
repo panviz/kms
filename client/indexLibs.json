@@ -1,0 +1,12 @@
+[
+  "node_modules/lodash/lodash.js",
+  "node_modules/jquery/dist/jquery.js",
+  "node_modules/jquery.easing/jquery.easing.js",
+  "node_modules/handlebars/dist/handlebars.js",
+  "node_modules/d3/d3.js",
+  "node_modules/backbone-events-standalone/backbone-events-standalone.js",
+  "node_modules/webcola/WebCola/cola.js",
+  "node_modules/material-design-lite/src/mdlComponentHandler.js",
+  "node_modules/material-design-lite/src/menu/menu.js",
+  "node_modules/material-design-lite/src/textfield/textfield.js"
+]
