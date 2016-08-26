@@ -8,8 +8,8 @@ export default function Self (p) {
   this._icon = 'fa fa-pencil-square-o'
   this.group = 'item'
   this.registrar.selection.on('change', this.evaluate.bind(this, this.registrar.selection))
-  this.registrar.editor.on('show', this.evaluate.bind(this, this.registrar.selection))
-  this.registrar.editor.on('hide', this.evaluate.bind(this, this.registrar.selection))
+  this.registrar.ui.editor.on('show', this.evaluate.bind(this, this.registrar.selection))
+  this.registrar.ui.editor.on('hide', this.evaluate.bind(this, this.registrar.selection))
 }
 Self.prototype = Object.create(Action.prototype)
 
@@ -19,6 +19,6 @@ Self.prototype._execute = function () {
 }
 
 Self.prototype.evaluate = function (selection) {
-  if (selection.getCount() && !this.registrar.editor.isVisible()) this.enable()
+  if (selection.getCount() && !this.registrar.ui.editor.isVisible()) this.enable()
   else this.disable()
 }

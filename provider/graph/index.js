@@ -346,7 +346,7 @@ Self.prototype.getGraph = function (rootKeyS, depth = 0) {
   return new Self({ items: sgItems, links: sgLinks })
 }
 /**
- * Find items linked with specified
+ * Find items linked with each one of specified
  * @param {String|Array} Keys of items connected to the item looked for
  */
 Self.prototype.findByKeys = function (keyS) {

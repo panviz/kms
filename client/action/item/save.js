@@ -8,17 +8,17 @@ export default function Self (p) {
   this._icon = 'fa fa-save'
   this.group = 'item'
 
-  this.registrar.editor.on('change', this.evaluate.bind(this))
+  this.registrar.ui.editor.on('change', this.evaluate.bind(this))
 }
 Self.prototype = Object.create(Action.prototype)
 
 Self.prototype._execute = function () {
-  const key = this.registrar.editor.getKey()
-  const value = this.registrar.editor.get()
+  const key = this.registrar.ui.editor.getKey()
+  const value = this.registrar.ui.editor.get()
   this.registrar.saveItem(value, key)
 }
 
 Self.prototype.evaluate = function () {
-  if (this.registrar.editor && this.registrar.editor.isChanged()) this.enable()
+  if (this.registrar.ui.editor && this.registrar.ui.editor.isChanged()) this.enable()
   else this.disable()
 }

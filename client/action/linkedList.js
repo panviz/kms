@@ -10,5 +10,5 @@ export default function Self (p) {
 Self.prototype = Object.create(Action.prototype)
 
 Self.prototype._execute = function () {
-  this.registrar.linkedList.toggle()
+  this.registrar.ui.linkedList.toggle()
 }
