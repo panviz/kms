@@ -58,7 +58,7 @@ Self.prototype.set = function (_data, _key) {
     // Ensure value is not undefined, as JSON stringify will omit it
     data = ''
   } else {
-    key = key || this.getKey(data) || generateID()
+    key = key || generateID()
   }
   this._items[key] = data
   return key
@@ -136,23 +136,6 @@ Self.prototype.merge = function (graph, p = { overwrite: true }) {
   return _.uniq(changed)
 }
 /**
- * DEPRECATED
- * Create Group Item and link with children
- * @param String groupValue
- * @param data Array values of items to be connected to the group item
- */
-Self.prototype.setGroup = function (groupValue, data) {
-  const noData = !data || _.isEmpty(data)
-  if (!groupValue && noData) throw new Error('empty item with no links')
-  if (noData) return this.set(groupValue)
-
-  const key = this.set(groupValue)
-  const groupKeys = _.map(data, datum => this.set(datum))
-  this.associate(key, groupKeys)
-
-  return key
-}
-/**
  * @param Key Item ID
  * @return String Item data
  */
@@ -170,28 +153,6 @@ Self.prototype.getItemsMap = function () {
  */
 Self.prototype.getItemKeys = function () {
   return _.keys(this._items)
-}
-/**
- * Get key of item by value
- * do not return anything by empty value
- * @param String data of Item
- * @return Key of Item
- */
-Self.prototype.getKey = function (_value) {
-  if (!_value) return ''
-  const value = _value.toString()
-
-  return _.invert(this._items)[value]
-}
-/**
- * DEPRECATED
- * @param String data
- * @return Key of Item with group meaning
- */
-Self.prototype.findGroup = function (data) {
-  if (!_.isArray(data)) throw new Error('Group can be found by multiple values only')
-  const keys = _.map(data, datum => this.getKey(datum))
-  return this.getKey(keys)
 }
 /**
  * Create link between two Items
@@ -349,43 +310,23 @@ Self.prototype.getGraph = function (rootKeyS, depth = 0) {
  * Find items linked with each one of specified
  * @param {String|Array} Keys of items connected to the item looked for
  */
-Self.prototype.findByKeys = function (keyS) {
+Self.prototype.find = function (keyS) {
   const keys = Util.pluralize(keyS)
   const arrLinkedKeys = _.map(keys, key => this.getLinked(key))
   return _.intersection(...arrLinkedKeys)
 }
-/** convenient way to find by values
- * @param {String|Array} values of items connected to the item looked for
- */
-Self.prototype.findByValues = function (valueS) {
-  const values = Util.pluralize(valueS)
-  const keys = _.map(values, value => this.getKey(value))
-  return this.findByKeys(keys)
-}
-// find by values or keys
-Self.prototype.findByLinks = function (datumS) {
-  const data = Util.pluralize(datumS)
-
-  const keys = _.map(data, (datum) => {
-    const key = datum.match(idPattern) ? datum : this.getKey(datum)
-    return key
-  })
-
-  return this.findByKeys(keys)
-}
 /**
- * Find item with value matching the string
+ * Search linked items for one with value matching the string
+ * @param Key key of the item to search children of
  * @param String value should be RegExp, but it cannot be stringified to transfer with JSON
  * @return Graph of Items
  */
-Self.prototype.find = function (lookupValue, p) {
+Self.prototype.search = function (_key, lookupValue, p) {
   const resultKeys = []
-  const existing = this.getKey(lookupValue)
-  if (existing) return existing
 
   const regExp = new RegExp(lookupValue, p)
-  _.each(this._items, (value, key) => {
-    if (value.match(regExp)) resultKeys.push(key)
+  _.each(this._links[_key], (key) => {
+    if (this.get(key).match(regExp)) resultKeys.push(key)
   })
   return resultKeys
 }
@@ -413,14 +354,6 @@ Self.prototype.filter = function (filterer) {
     }
   })
   return filteredStorage
-}
-/**
- * @param Function func to be called with arguments (values instead of keys)
- */
-Self.prototype.guess = function (func, ...args) {
-  const keys = _.map(args, arg => self.getKey(arg))
-  const result = func(...keys)
-  return self.log(result)
 }
 /**
  * convert IDs of the object into its values
