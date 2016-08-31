@@ -1,18 +1,20 @@
 /**
  * Client application is run in browser
  */
+import co from 'co'
 import Util from '../core/util'
 import ClientUtil from './util' //eslint-disable-line
 import Provider from '../provider/api.client/index'
 import Collection from '../core/collection'
 import UI from './ui/ui'
+import Graph from '../provider/graph/index'
 
 class Self {
   constructor () {
-    this.serviceItem = {
-      visibleItem: { value: 'visibleItem' },
-      searchItem: {},
-    }
+    this.rootKey = '00000000-0000-4000-8000-000000000000'
+    this._itemtypes = ['tag', 'note']
+    this._serviceItems = ['root', 'visibleItem', 'itemtype']
+    this.serviceItem = {}
 
     this.selection = new Collection()
 
@@ -27,7 +29,7 @@ class Self {
     this.ui = new UI({ itemman: this, selection: this.selection })
     this.ui.search.on('update', this._onSearch.bind(this))
 
-    this._loadVisibleItems()
+    co(this._loadRepo())
   }
 
   showChildren (keyS) {
@@ -98,21 +100,38 @@ class Self {
   /**
    * Populate view with user data from previous time
    */
-  _loadVisibleItems () {
-    this.provider.request('set', this.serviceItem.visibleItem.value)
-      .then(key => {
-        this.serviceItem.visibleItem.key = key
-        this.provider.request('getGraph', this.serviceItem.visibleItem.key, 1)
-          .then(graph => {
-            this._filter(graph)
-            const keys = graph.getItemKeys()
-            this.visibleItems.add(keys)
-            this._updateGraphView(graph)
-            this.visibleItems.on('change', this._reloadGraph.bind(this))
-            this.visibleItems.on('add', this._onVisibleItemsAdd.bind(this))
-            this.visibleItems.on('remove', this._onVisibleItemsRemove.bind(this))
-          })
+  *_loadRepo () {
+    let graph = yield this.provider.request('getGraph', this.rootKey, 1)
+    if (_.isEmpty(graph.getItemsMap())) yield this._initRepo()
+    else {
+      _.each(this._serviceItems.concat(this._itemtypes), (item) => {
+        this.serviceItem[item] = graph.search(this.rootKey, item)[0]
       })
+      this.serviceItem.root = this.rootKey
+    }
+
+    graph = yield this.provider.request('getGraph', this.serviceItem.visibleItem, 1)
+    this._filter(graph)
+    const keys = graph.getItemKeys()
+    this.visibleItems.add(keys)
+    this._updateGraphView(graph)
+    this.visibleItems.on('change', this._reloadGraph.bind(this))
+    this.visibleItems.on('add', this._onVisibleItemsAdd.bind(this))
+    this.visibleItems.on('remove', this._onVisibleItemsRemove.bind(this))
+  }
+
+  _initRepo () {
+    const graph = new Graph
+    graph.set('root', this.rootKey)
+    _.each(this._serviceItems.concat(this._itemtypes), (item) => {
+      if (item === 'root') return
+      this.serviceItem[item] = graph.set(item)
+      graph.associate(this.rootKey, this.serviceItem[item])
+      if (this._itemtypes.includes(item)) {
+        graph.associate(this.serviceItem.itemtype, this.serviceItem[item])
+      }
+    })
+    return this.provider.request('merge', graph)
   }
 
   _onSelect () {
@@ -138,13 +157,13 @@ class Self {
 
   _onVisibleItemsRemove (keys) {
     this.selection.remove(keys)
-    this.provider.request('setDisassociate', this.serviceItem.visibleItem.key, keys)
+    this.provider.request('setDisassociate', this.serviceItem.visibleItem, keys)
   }
   /**
    * Store visible item
    */
   _onVisibleItemsAdd (keys) {
-    this.provider.request('associate', this.serviceItem.visibleItem.key, keys)
+    this.provider.request('associate', this.serviceItem.visibleItem, keys)
   }
   /**
    * Sync graph with server
@@ -164,13 +183,14 @@ class Self {
   _filter (data) {
     let graph
     let keys
+    const serviceKeys = _.toArray(this.serviceItem)
     if (data.providerID) graph = data
     if (_.isArray(data)) keys = data
     if (graph) {
-      graph.remove(this.serviceItem.visibleItem.key)
+      graph.remove(serviceKeys)
       return graph
     }
-    return _.without(keys, this.serviceItem.visibleItem.key)
+    return _.without(keys, serviceKeys)
   }
 }
 

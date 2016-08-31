@@ -1,14 +1,14 @@
 import Action from '../action'
 
-export default function Self (p) {
-  Action.call(this, p)
+export default class Self extends Action {
+  constructor (p) {
+    super(p)
+    this.id = 'showLinkedList'
+    this._label = 'Linked Items List'
+    this.group = 'item'
+  }
 
-  this.id = 'showLinkedList'
-  this._label = 'Linked Items List'
-  this.group = 'item'
-}
-Self.prototype = Object.create(Action.prototype)
-
-Self.prototype._execute = function () {
-  this.registrar.ui.linkedList.toggle()
+  _execute () {
+    this.registrar.ui.linkedList.toggle()
+  }
 }

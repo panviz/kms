@@ -28,7 +28,7 @@ module.exports = {
   globals: {
     _: true,
     $: true,
-    BackboneEvents: true,
+    EventEmitter: true,
     d3: true,
     G: true,
     DEBUG: true,

@@ -1,26 +1,28 @@
 /**
  * Behavior interface
  */
-export default function Self (p = {}) {
-  this.p = p
+export default class Self extends EventEmitter {
+  constructor (p = {}) {
+    super()
+    this.p = p
 
-  this._enabled = false || p.enabled
-  this._inProgress = false
-}
-BackboneEvents.mixin(Self.prototype)
+    this._enabled = false || p.enabled
+    this._inProgress = false
+  }
 
-Self.prototype.enable = function () {
-  this._enabled = true
-}
+  enable () {
+    this._enabled = true
+  }
 
-Self.prototype.disable = function () {
-  this._enabled = false
-}
+  disable () {
+    this._enabled = false
+  }
 
-Self.prototype.isEnabled = function () {
-  return this._enabled
-}
+  isEnabled () {
+    return this._enabled
+  }
 
-Self.prototype.status = function () {
-  return this._inProgress
+  status () {
+    return this._inProgress
+  }
 }

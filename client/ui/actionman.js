@@ -1,8 +1,9 @@
 /**
  * Action Manager
  */
-export default class Self {
+export default class Self extends EventEmitter {
   constructor (p = {}) {
+    super()
     this._instances = {}
   }
 
@@ -43,4 +44,3 @@ export default class Self {
     }
   }
 }
-BackboneEvents.mixin(Self.prototype)

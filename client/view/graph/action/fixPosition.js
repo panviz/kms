@@ -1,11 +1,12 @@
 import Action from '../../../action'
 
-export default function Self (p) {
-  Action.call(this, p)
-  this.id = 'graphFixItemPosition'
-  this._label = 'Fix Item Position'
-}
-Self.prototype = Object.create(Action.prototype)
+export default class Self extends Action {
+  constructor (p) {
+    super(p)
+    this.id = 'graphFixItemPosition'
+    this._label = 'Fix Item Position'
+  }
 
-Self.prototype.execute = function () {
+  execute () {
+  }
 }
