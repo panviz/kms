@@ -23,15 +23,15 @@ describe('Graph', () => {
   describe('create item', () => {
     it('should return new ID for created item', () => {
       const key = graph.set('item')
-      assert.equal(key, graph.getKey('item'))
+      assert.equal('item', graph.get(key))
     })
     it('graph stores only strings', () => {
       const key = graph.set(4)
-      assert.equal(key, graph.getKey('4'))
+      assert.equal('4', graph.get(key))
     })
-    it('should return existing item ID for setting same value', () => {
+    it('should return another ID for setting same value', () => {
       const key = graph.set(3)
-      assert.equal(key, 'i3')
+      assert.notEqual(key, 'i3')
     })
     it('should create array of items', () => {
       const keys = graph.set([4, 5])
