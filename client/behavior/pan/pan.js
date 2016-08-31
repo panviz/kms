@@ -14,7 +14,7 @@ export default class Self extends Behavior {
   constructor (p) {
     super(p)
     this.p = _.extend({
-      wheelStep: 10,
+      wheelStep: 1,
       keyStep: 30,
     }, this.p)
     this._controlKeys = ['Up', 'Down', 'Left', 'Right']
@@ -126,7 +126,8 @@ export default class Self extends Behavior {
     this._run(e.pageX, e.pageY)
   }
 
-  _onScroll (e) {
+  _onScroll (_e) {
+    const e = _.isUndefined(_e.deltaX) ? _e.originalEvent : _e
     let turnOff = false
     if (!this._enabled) {
       this._enabled = true
@@ -134,9 +135,9 @@ export default class Self extends Behavior {
     }
     this._start(0, 0)
     if (e.shiftKey) {
-      this._run(-e.wheelDeltaX / this.p.wheelStep, -e.wheelDeltaY / this.p.wheelStep)
+      this._run(e.deltaX / this.p.wheelStep, e.deltaY / this.p.wheelStep)
     } else {
-      this._run(e.wheelDeltaX / this.p.wheelStep, e.wheelDeltaY / this.p.wheelStep)
+      this._run(-e.deltaX / this.p.wheelStep, -e.deltaY / this.p.wheelStep)
     }
     this._end()
     if (turnOff) this._enabled = false
