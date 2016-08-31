@@ -4,12 +4,13 @@
  * @event end fires on finishing move
  */
 import Behavior from '../behavior'
-/**
- * _startPoint - coordinates of pointing device relative to the canvas
- * @param Number p.wheelStep pixels to move on mouse wheel
- * @param Number p.keyStep pixels to move on keyboard arrows
- */
+
 export default class Self extends Behavior {
+  /**
+   * _startPoint - coordinates of pointing device relative to the canvas
+   * @param Number p.wheelStep pixels to move on mouse wheel
+   * @param Number p.keyStep pixels to move on keyboard arrows
+   */
   constructor (p) {
     super(p)
     this.p = _.extend({
@@ -26,21 +27,21 @@ export default class Self extends Behavior {
   }
 
   enable () {
+    super.enable()
     this.container.on('mousedown', this._onMouseDown.bind(this))
     this.container.on('mousemove', this._onMouseMove.bind(this))
     this.container.on('mouseup', this._end.bind(this))
     this.container.on('mousewheel', this._onScroll.bind(this))
     this.container.addClass('pan')
-    this._enabled = true
   }
 
   disable () {
+    super.disable()
     this.container.off('mousedown', this._onMouseDown)
     this.container.off('mousemove', this._onMouseMove)
     this.container.off('mouseup', this._end)
     this.container.off('mousewheel', this._onScroll)
     this.container.removeClass('pan')
-    this._enabled = false
   }
   /**
    * @return {x,y} current canvas absolute position

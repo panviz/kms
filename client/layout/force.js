@@ -23,8 +23,7 @@ export default class Self extends Layout {
    * change layout desired size
    */
   size (width, height) {
-    this.width = width
-    this.height = height
+    super.size(width, height)
     return this._force.size([this.width, this.height])
   }
   /**

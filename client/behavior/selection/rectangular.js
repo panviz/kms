@@ -19,17 +19,17 @@ export default class Self extends Behavior {
   }
 
   enable () {
+    super.enable()
     this._eventTarget.on('mousedown', this._start.bind(this))
     this._eventTarget.on('mousemove', this._run.bind(this))
     this._eventTarget.on('mouseup', this._end.bind(this))
-    this._enabled = true
   }
 
   disable () {
+    super.disable()
     this._eventTarget.off('mousedown', this._start.bind(this))
     this._eventTarget.off('mousemove', this._run.bind(this))
     this._eventTarget.off('mouseup', this._end.bind(this))
-    this._enabled = false
   }
   /**
    * user starts drawing rectangular over items

@@ -15,6 +15,7 @@ export default class Self extends Behavior {
   }
 
   enable () {
+    super.enable()
     this.container.on('mousedown', this.p.node.selector, this._start.bind(this))
     this.container.on('mousemove', this._run.bind(this))
     this.container.on('mouseenter', this.p.node.selector, this._prepareDrop.bind(this))
@@ -22,10 +23,10 @@ export default class Self extends Behavior {
     this.container.on('mouseup', this.p.node.selector, this._end.bind(this))
     this.container.on('mouseup', this._end.bind(this))
     this.container.addClass('drag')
-    this._enabled = true
   }
 
   disable () {
+    super.disable()
     this.container.off('mousedown', this._start)
     this.container.off('mousemove', this._run)
     this.container.off('mouseenter', this._prepareDrop)
