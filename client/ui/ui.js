@@ -72,7 +72,7 @@ export default class Self {
       actions: this.actionman.getAll(),
     })
     this.actionman.on('add', this.actionsPanel.addMenuItem.bind(this.actionsPanel))
-    this.menu = new Menu({ container: this.elements.header })
+    // this.menu = new Menu({ container: this.elements.header })
 
     this.actions = _actions
     setTimeout(() => {

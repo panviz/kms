@@ -3,6 +3,52 @@
   flex: 0 0 160px;
   background-color: rgb(50,50,58);
 
+  &.small {
+    flex: 0 0 54px;
+  }
+
+  .brand {
+    position: relative;
+    height: 64px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 8px;
+    background: none repeat scroll 0 0;
+    background-color: unquote("rgb(#{$color-secondary})");
+    @at-root .sidebar.small .brand {
+      height: 54px;
+    }
+
+    small {
+      position: absolute;
+      top: 3px;
+      right: 8px;
+      color: unquote("rgb(#{$color-text})");
+      font-style: italic;
+      @at-root .sidebar.small .brand small {
+        display: none;
+      }
+    }
+
+
+    a.logo {
+      color: #FFFFFF;
+      font-size: 28px;
+      text-decoration: none;
+
+      &.small {
+        display: none;
+      }
+      @at-root .sidebar.small a.logo {
+        display: none;
+        &.small {
+          display: block;
+        }
+      }
+    }
+  }
+
   .footer {
     position: absolute;
     bottom: 0;
@@ -15,6 +61,9 @@
     a {
       color: unquote("rgb(#{$color-primary})");
       text-decoration: none;
+    }
+    @at-root .sidebar.small .footer {
+      font-size: 12px;
     }
   }
 }

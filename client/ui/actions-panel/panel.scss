@@ -1,7 +1,11 @@
 .actions-panel {
   position: relative;
 
-  .group span {
+  .small & .mdl-button {
+    min-width: 0;
+  }
+
+  .group > span {
     display: block;
     padding: 8px 16px;
     background-color: rgb(42, 42, 42);
@@ -13,13 +17,17 @@
     &.collapsed {
       background-color: #5D5D5D;
     }
+    .small & {
+      padding: 8px 0;
+      text-align: center;
+    }
   }
 
   ul {
     margin: 0;
     padding: 0;
 
-    li {
+    li.action {
       display: block;
       padding: 8px;
       list-style-type: none;
@@ -38,6 +46,17 @@
       }
       i {
         padding: 0 8px;
+        .small & {
+          padding: 12px;
+        }
+      }
+      .label {
+        .small & {
+          display: none;
+        }
+      }
+      &[data-id="itemRemove"].enabled:hover {
+        background-color: red;
       }
     }
   }

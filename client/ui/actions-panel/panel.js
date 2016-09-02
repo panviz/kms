@@ -69,7 +69,7 @@ export default class Self extends EventEmitter {
 
   _onMenuItemClick (e) {
     e.stopPropagation()
-    const data = $(e.target).data()
+    const data = $(e.currentTarget).data()
     const action = this.actions[data.id]
     action.apply(data)
   }

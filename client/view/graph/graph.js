@@ -276,8 +276,8 @@ export default class Self extends View {
     })
   }
 
-  _getLabel (d) {
-    let value = this._graph.get(d)
+  _getLabel (key) {
+    let value = this._graph.get(key)
     value = value.substr(0, value.indexOf('\n')) || value
     if (value.length > this.p.node.label.maxLength) value = `${value.slice(0, 15)}...`
     return value
