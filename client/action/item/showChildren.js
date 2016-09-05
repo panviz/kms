@@ -6,7 +6,7 @@ export default class Self extends Action {
 
     this.id = 'itemShowChildren'
     this._label = 'Show Children'
-    this._icon = 'fa fa-plus-circle'
+    this._icon = 'mdi mdi-sitemap'
     this.group = 'item'
     this.registrar.selection.on('change', this.evaluate.bind(this, this.registrar.selection))
   }

@@ -5,7 +5,7 @@ export default class Self extends Action {
     super(p)
     this.id = 'itemCreate'
     this._label = 'Create'
-    this._icon = 'fa fa-square-o'
+    this._icon = 'mdi mdi-plus'
     this.group = 'item'
     this._deny = false
   }

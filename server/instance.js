@@ -38,7 +38,6 @@ class Self {
   initRoutes (req, res) {
     this.server.get('/', this._onRootRequest.bind(this))
     this.server.get(/client*/, this._onResourceRequest.bind(this))
-    this.server.get(/node_modules*/, this._on3dpartyRequest.bind(this))
     this.server.post(/item/, upload.array(), this._onAppRequest.bind(this))
     this.server.get(/^(.+)$/, this._onOtherRequest.bind(this))
   }

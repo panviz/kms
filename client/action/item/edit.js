@@ -5,7 +5,7 @@ export default class Self extends Action {
     super(p)
     this.id = 'itemEdit'
     this._label = 'Edit'
-    this._icon = 'fa fa-pencil-square-o'
+    this._icon = 'mdi mdi-pencil'
     this.group = 'item'
     this.registrar.selection.on('change', this.evaluate.bind(this, this.registrar.selection))
     this.registrar.ui.editor.on('show', this.evaluate.bind(this, this.registrar.selection))

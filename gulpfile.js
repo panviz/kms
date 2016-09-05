@@ -25,7 +25,8 @@ const watchify = require('watchify')
 const babelify = require('babelify')
 const Path = require('path')
 
-const indexLibs = require('./client/indexLibs.json')
+const lib = require('./client/libs.json')
+const asset = require('./client/assets.json')
 const runner = require('./server/runner')
 let NODE_ENV = process.env.NODE_ENV
 
@@ -49,10 +50,10 @@ const path = {
     client: 'client/js/**/*.js',
     clientIndex: 'client/app.js',
     serverIndex: `${appConfig.app.path}/server/instance.js`,
-    lib: indexLibs,
+    lib,
   },
   // TODO if there is templates compilation why to add htmls to assets?
-  asset: ['client/**/*.svg', 'client/index.html'],
+  asset,
   template: 'client/**/*.html',
   core: 'core/**/*.js',
   server: 'server/**/*.js',
@@ -113,7 +114,7 @@ gulp.task('client', () => {
 
 gulp.task('lib', () =>
   gulp.src(path.js.lib)
-     .pipe(DEV ? gutil.noop() : uglify())
+    .pipe(DEV ? gutil.noop() : uglify())
     .pipe(concat('libs.js'))
     .pipe(gulp.dest(path.app.client))
 )

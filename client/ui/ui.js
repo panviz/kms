@@ -12,6 +12,9 @@ import ActionsPanel from './actions-panel/panel'
 
 const _actions = [
   /* eslint-disable */
+  require('../action/select/none').default,
+  require('../action/select/invert').default,
+  require('../action/select/children').default,
   require('../action/item/create').default,
   require('../action/item/edit').default,
   require('../action/item/save').default,

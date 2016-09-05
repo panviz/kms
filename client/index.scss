@@ -4,7 +4,7 @@
 
 @import 'ui/actions-panel/panel';
 @import 'ui/search/search';
-@import 'ui/linkedList/linkedList';
+@import 'ui/linked-list/linked-list';
 @import 'ui/main-menu/menu';
 
 @import 'view/graph/graph';
@@ -16,6 +16,9 @@
 @import 'behavior/selection/rectangular';
 @import 'behavior/drag/drag';
 
-$fa-font-path: "/node_modules/font-awesome/fonts/";
+$mdi-font-path: '/client/fonts';
+@import '../node_modules/mdi/scss/materialdesignicons';
+
+$fa-font-path: '/client/fonts';
 @import '../node_modules/font-awesome/scss/font-awesome';
 @import './style/material';

@@ -7,6 +7,7 @@ export default class Self extends Action {
     this._label = 'Delete'
     this._deny = true
     this._icon = 'fa fa-remove'
+    this.class = 'attention'
     this.group = 'item'
 
     this.registrar.selection.on('change', this.evaluate.bind(this, this.registrar.selection))

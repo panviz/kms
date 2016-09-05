@@ -13,7 +13,7 @@ export default class Self {
     this.provider.read(this.p.source)
       .then((graph) => {
         this.graph = graph
-        console.info(`Serving items total: ${graph.getItemKeys().length}`)
+        console.info(`Serving items total: ${graph.getItemKeys().length} from ${this.p.source}`)
       })
   }
 

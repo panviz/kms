@@ -5,7 +5,7 @@ export default class Self extends Action {
     super(p)
     this.id = 'itemHide'
     this._label = 'Hide'
-    this._icon = 'fa fa-eye-slash'
+    this._icon = 'mdi mdi-eye-off'
     this.group = 'item'
     this.registrar.selection.on('change', this.evaluate.bind(this, this.registrar.selection))
   }

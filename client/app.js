@@ -97,6 +97,10 @@ class Self {
         this._reloadGraph()
       })
   }
+
+  visibleLinked (parent) {
+    return this._graph.getLinked(parent)
+  }
   /**
    * Populate view with user data from previous time
    */
@@ -177,6 +181,7 @@ class Self {
   }
 
   _updateGraphView (graph) {
+    this._graph = graph
     this.ui.graphView.render(graph)
   }
 

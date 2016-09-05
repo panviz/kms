@@ -5,7 +5,7 @@ export default class Self extends Action {
     super(p)
     this.id = 'itemLink'
     this._label = 'Link'
-    this._icon = 'fa fa-link'
+    this._icon = 'mdi mdi-link-variant'
     this.group = 'item'
     this.registrar.selection.on('change', this.evaluate.bind(this, this.registrar.selection))
   }

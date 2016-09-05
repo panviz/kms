@@ -62,6 +62,7 @@
     "js-yaml": "latest",
     "lodash": "4.3.0",
     "material-design-lite": "1.1.1",
+    "mdi": "1.7.22",
     "minimist": "1.2.0",
     "moment": "latest",
     "multer": "1.1.0",

@@ -6,7 +6,7 @@ export default class Self extends Action {
     this.id = 'itemSave'
     this._label = 'Save'
     this._deny = true
-    this._icon = 'fa fa-save'
+    this._icon = 'mdi mdi-content-save'
     this.group = 'item'
 
     this.registrar.ui.editor.on('change', this.evaluate.bind(this))

@@ -1,0 +1,14 @@
+[
+  "client/**/*.svg",
+  "client/index.html",
+  "node_modules/font-awesome/**/*.eot",
+  "node_modules/font-awesome/**/*.svg",
+  "node_modules/font-awesome/**/*.ttf",
+  "node_modules/font-awesome/**/*.woff",
+  "node_modules/font-awesome/**/*.woff2",
+  "node_modules/mdi/**/*.eot",
+  "node_modules/mdi/**/*.svg",
+  "node_modules/mdi/**/*.ttf",
+  "node_modules/mdi/**/*.woff",
+  "node_modules/mdi/**/*.woff2"
+]

@@ -4,7 +4,7 @@
   background-color: rgb(50,50,58);
 
   &.small {
-    flex: 0 0 54px;
+    flex: 0 0 48px;
   }
 
   .brand {
@@ -17,7 +17,7 @@
     background: none repeat scroll 0 0;
     background-color: unquote("rgb(#{$color-secondary})");
     @at-root .sidebar.small .brand {
-      height: 54px;
+      height: 48px;
     }
 
     small {
@@ -62,7 +62,7 @@
       color: unquote("rgb(#{$color-primary})");
       text-decoration: none;
     }
-    @at-root .sidebar.small .footer {
+    @at-root .sidebar.small {
       font-size: 12px;
     }
   }

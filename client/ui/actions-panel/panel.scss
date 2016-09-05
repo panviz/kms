@@ -18,7 +18,7 @@
       background-color: #5D5D5D;
     }
     .small & {
-      padding: 8px 0;
+      padding: 6px 0;
       text-align: center;
     }
   }
@@ -44,10 +44,22 @@
       &.enabled {
         color: rgb(255,255,255);
       }
+      .small & {
+        padding: 0;
+        height: 48px;
+      }
       i {
         padding: 0 8px;
         .small & {
-          padding: 12px;
+          display: inline-block;
+          width: 48px;
+          height: 48px;
+          padding: 0px;
+          text-align: center;
+          &:before {
+            font-size: 24px;
+            line-height: 48px;
+          }
         }
       }
       .label {
@@ -55,7 +67,7 @@
           display: none;
         }
       }
-      &[data-id="itemRemove"].enabled:hover {
+      &.attention.enabled:hover {
         background-color: red;
       }
     }
