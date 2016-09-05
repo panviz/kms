@@ -52,10 +52,22 @@ class Self {
   }
 
   createItem () {
+    const selected = this.selection.getAll()
+    let updatesCounter = selected.length
     this.provider.request('set')
       .then(key => {
-        this.visibleItems.add(key)
-        this.selection.add(key)
+        if (!_.isEmpty(selected)) {
+          _.each(selected, (relatedKey) => {
+            this.provider.request('associate', key, relatedKey)
+              .then(updated => {
+                --updatesCounter
+                if (updatesCounter === 0) this.visibleItems.add(key)
+              })
+          })
+        } else {
+          this.visibleItems.add(key)
+          this.selection.add(key)
+        }
       })
   }
 

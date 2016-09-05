@@ -18,7 +18,7 @@ export default class Self extends Action {
   }
 
   evaluate (selection) {
-    if (selection.getCount() && !this.registrar.ui.editor.isVisible()) this.enable()
+    if (selection.getCount() === 1 && !this.registrar.ui.editor.isVisible()) this.enable()
     else this.disable()
   }
 }
