@@ -20,7 +20,7 @@ const _actions = [
   require('../action/item/save').default,
   require('../action/item/link').default,
   require('../action/item/unlink').default,
-  require('../action/item/showChildren').default,
+  require('../action/item/expand').default,
   require('../action/item/hide').default,
   require('../action/item/remove').default,
   /* eslint-enable */

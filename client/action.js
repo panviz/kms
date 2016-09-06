@@ -7,7 +7,7 @@ export default class Self extends EventEmitter {
   constructor (p = {}) {
     super()
     this.registrar = p.registrar
-    this.id = p.id
+    this._id = p.id
     this._label = p.label
     this._icon = p.icon || 'fa fa-check-square-o'
     this._deny = true
@@ -16,11 +16,12 @@ export default class Self extends EventEmitter {
    * Execute the action code
    */
   apply (...args) {
-    if (this._deny) return
+    if (this._deny) return undefined
 
     if (this._execute) {
-      this._execute(args)
+      return this._execute(...args)
     }
+    return undefined
   }
   /**
    * Override in Concrete Command
@@ -34,36 +35,41 @@ export default class Self extends EventEmitter {
   evaluate (selection) {
   }
   /**
-   * @returns Boolean whether Action has undo method
+   * Toggle enabled state
    */
-  canUndo () {
-    return !!this._undo
+  _evaluate (enable) {
+    enable ? this.enable() : this.disable()
   }
-
-  isEnabled () {
-    return !this._deny
+  /**
+   * Id getter prevents id from change
+   */
+  get id () {
+    return this._id
   }
   /**
    * Change icon
    * @param String cssClass
    */
-  setIcon (cssClass) {
+  set icon (cssClass) {
     this._icon = cssClass
   }
-  getIcon () {
+  get icon () {
     return this._icon
   }
   /**
    * Refresh the action label
    * @param newLabel String the new label
-   * @param newTitle String the new tooltip
    */
-  setLabel (newLabel, newTitle) {
+  set label (newLabel) {
     this._label = newLabel
   }
 
-  getLabel () {
+  get label () {
     return this._label
+  }
+
+  get type () {
+    return this._type
   }
   /**
    * Changes enable/disable state
@@ -82,5 +88,15 @@ export default class Self extends EventEmitter {
     if (!this._deny) return
     this._deny = false
     this.trigger('enable')
+  }
+  /**
+   * @returns Boolean whether Action has undo method
+   */
+  canUndo () {
+    return !!this._undo
+  }
+
+  isEnabled () {
+    return !this._deny
   }
 }

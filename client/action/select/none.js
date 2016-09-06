@@ -3,10 +3,11 @@ import Action from '../../action'
 export default class Self extends Action {
   constructor (p) {
     super(p)
-    this.id = 'selectNone'
+    this._id = 'selectNone'
     this._label = 'none'
     this._icon = 'fa fa-ban'
     this.group = 'select'
+
     this.registrar.selection.on('change', this.evaluate.bind(this, this.registrar.selection))
   }
 
@@ -15,7 +16,6 @@ export default class Self extends Action {
   }
 
   evaluate (selection) {
-    if (selection.getCount()) this.enable()
-    else this.disable()
+    super._evaluate(selection.getCount())
   }
 }

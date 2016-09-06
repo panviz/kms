@@ -3,7 +3,7 @@ import Action from '../action'
 export default class Self extends Action {
   constructor (p) {
     super(p)
-    this.id = 'showLinkedList'
+    this._id = 'showLinkedList'
     this._label = 'Linked Items List'
     this.group = 'item'
   }

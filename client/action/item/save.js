@@ -3,7 +3,7 @@ import Action from '../../action'
 export default class Self extends Action {
   constructor (p) {
     super(p)
-    this.id = 'itemSave'
+    this._id = 'itemSave'
     this._label = 'Save'
     this._deny = true
     this._icon = 'mdi mdi-content-save'
@@ -19,7 +19,6 @@ export default class Self extends Action {
   }
 
   evaluate () {
-    if (this.registrar.ui.editor && this.registrar.ui.editor.isChanged()) this.enable()
-    else this.disable()
+    super._evaluate(this.registrar.ui.editor && this.registrar.ui.editor.isChanged())
   }
 }

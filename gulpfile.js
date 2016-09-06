@@ -11,10 +11,10 @@ const babel = require('gulp-babel')
 const gutil = require('gulp-util')
 const livereload = require('gulp-livereload')
 const wrap = require('gulp-wrap')
-const mocha = require('gulp-mocha')
 
 // required for mocha
 require('babel-core/register')
+const mocha = require('gulp-spawn-mocha')
 
 const fs = require('fs-extra')
 const Handlebars = require('handlebars')

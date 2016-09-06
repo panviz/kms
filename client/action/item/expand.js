@@ -3,11 +3,11 @@ import Action from '../../action'
 export default class Self extends Action {
   constructor (p) {
     super(p)
-
-    this.id = 'itemShowChildren'
+    this._id = 'itemShowChildren'
     this._label = 'Show Children'
     this._icon = 'mdi mdi-sitemap'
     this.group = 'item'
+
     this.registrar.selection.on('change', this.evaluate.bind(this, this.registrar.selection))
   }
 
@@ -17,7 +17,6 @@ export default class Self extends Action {
   }
 
   evaluate (selection) {
-    if (selection.getCount()) this.enable()
-    else this.disable()
+    super._evaluate(selection.getCount())
   }
 }

@@ -3,10 +3,11 @@ import Action from '../../action'
 export default class Self extends Action {
   constructor (p) {
     super(p)
-    this.id = 'selectInvert'
+    this._id = 'selectInvert'
     this._label = 'Invert'
     this._icon = 'mdi mdi-invert-colors'
     this.group = 'select'
+
     this.registrar.selection.on('change', this.evaluate.bind(this, this.registrar.selection))
   }
 
@@ -18,7 +19,6 @@ export default class Self extends Action {
   }
 
   evaluate (selection) {
-    if (this.registrar.visibleItems.getCount()) this.enable()
-    else this.disable()
+    super._evaluate(this.registrar.visibleItems.getCount())
   }
 }

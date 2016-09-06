@@ -34,12 +34,7 @@ export default class Self extends EventEmitter {
     action.on('show', this.addMenuItem.bind(this, action))
     action.on('hide', this.removeMenuItem.bind(this, action))
 
-    const actionData = {
-      id: action.id,
-      label: action.getLabel(),
-      icon: action.getIcon(),
-    }
-    const actionHTML = this.actionTemplate(actionData)
+    const actionHTML = this.actionTemplate(action)
     const $actionHTML = $(actionHTML).toggleClass('enabled', action.isEnabled())
     const group = action.group || 'main'
     let $group = this.elements.root.find(`.${group}`)
@@ -47,7 +42,7 @@ export default class Self extends EventEmitter {
       $group = $(this.groupTemplate({ group }))
       this.elements.root.append($group)
     }
-    $group.find('ul').append($actionHTML)
+    $group.find('.actions').append($actionHTML)
     Util.updateElements(this)
   }
 

@@ -3,11 +3,11 @@ import Action from '../../../action'
 export default class Self extends Action {
   constructor (p) {
     super(p)
-    this.id = 'radial'
-    this._deny = false
+    this._id = 'radial'
     this._label = 'Radial'
     this._icon = 'fa fa-circle-o'
     this.group = 'layout'
+    this._deny = false
 
     this.registrar.on('show', this.enable.bind(this))
     this.registrar.on('hide', this.disable.bind(this))
@@ -19,7 +19,6 @@ export default class Self extends Action {
   }
 
   evaluate () {
-    if (this.registrar && this.registrar.isVisible()) this.enable()
-    else this.disable()
+    super._evaluate(this.registrar && this.registrar.isVisible())
   }
 }
