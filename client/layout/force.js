@@ -214,8 +214,8 @@ export default class Self extends Layout {
       // Transition Current X
       const xChange = shape.x - shape.tpx
       const yChange = shape.y - shape.tpy
-      shape.tcx = $.easing.easeInOutCubic(undefined, progress, shape.tpx, xChange, duration)
-      shape.tcy = $.easing.easeInOutCubic(undefined, progress, shape.tpy, yChange, duration)
+      shape.tcx = shape.tpx + $.easing.easeInOutCubic(progress / duration) * xChange
+      shape.tcy = shape.tpy + $.easing.easeInOutCubic(progress / duration) * yChange
       /* eslint-enable */
     })
     Util.log('T TICK')
