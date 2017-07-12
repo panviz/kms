@@ -36,6 +36,9 @@ export default class Self extends EventEmitter {
 
     const actionHTML = this.actionTemplate(action)
     const $actionHTML = $(actionHTML).toggleClass('enabled', action.isEnabled())
+    if(!_.isEmpty(action.submenu)){
+      $actionHTML.find('.sub-button').toggleClass('enabled', action.isEnabled())
+    }
     const group = action.group || 'main'
     let $group = this.elements.root.find(`.${group}`)
     if (_.isEmpty($group)) {

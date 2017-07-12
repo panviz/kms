@@ -20,6 +20,8 @@ class Self {
 
     // IDs array of visible items
     this.visibleItems = new Collection()
+    this.tagItems = new Collection()
+    this.noteItems = new Collection()
     const providerSet = {
       url: '/item',
     }
@@ -51,7 +53,7 @@ class Self {
       })
   }
 
-  createItem () {
+  createItem (p = {}) {
     const selected = this.selection.getAll()
     let updatesCounter = selected.length
     this.provider.request('set')
@@ -67,6 +69,14 @@ class Self {
         } else {
           this.visibleItems.add(key)
           this.selection.add(key)
+        }
+        if(p === 'tag') {
+          this.provider.request('associate', key, this.serviceItem.tag)
+          this.tagItems.add(key)
+        }
+        if(p === 'note') {
+          this.provider.request('associate', key, this.serviceItem.note)
+          this.noteItems.add(key)
         }
       })
   }
