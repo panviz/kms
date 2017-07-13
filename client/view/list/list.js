@@ -9,7 +9,7 @@ export default class Self extends View {
   constructor (p) {
     super(p)
     this.selectors = {
-      list: '.items-list',
+      list: '.list',
     }
     const $html = $(G.Templates['view/list/list']())
     this._rowTemplate = G.Templates['view/list/row']
@@ -23,9 +23,11 @@ export default class Self extends View {
   /**
    * populate list with items
    */
-  render (itemsMap) {
-    const list = _.map(itemsMap, (value, key) => this._rowTemplate({ value, key })).join('')
-    this.elements.list.html(list)
+  render (itemsMap, label) {
+    //const list = _.map(itemsMap, (value, key) => this._rowTemplate({ value, key })).join('')
+    const list = this._rowTemplate({itemsMap: itemsMap, label: label})
+    this.elements.root.html(list)
+    //const header = this._headerTemplate({label: label})
   }
   /**
    * Select row in click

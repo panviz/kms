@@ -34,7 +34,7 @@ class Self {
     co(this._loadRepo())
   }
 
-  showChildren (keyS) {
+  showChildren (keyS, actionLabel) {
     const keys = Util.pluralize(keyS)
 
     // TODO multiple
@@ -49,7 +49,7 @@ class Self {
         this.ui.linkedList.show()
 
         // TODO when one view on common container is changed fire event and resize others
-        this.ui.linkedList.render(graph.getItemsMap())
+        this.ui.linkedList.render(graph.getItemsMap(), actionLabel)
       })
   }
 

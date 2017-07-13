@@ -1,1 +1,8 @@
-<li data-key="{{ key }}" title="{{ value }}">{{ value }}</li>
+<h4>{{ label }}</h4>
+<ul class="items-list">
+    {{#each itemsMap}}
+       <li data-key="{{ @key }}" title="{{ this }}">{{ this }}</li>
+    {{/each}}
+</ul>
+
+
