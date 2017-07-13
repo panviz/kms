@@ -12,7 +12,7 @@ export default class Self extends EventEmitter {
       input: 'input[type="text"]',
       ignoreCase: 'input[name="ignoreCase"]',
     }
-    const $html = $(G.Templates['ui\\search\\search']())
+    const $html = $(G.Templates['ui/search/search']())
     this.p.container.append($html)
     this.elements = Util.findElements($html, this.selectors)
 
