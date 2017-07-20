@@ -28,8 +28,9 @@ class App {
     this.provider = new Provider(providerSet)
 
     this.selection.on('change', this._onSelect.bind(this))
-    this.ui = new UI({ itemman: this, selection: this.selection })
-    this.ui.search.on('update', this._onSearch.bind(this))
+    this.ui = new UI({ itemman: this, selection: this.selection, tags: this.visibleItems })
+ //   this.ui.search.on('update', this._onSearch.bind(this))
+    this.ui.search.on('searchTag', this._onSearchTag.bind(this))
 
     this._loadRepo()
   }
@@ -174,13 +175,51 @@ class App {
     } else if (keys.length === 0) this.ui.hideSecondaryViews()
   }
 
-  _onSearch (data) {
+ /* _onSearch (data) {
     this.provider.request('find', data.str, data.flags)
       .then(keys => {
         this.visibleItems.add(keys)
       })
-  }
+  }*/
 
+  _onSearchTag (data){
+    data.root = this.serviceItem.tag
+    const promise = new Promise((resolve, reject) => {
+      const request = $.post({
+        url: '/find',
+        data: {
+          method: 'findNodesByTags',
+          args: JSON.stringify(data),
+        },
+      })
+      request.then((data) => {
+        this.ui.linkedList.show()
+
+        this.ui.linkedList.render(data, 'search by tags')
+        console.log(data);
+
+      })
+    })
+    /*this.request('findItemsByTags', data)
+      /!*.then(keys => {
+        const result = this._filter(keys)
+        console.log(keys)
+        this.ui.linkedList.show()
+      })*!/
+      .then(p => {
+        console.log(p)
+       let graph = new Graph(p.graph)
+        _.each(p.tags, tag => {
+          graph.remove(tag)
+        })
+        this._filter(graph)
+        this.ui.linkedList.show()
+
+        this.ui.linkedList.render(graph.getItemsMap(), 'search by tags')
+
+      })
+*/
+  }
   _onVisibleItemsRemove (keys) {
     this.selection.remove(keys)
     this.provider.request('setDisassociate', this.serviceItem.visibleItem, keys)
@@ -202,13 +241,13 @@ class App {
       })
   }
 
-  _updateGraphView (graph) {
+   _updateGraphView (graph) {
     this._graph = graph
     this.ui.graphView.render(graph)
   }
 
   _filter (data) {
-    let graph
+    let graphK
     let keys
     const serviceKeys = _.toArray(this.serviceItem)
     if (data.providerID) graph = data
@@ -217,7 +256,8 @@ class App {
       graph.remove(serviceKeys)
       return graph
     }
-    return _.without(keys, serviceKeys)
+    _.pullAll(keys, serviceKeys)
+    return keys
   }
 }
 

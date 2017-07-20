@@ -1,10 +1,12 @@
 /**
- * Server Application
+ * Server Instance
  */
+
 import webpack from 'webpack'
 import webpackMiddleware from 'webpack-dev-middleware'
 import express from 'express'
 import Path from 'path'
+
 import bodyParser from 'body-parser'
 import multer from 'multer'
 import chalk from 'chalk'
@@ -19,11 +21,19 @@ class Server {
   constructor () {
     this.p = config
     this.p.version = packageConf.version
-    this.provider = new APIServer({
-      source: this.p.repository.path,
-      target: this.p.repository.path,
-      provider: this.p.repository.provider,
-    })
+    this.provider = Raw
+    this.provider.read(this.p.repository.path)
+      .then((graph) => {
+        this.graph = graph
+        console.info(`Serving items total: ${graph.getItemKeys().length} from ${this.p.repository.path}`)
+        this.apiServerProvider = new APIServer({
+           source: this.p.repository.path,
+           target: this.p.repository.path,
+           graph: this.graph,
+           provider: this.provider
+        })
+        this.app = new App(this.graph)
+      })
 
     this.server = express()
     this.server.use(bodyParser.json())
@@ -56,7 +66,9 @@ class Server {
       this.server.get(/build*/, this._onResourceRequest.bind(this))
     }
     this.server.get('/', this._onRootRequest.bind(this))
+
     this.server.post(/item/, upload.array(), this._onAppRequest.bind(this))
+
     this.server.get(/^(.+)$/, this._onOtherRequest.bind(this))
   }
 
@@ -73,7 +85,18 @@ class Server {
   }
 
   _onAppRequest (req, res) {
-    this.provider.request(req.body)
+    this.app[req.body.method](req.body.args)
+      .then((data) => {
+        res.send(data)
+      })
+    /* this.app.get(req.body)
+       .then((data) => {
+         res.send(data)
+       })*/
+  }
+
+  _onAPIRequest (req, res) {
+    this.apiServerProvider.request(req.body)
       .then((data) => {
         res.send(data)
       })
@@ -85,4 +108,6 @@ class Server {
   }
 }
 
+
 export default new Server
+

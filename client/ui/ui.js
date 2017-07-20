@@ -31,6 +31,7 @@ export default class UI {
     this.actionman = new Actionman()
     this.p = p
     this.selection = p.selection
+    this.tags = p.tags
 
     this.elements = Util.findElements('body', this.selectors)
 
@@ -64,7 +65,7 @@ export default class UI {
     this.editor.on('show', this._layoutViews.bind(this))
     this.editor.on('hide', this._layoutViews.bind(this))
 
-    this.search = new Search({ container: this.elements.header })
+    this.search = new Search({ container: this.elements.header, tags: this.tags })
     this.actionsPanel = new ActionsPanel({
       container: this.elements.sidebar,
       actions: this.actionman.getAll(),
