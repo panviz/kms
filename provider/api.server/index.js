@@ -8,13 +8,8 @@ import Raw from '../raw/index'
 export default class Self {
   constructor (p = {}) {
     this.p = p
-
-    this.provider = Raw
-    this.provider.read(this.p.source)
-      .then((graph) => {
-        this.graph = graph
-        console.info(`Serving items total: ${graph.getItemKeys().length} from ${this.p.source}`)
-      })
+    this.graph = p.graph
+    this.provider = p.provider
   }
 
   request (params) {
