@@ -47,10 +47,11 @@ class Self {
         const linkedKeys = graph.getItemKeys()
         this.visibleItems.add(linkedKeys)
 
+        this.ui.linkedList.setTitle(actionLabel)
         this.ui.linkedList.show()
 
         // TODO when one view on common container is changed fire event and resize others
-        this.ui.linkedList.render(graph.getItemsMap(), actionLabel)
+        this.ui.linkedList.render(graph.getItemsMap())
       })
   }
 
@@ -189,8 +190,9 @@ class Self {
         _.each(data, (value, key) => {
           this.selection.add(key)
         })
+        this.ui.linkedList.setTitle('search by tags')
         this.ui.linkedList.show()
-        this.ui.linkedList.render(data, 'search by tags')
+        this.ui.linkedList.render(data)
       })
     })
   }
