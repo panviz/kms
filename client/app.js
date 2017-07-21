@@ -175,13 +175,6 @@ class Self {
     } else if (keys.length === 0) this.ui.hideSecondaryViews()
   }
 
- /* _onSearch (data) {
-    this.provider.request('find', data.str, data.flags)
-      .then(keys => {
-        this.visibleItems.add(keys)
-      })
-  }*/
-
   _onSearchTag (data){
     data.root = this.serviceItem.tag
     const promise = new Promise((resolve, reject) => {
@@ -193,32 +186,13 @@ class Self {
         },
       })
       request.then((data) => {
+        _.each(data, (value, key) => {
+          this.selection.add(key)
+        })
         this.ui.linkedList.show()
-
         this.ui.linkedList.render(data, 'search by tags')
-        console.log(data);
-
       })
     })
-    /*this.request('findItemsByTags', data)
-      /!*.then(keys => {
-        const result = this._filter(keys)
-        console.log(keys)
-        this.ui.linkedList.show()
-      })*!/
-      .then(p => {
-        console.log(p)
-       let graph = new Graph(p.graph)
-        _.each(p.tags, tag => {
-          graph.remove(tag)
-        })
-        this._filter(graph)
-        this.ui.linkedList.show()
-
-        this.ui.linkedList.render(graph.getItemsMap(), 'search by tags')
-
-      })
-*/
   }
   _onVisibleItemsRemove (keys) {
     this.selection.remove(keys)
@@ -247,7 +221,7 @@ class Self {
   }
 
   _filter (data) {
-    let graphK
+    let graph
     let keys
     const serviceKeys = _.toArray(this.serviceItem)
     if (data.providerID) graph = data
