@@ -28,7 +28,7 @@ class Self {
     this.provider = new Provider(providerSet)
 
     this.selection.on('change', this._onSelect.bind(this))
-    this.ui = new UI({ itemman: this, selection: this.selection, tags: this.visibleItems })
+    this.ui = new UI({ itemman: this, selection: this.selection})
  //   this.ui.search.on('update', this._onSearch.bind(this))
     this.ui.search.on('searchTag', this._onSearchTag.bind(this))
 

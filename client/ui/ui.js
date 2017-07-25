@@ -31,8 +31,6 @@ export default class Self {
     this.actionman = new Actionman()
     this.p = p
     this.selection = p.selection
-    this.tags = p.tags
-
     this.selectors = {
       header: 'header',
       container: '.container',
@@ -70,7 +68,7 @@ export default class Self {
     this.editor.on('show', this._layoutViews.bind(this))
     this.editor.on('hide', this._layoutViews.bind(this))
 
-    this.search = new Search({ container: this.elements.header, tags: this.tags })
+    this.search = new Search({ container: this.elements.header})
     this.actionsPanel = new ActionsPanel({
       container: this.elements.sidebar,
       actions: this.actionman.getAll(),

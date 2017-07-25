@@ -5,14 +5,13 @@ import Util from '../../../core/util'
 import select2 from '../../../node_modules/select2/dist/js/select2'
 
 
+
 export default class Self extends EventEmitter {
   constructor (p = {}) {
     super()
     this.p = p
 
     this.selectors = {
-      //input: 'input[type="text"]',
-      //ignoreCase: 'input[name="ignoreCase"]',
       select2: '#tags',
       search: '#search',
     }
@@ -21,7 +20,19 @@ export default class Self extends EventEmitter {
     this.elements = Util.findElements($html, this.selectors)
 
     this.elements.select2.select2({
-      data: this.p.tags.getAll(),
+     // minimumInputLength: 2,
+      ajax: {
+        url: "/select2",
+        dataType: 'json',
+        delay: 250,
+        processResults: function (data) {
+          return {
+            results: data
+          };
+        },
+
+        cache: true
+      },
       tags: true,
       tokenSeparators: [',', ' '],
       placeholder: "Add your tags here"
