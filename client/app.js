@@ -30,7 +30,7 @@ class Self {
     this.selection.on('change', this._onSelect.bind(this))
     this.ui = new UI({ itemman: this, selection: this.selection})
  //   this.ui.search.on('update', this._onSearch.bind(this))
-    this.ui.search.on('searchTag', this._onSearchTag.bind(this))
+    this.ui.search.on('search', this._onSearch.bind(this))
 
     co(this._loadRepo())
   }
@@ -176,8 +176,7 @@ class Self {
     } else if (keys.length === 0) this.ui.hideSecondaryViews()
   }
 
-  _onSearchTag (data){
-    data.root = this.serviceItem.tag
+  _onSearch (data){
     const promise = new Promise((resolve, reject) => {
       const request = $.post({
         url: '/find',

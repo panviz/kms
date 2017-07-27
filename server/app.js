@@ -31,9 +31,10 @@ export default class Self {
   findNodesByTags(p){
     return new Promise((resolve, reject) => {
       const args = JSON.parse(p)
-      const values = Util.pluralize(args.tags)
+      const tagsValues = Util.pluralize(args.tags)
+      const filterValues = Util.pluralize(args.values)
       const nodesResult =[]
-      _.each(values, value => {
+      _.each(tagsValues, value => {
         nodesResult.push(this.graph.search(this.serviceItem.tag, value, 'g')[0])
       })
       let arrLinkedKeys = _.map(nodesResult, key => this.graph.getLinked(key))
@@ -42,10 +43,22 @@ export default class Self {
       const serviceKeys = this.graph.find(this.rootKey)
       _.pullAll(arrLinkedKeys, serviceKeys)
 
-      let itemsMap ={}
+      let itemsMap = {}
       _.each(arrLinkedKeys, key => {
         itemsMap[key] =  this.graph.get(key)
       })
+
+      if(filterValues.length > 0){
+        let result = {}
+        _.each(itemsMap, (value, key)=> {
+          _.each(filterValues, (filterValue) => {
+            if(itemsMap[key] === filterValue){
+              result[key] = value
+            }
+          })
+        })
+        resolve(result)
+      }
       resolve(itemsMap)
     })
   }

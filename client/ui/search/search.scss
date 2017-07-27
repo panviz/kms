@@ -1,6 +1,7 @@
 .search-bar {
   flex: 1 1 auto;
 
+
   .mdl-textfield {
     width: 75%;
     margin-left: 24px;
@@ -12,7 +13,7 @@
   &>input[name="ignoreCase"], &>label {
     display: none;
   }
-  #tags {
-    width: 100%;
+  #tags, #value {
+    width: 75%;
   }
 }

@@ -11,7 +11,8 @@ export default class Self extends EventEmitter {
 
     this.selectors = {
       select2Tag: '#tags',
-      searchTag: '#searchTag',
+      select2Value: '#value',
+      searchButton: '#searchButton',
     }
     const $html = $(G.Templates['ui/search/search']())
     this.p.container.append($html)
@@ -28,32 +29,28 @@ export default class Self extends EventEmitter {
             results: data
           };
         },
-
         cache: true
       },
       tags: true,
       tokenSeparators: [',', ' '],
       placeholder: "Add your tags here"
     })
-   // this.elements.input.on('keyup', this._onChange.bind(this))
-   //this.elements.ignoreCase.on('click', this._onChange.bind(this))
-    this.elements.searchTag.on('click', this._onSearch.bind(this))
+    this.elements.select2Value.select2({
+      tags: true,
+      tokenSeparators: [',', ' '],
+      placeholder: 'Add filter value here'
+    })
+     this.elements.searchButton.on('click', this._onSearch.bind(this))
   }
 
   _onSearch (e) {
-    const values = _.map(this.elements.select2Tag.select2('data'), (obj) => {
+    const tagValues = _.map(this.elements.select2Tag.select2('data'), (obj) => {
       return obj.text
     })
-    this.trigger('searchTag', {
-      tags: values
+    const values = this.elements.select2Value.val()
+    this.trigger('search', {
+      tags: tagValues,
+      values: values,
     })
   }
-  /*_onChange (e) {
-    const value = e.target.value
-    if (value.length < 3) return
-    this.trigger('update', {
-      str: value,
-      flags: this.elements.ignoreCase.is(':checked') ? 'i' : '',
-    })
-  }*/
 }
