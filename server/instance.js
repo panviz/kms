@@ -68,6 +68,7 @@ class Self {
   }
 
   _onAppRequest (req, res) {
+    console.log('send', req.body.args)
     this.app[req.body.method](req.body.args)
       .then((data) => {
         res.send(data)

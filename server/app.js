@@ -31,11 +31,10 @@ export default class Self {
   findNodesByTags(p){
     return new Promise((resolve, reject) => {
       const args = JSON.parse(p)
-      const root = args.root
       const values = Util.pluralize(args.tags)
       const nodesResult =[]
       _.each(values, value => {
-        nodesResult.push(this.graph.search(root, value, 'g')[0])
+        nodesResult.push(this.graph.search(this.serviceItem.tag, value, 'g')[0])
       })
       let arrLinkedKeys = _.map(nodesResult, key => this.graph.getLinked(key))
       arrLinkedKeys = _.union(...arrLinkedKeys)

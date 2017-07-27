@@ -67,6 +67,7 @@
     "moment": "2.14.1",
     "multer": "1.1.0",
     "plusjs": "git+https://github.com/Dmitra/plusjs.git",
+    "select2": "^4.0.3",
     "to-markdown": "2.0.1",
     "webcola": "git+https://github.com/tgdwyer/WebCola.git#7c47ad8e6e6a3f1ef87df13378b3b3caba3839e8"
   },
