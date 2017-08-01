@@ -51,7 +51,7 @@ class Self {
     this.server.get(/client*/, this._onResourceRequest.bind(this))
     this.server.post(/item/, upload.array(), this._onAPIRequest.bind(this))
     this.server.post(/find/, upload.array(), this._onAppRequest.bind(this))
-    this.server.get(/select2/, this._onAppSelectInit.bind(this))
+    this.server.get(/tags/, this._onAppSelectInit.bind(this))
     this.server.get(/^(.+)$/, this._onOtherRequest.bind(this))
   }
 
@@ -77,7 +77,7 @@ class Self {
 
   _onAppSelectInit(req, res){
     let query = req.query.q
-    this.app.initAutocomplit(query)
+    this.app.initAutocomplite(query)
       .then(data => {
         res.send(JSON.stringify(data))
       })

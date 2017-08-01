@@ -14,10 +14,11 @@ export default class Self {
     this.serviceItem = {}
     this.graph = graph
 
-    this._getServiseItems()
+    this._initServiceItems()
   }
 
-  _getServiseItems(){
+
+  _initServiceItems(){
     let serviceGraph = this.graph.getGraph(this.rootKey, 1)
     _.each(this._serviceItems.concat(this._itemtypes), (item) => {
       this.serviceItem[item] = this.graph.search(this.rootKey, item)[0]
@@ -31,39 +32,46 @@ export default class Self {
   findNodesByTags(p){
     return new Promise((resolve, reject) => {
       const args = JSON.parse(p)
-      const tagsValues = Util.pluralize(args.tags)
-      const filterValues = Util.pluralize(args.values)
-      const nodesResult =[]
-      _.each(tagsValues, value => {
-        nodesResult.push(this.graph.search(this.serviceItem.tag, value, 'g')[0])
-      })
-      let arrLinkedKeys = _.map(nodesResult, key => this.graph.getLinked(key))
-      arrLinkedKeys = _.union(...arrLinkedKeys)
-
+      const tagsAnd = Util.pluralize(args.tagsAnd)
+      const tagsOr = Util.pluralize(args.tagsOr)
       const serviceKeys = this.graph.find(this.rootKey)
+      let itemsMap = {}
+      let arrLinkedKeysOr = []
+      let arrLinkedKeysAnd = []
+
+      if(tagsOr.length > 0) {
+        const tags =[]
+        _.each(tagsOr, value => {
+          tags.push(this.graph.search(this.serviceItem.tag, value, 'g')[0])
+        })
+        arrLinkedKeysOr = _.map(tags, key => this.graph.getLinked(key))
+        arrLinkedKeysOr = _.intersection(...arrLinkedKeysOr)
+      }
+
+      if(tagsAnd.length > 0 ) {
+        const tags = []
+        _.each(tagsAnd, value => {
+          tags.push(this.graph.search(this.serviceItem.tag, value, 'g')[0])
+        })
+        arrLinkedKeysAnd = _.map(tags, key => this.graph.getLinked(key))
+        arrLinkedKeysAnd = _.union(...arrLinkedKeysAnd)
+      }
+
+      let arrLinkedKeys = _.union(arrLinkedKeysOr, arrLinkedKeysAnd);
       _.pullAll(arrLinkedKeys, serviceKeys)
 
-      let itemsMap = {}
       _.each(arrLinkedKeys, key => {
         itemsMap[key] =  this.graph.get(key)
       })
 
-      if(filterValues.length > 0){
-        let result = {}
-        _.each(itemsMap, (value, key)=> {
-          _.each(filterValues, (filterValue) => {
-            if(itemsMap[key] === filterValue){
-              result[key] = value
-            }
-          })
-        })
-        resolve(result)
-      }
       resolve(itemsMap)
     })
   }
 
-  initAutocomplit(query) {
+
+
+
+  initAutocomplite(query) {
     return new Promise((resolve, reject) => {
       let data = []
       const serviceKeys = []

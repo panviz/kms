@@ -29,10 +29,9 @@ class Self {
 
     this.selection.on('change', this._onSelect.bind(this))
     this.ui = new UI({ itemman: this, selection: this.selection})
- //   this.ui.search.on('update', this._onSearch.bind(this))
     this.ui.search.on('search', this._onSearch.bind(this))
 
-    co(this._loadRepo())
+    this._loadRepo()
   }
 
   showChildren (keyS, actionLabel) {
@@ -125,27 +124,41 @@ class Self {
   visibleLinked (parent) {
     return this._graph.getLinked(parent)
   }
+
   /**
    * Populate view with user data from previous time
    */
-  *_loadRepo () {
-    let graph = yield this.provider.request('getGraph', this.rootKey, 1)
-    if (_.isEmpty(graph.getItemsMap())) yield this._initRepo()
-    else {
-      _.each(this._serviceItems.concat(this._itemtypes), (item) => {
-        this.serviceItem[item] = graph.search(this.rootKey, item)[0]
-      })
-      this.serviceItem.root = this.rootKey
+  async _loadRepo () {
+    try {
+      let graph = await this.provider.request('getGraph', this.rootKey, 1)
+      if (_.isEmpty(graph.getItemsMap())) await this._initRepo()
+      else {
+        _.each(this._serviceItems.concat(this._itemtypes), (item) => {
+          this.serviceItem[item] = graph.search(this.rootKey, item)[0]
+        })
+        this.serviceItem.root = this.rootKey
+      }
+
+      graph = await this.provider.request('getGraph', this.serviceItem.visibleItem, 1)
+      const tagLink = await this.provider.request('getLinked', this.serviceItem.tag)
+      const noteLink = await this.provider.request('getLinked', this.serviceItem.note)
+      this._filter(graph)
+      this._filter(tagLink)
+      this._filter(noteLink)
+      const keys = graph.getItemKeys()
+      this.visibleItems.add(keys)
+      this.tagItems.add(tagLink)
+      this.noteItems.add(noteLink)
+      this._updateGraphView(graph, {tags: tagLink, note: noteLink})
+      this.visibleItems.on('change', this._reloadGraph.bind(this))
+      this.visibleItems.on('add', this._onVisibleItemsAdd.bind(this))
+      this.visibleItems.on('remove', this._onVisibleItemsRemove.bind(this))
+      this.tagItems.on('change', this._illuminateGraphView.bind(this))
+      this.noteItems.on('change', this._illuminateGraphView.bind(this))
+    }catch(e) {
+      console.log(e)
     }
 
-    graph = yield this.provider.request('getGraph', this.serviceItem.visibleItem, 1)
-    this._filter(graph)
-    const keys = graph.getItemKeys()
-    this.visibleItems.add(keys)
-    this._updateGraphView(graph)
-    this.visibleItems.on('change', this._reloadGraph.bind(this))
-    this.visibleItems.on('add', this._onVisibleItemsAdd.bind(this))
-    this.visibleItems.on('remove', this._onVisibleItemsRemove.bind(this))
   }
 
   _initRepo () {
@@ -210,15 +223,31 @@ class Self {
    */
   _reloadGraph () {
     const keys = this.visibleItems.getAll()
-    this.provider.request('getGraph', keys)
-      .then(graph => {
-        this._updateGraphView(graph)
+    console.log('tag', this.tagItems)
+    console.log('nodes', this.noteItems)
+    console.log('visible', this.visibleItems)
+    let tagLink = [];
+    let noteLink = [];
+    this.provider.request('getLinked', this.serviceItem.tag)
+      .then(links => {
+        tagLink = links
+        this.provider.request('getLinked', this.serviceItem.note)
+          .then(links => {
+            noteLink = links
+            this.provider.request('getGraph', keys)
+              .then(graph => {
+                this._updateGraphView(graph, {tags: tagLink, note: noteLink})
+              })
+          })
       })
   }
 
-   _updateGraphView (graph) {
+   _updateGraphView (graph, links) {
     this._graph = graph
-    this.ui.graphView.render(graph)
+    this.ui.graphView.render(graph, links)
+  }
+  _illuminateGraphView(){
+    this.ui.graphView.illuminationNodes({tags: this.tagItems._items, note: this.noteItems._items})
   }
 
   _filter (data) {

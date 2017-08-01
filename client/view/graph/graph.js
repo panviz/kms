@@ -35,6 +35,8 @@ export default class Self extends View {
       nodeGroup: '.nodeGroup',
       link: '.link',
       node: '.node',
+      tag: '.tag',
+      note: '.note',
       hidden: '.hide',
       selected: '.selected',
     }
@@ -140,8 +142,9 @@ export default class Self extends View {
   /**
    * render new graph in the view using current layout
    */
-  render (graph) {
+  render (graph, links) {
     this._graph = graph
+
     this._items = graph.getItemKeys()
 
     // bind DOM nodes to items
@@ -169,7 +172,10 @@ export default class Self extends View {
       this._exitedNodes.classed(this.selectors.hidden.slice(1), true)
       this._exitedEdges.classed(this.selectors.hidden.slice(1), true)
     })
+
     this.updateLayout({ duration: 1000 })
+    this.illuminationNodes(links)
+
   }
   /**
    * take all available space
@@ -323,5 +329,22 @@ export default class Self extends View {
 
   _onNodeDblClick (e) {
     this.actionman.get('itemShowChildren').apply()
+  }
+
+  illuminationNodes(links){
+    setTimeout(()=>{
+      console.log('illuminate')
+      let {tags, note} = links
+      _.each(tags, (key) => {
+        const node = _.find(this._nodes[0], _node => _node.__data__ === key)
+        if (node) node.classList.add('tag')
+      })
+      _.each(note, (key) => {
+        const node = _.find(this._nodes[0], _node => _node.__data__ === key)
+        if (node) node.classList.add('note')
+      })
+    }, 30)
+
+
   }
 }

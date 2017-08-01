@@ -1,11 +1,13 @@
 <div class='search-bar autocomplete'>
   <div class="mdl-textfield mdl-js-textfield">
-    <label class="search-label" for="tags">Search items for tags</label>
-    <select id="tags" multiple="multiple"></select>
-  </div>
-  <div class="mdl-textfield mdl-js-textfield">
-    <label class="search-label" for="value">Filter for values</label>
+    <label class="search-label" for="value">Filter notes by tag (OR)</label>
     <select id="value" multiple="multiple"></select>
   </div>
-  <button id="searchButton">search</button>
+
+  <div class="mdl-textfield mdl-js-textfield">
+    <label class="search-label" for="tags">Search notes by tags (AND)</label>
+    <select id="tags" multiple="multiple"></select>
+  </div>
+
+  <button class="button">search</button>
 </div>

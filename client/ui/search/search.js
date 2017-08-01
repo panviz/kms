@@ -2,55 +2,69 @@
  * Search widget with autocomplete
  */
 import Util from '../../../core/util'
-import select2 from '../../../node_modules/select2/dist/js/select2'
 
-export default class Self extends EventEmitter {
+export default class Search extends EventEmitter {
+
   constructor (p = {}) {
     super()
     this.p = p
 
-    this.selectors = {
-      select2Tag: '#tags',
-      select2Value: '#value',
-      searchButton: '#searchButton',
-    }
     const $html = $(G.Templates['ui/search/search']())
     this.p.container.append($html)
     this.elements = Util.findElements($html, this.selectors)
 
-    this.elements.select2Tag.select2({
+    this.elements.select2And.select2({
       minimumInputLength: 2,
       ajax: {
-        url: "/select2",
+        url: "/tags",
         dataType: 'json',
         delay: 250,
-        processResults: function (data) {
-          return {
-            results: data
-          };
+        processResults: data => {
+          return {results: data}
         },
         cache: true
       },
       tags: true,
       tokenSeparators: [',', ' '],
-      placeholder: "Add your tags here"
+      placeholder: "Add your tags here (AND)"
     })
-    this.elements.select2Value.select2({
+    this.elements.select2Or.select2({minimumInputLength: 2,
+      ajax: {
+        url: "/tags",
+        dataType: 'json',
+        delay: 250,
+        processResults: data => {
+          return {results: data}
+        },
+        cache: true
+      },
       tags: true,
       tokenSeparators: [',', ' '],
-      placeholder: 'Add filter value here'
+      placeholder: "Add your tags here (OR)"
     })
-     this.elements.searchButton.on('click', this._onSearch.bind(this))
+     this.elements.button.on('click', this._onSearch.bind(this))
   }
 
+  get selectors () {
+    return  {
+      select2And: '#tags',
+      select2Or: '#value',
+      button: '.button',
+    }
+  }
+
+
   _onSearch (e) {
-    const tagValues = _.map(this.elements.select2Tag.select2('data'), (obj) => {
+    const tagValuesAnd = _.map(this.elements.select2And.select2('data'), (obj) => {
       return obj.text
     })
-    const values = this.elements.select2Value.val()
+    const tagValuesOr = _.map(this.elements.select2Or.select2('data'), (obj) => {
+      return obj.text
+    })
+
     this.trigger('search', {
-      tags: tagValues,
-      values: values,
+      tagsAnd: tagValuesAnd,
+      tagsOr: tagValuesOr,
     })
   }
 }
