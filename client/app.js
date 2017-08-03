@@ -150,11 +150,10 @@ class Self {
       this.tagItems.add(tagLink)
       this.noteItems.add(noteLink)
       this._updateGraphView(graph, {tags: tagLink, note: noteLink})
+
       this.visibleItems.on('change', this._reloadGraph.bind(this))
       this.visibleItems.on('add', this._onVisibleItemsAdd.bind(this))
       this.visibleItems.on('remove', this._onVisibleItemsRemove.bind(this))
-      this.tagItems.on('change', this._illuminateGraphView.bind(this))
-      this.noteItems.on('change', this._illuminateGraphView.bind(this))
     }catch(e) {
       console.log(e)
     }
@@ -221,33 +220,20 @@ class Self {
   /**
    * Sync graph with server
    */
+
   _reloadGraph () {
+    // TODO get only required notes and tags
     const keys = this.visibleItems.getAll()
-    console.log('tag', this.tagItems)
-    console.log('nodes', this.noteItems)
-    console.log('visible', this.visibleItems)
-    let tagLink = [];
-    let noteLink = [];
-    this.provider.request('getLinked', this.serviceItem.tag)
-      .then(links => {
-        tagLink = links
-        this.provider.request('getLinked', this.serviceItem.note)
-          .then(links => {
-            noteLink = links
-            this.provider.request('getGraph', keys)
-              .then(graph => {
-                this._updateGraphView(graph, {tags: tagLink, note: noteLink})
-              })
-          })
-      })
+    this.provider.request('getGraph', keys)
+      .then(graph => {
+          this._updateGraphView(graph, {tags: this.tagItems._items, note: this.noteItems._items})
+        })
+
   }
 
    _updateGraphView (graph, links) {
     this._graph = graph
     this.ui.graphView.render(graph, links)
-  }
-  _illuminateGraphView(){
-    this.ui.graphView.illuminationNodes({tags: this.tagItems._items, note: this.noteItems._items})
   }
 
   _filter (data) {
