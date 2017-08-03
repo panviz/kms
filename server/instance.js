@@ -40,9 +40,7 @@ class Server {
   }
 
   initRoutes (req, res) {
-    // TODO use environment variable
-    process.ENV = 'DEV'
-    if (process.ENV === 'DEV') {
+    if (process.env.NODE_ENV === 'DEV') {
       const webpackOptions = {
         entry: './client/app.js',
         output: {
