@@ -1,6 +1,6 @@
 import Action from '../../action'
 
-export default class Self extends Action {
+export default class SelectNone extends Action {
   constructor (p) {
     super(p)
     this._id = 'selectNone'

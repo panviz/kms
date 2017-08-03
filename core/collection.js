@@ -9,7 +9,7 @@ import _ from 'lodash'
 import EventEmitter from 'eventemitter3'
 import Util from '../core/util'
 
-export default class Self extends EventEmitter {
+export default class Collection extends EventEmitter {
   constructor (p) {
     super()
     this._items = []

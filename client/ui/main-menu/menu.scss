@@ -14,7 +14,7 @@
     &:before {
       position: absolute;
       content: "";
-      background: url($image-path + 'ui/main-menu/menu.svg');
+      background: url('menu.svg');
       background-size: cover;
       width: 32px;
       height: 32px;

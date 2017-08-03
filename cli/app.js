@@ -3,7 +3,7 @@ var _ = require('lodash')
 , Path = require('path')
 , yaml = require('js-yaml')
 
-var Self = function () {
+var CLI = function () {
   var self = this
   //Switch global initialization off
   //Use command line interface for convertion
@@ -11,7 +11,7 @@ var Self = function () {
   self.stringProviders = ['json', 'yaml', 'csv']
 }
 
-Self.prototype.getRepoConfig = function (path) {
+CLI.prototype.getRepoConfig = function (path) {
   var self = this
   var base = {}
   var repoConfigPath = Path.join(path.source, '_config.yml')
@@ -26,7 +26,7 @@ Self.prototype.getRepoConfig = function (path) {
   }
 }
 
-Self.prototype.convert = function (path, provider) {
+CLI.prototype.convert = function (path, provider) {
   var self = this
   var config = self.getRepoConfig(path)
   var sourceProvider = require('../provider/' + provider.source)
@@ -52,4 +52,4 @@ Self.prototype.convert = function (path, provider) {
     })
 }
 
-module.exports = new Self
+module.exports = new CLI

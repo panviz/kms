@@ -2,9 +2,10 @@
  * Web API provider for client to access server
  * TODO cache loaded graph
  */
+import EventEmitter from 'eventemitter3'
 import Graph from '../graph/index'
 
-export default class Self extends EventEmitter {
+export default class APIClient extends EventEmitter {
   constructor (p = {}) {
     super()
     this.p = p

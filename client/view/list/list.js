@@ -4,15 +4,13 @@
  */
 import View from '../view'
 import Util from '../../../core/util'
+import template from './list.html'
+import rowTemplate from './row.html'
 
-export default class Self extends View {
+export default class List extends View {
   constructor (p) {
     super(p)
-    this.selectors = {
-      list: '.items-list',
-    }
-    const $html = $(G.Templates['view/list/list']())
-    this._rowTemplate = G.Templates['view/list/row']
+    const $html = $(template())
     if (this.p.hidden) $html.css('display', 'none')
     this.p.container.append($html)
     this.elements = Util.findElements($html, this.selectors)
@@ -20,11 +18,17 @@ export default class Self extends View {
     this.elements.list.on('click', this._onRowClick.bind(this))
     this.p.selection.on('change', this._onSelectionChange.bind(this))
   }
+
+  get selectors () {
+    return {
+      list: '.items-list',
+    }
+  }
   /**
    * populate list with items
    */
   render (itemsMap) {
-    const list = _.map(itemsMap, (value, key) => this._rowTemplate({ value, key })).join('')
+    const list = _.map(itemsMap, (value, key) => rowTemplate({ value, key })).join('')
     this.elements.list.html(list)
   }
   /**

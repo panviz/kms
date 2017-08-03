@@ -2,6 +2,8 @@
  * Base object for views
  * @event focus fires on view gain focus
  */
+import EventEmitter from 'eventemitter3'
+
 export default class Self extends EventEmitter {
   constructor (p = {}) {
     super()

@@ -5,7 +5,7 @@
 import _ from 'lodash'
 import Raw from '../raw/index'
 
-export default class Self {
+export default class APIServer {
   constructor (p = {}) {
     this.p = p
 

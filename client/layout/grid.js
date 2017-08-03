@@ -8,14 +8,14 @@ import Layout from './layout'
  * @param Point p.offset {x,y} coordinates where to place first node
  * @param Object p.node {width, height} of node (add to spacing when calculating next node position)
  */
-export default function Self(p) {
+export default function Grid (p) {
   Layout.call(this, p)
   var self = this
   self.name = 'Grid'
 }
-Self.prototype = Object.create(Layout.prototype)
+Grid.prototype = Object.create(Layout.prototype)
 
-Self.prototype.run = function (items) {
+Grid.prototype.run = function (items) {
   var self = this
   var offset = self.p.offset || {x:0, y:0}
   if (!self.p.spacing) self.p.spacing = 0

@@ -1,18 +1,21 @@
 import View from '../view'
 import Util from '../../../core/util'
+import template from './editor.html'
 
-export default class Self extends View {
+export default class Editor extends View {
   constructor (p) {
     super(p)
     this._item = {}
-    this.selectors = {
-      text: 'textarea',
-    }
-    const $html = $(G.Templates['view/editor/editor']())
+    const $html = $(template())
     if (this.p.hidden) $html.css('display', 'none')
     this.p.container.append($html)
     this.elements = Util.findElements($html, this.selectors)
     this.elements.text.on('input', this._onChange.bind(this))
+  }
+  get selectors () {
+    return {
+      text: 'textarea',
+    }
   }
   /**
    * @param ID key of item to edit

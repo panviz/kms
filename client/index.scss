@@ -2,23 +2,9 @@
 @import 'style/style';
 @import 'style/sidebar';
 
-@import 'ui/actions-panel/panel';
-@import 'ui/search/search';
-@import 'ui/linked-list/linked-list';
-@import 'ui/main-menu/menu';
-
-@import 'view/graph/graph';
-@import 'view/list/list';
-@import 'view/editor/editor';
-
-@import 'behavior/pan/pan';
-@import 'behavior/selection/selectioning';
-@import 'behavior/selection/rectangular';
-@import 'behavior/drag/drag';
-
-$mdi-font-path: '/client/fonts';
+$mdi-font-path: '../node_modules/mdi/fonts';
 @import '../node_modules/mdi/scss/materialdesignicons';
 
-$fa-font-path: '/client/fonts';
+$fa-font-path: '../node_modules/font-awesome/fonts';
 @import '../node_modules/font-awesome/scss/font-awesome';
 @import './style/material';

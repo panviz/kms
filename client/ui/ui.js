@@ -26,17 +26,12 @@ const _actions = [
   /* eslint-enable */
 ]
 
-export default class Self {
+export default class UI {
   constructor (p = {}) {
     this.actionman = new Actionman()
     this.p = p
     this.selection = p.selection
 
-    this.selectors = {
-      header: 'header',
-      container: '.container',
-      sidebar: '.sidebar',
-    }
     this.elements = Util.findElements('body', this.selectors)
 
     const graphViewSet = {
@@ -81,6 +76,14 @@ export default class Self {
     setTimeout(() => {
       _.each(this.actions, action => this.actionman.set(action, this.p.itemman))
     })
+  }
+
+  get selectors () {
+    return {
+      header: 'header',
+      container: '.container',
+      sidebar: '.sidebar',
+    }
   }
   /**
    * Hide secondary views on empty selection

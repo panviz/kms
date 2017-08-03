@@ -5,11 +5,11 @@ import _ from 'lodash'
 import csv from 'csv'
 import Graph from '../graph/index'
 
-export default function Self (p = {}) {}
+export default function CSV (p = {}) {}
 /**
  * parse each line as Item
  */
-Self.prototype.read = function (source, p) {
+CSV.prototype.read = function (source, p) {
   const graph = new Graph
 
   return new Promise((resolve, reject) => {
@@ -34,5 +34,5 @@ Self.prototype.read = function (source, p) {
   })
 }
 
-Self.prototype.write = function () {
+CSV.prototype.write = function () {
 }

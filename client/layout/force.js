@@ -4,10 +4,10 @@
  * perform additional transition animation to decrease jitter
  */
 import Layout from './layout'
-import webcola from 'webcola'
+import { d3adaptor } from 'webcola'
 import Util from '../../core/util'
 
-export default class Self extends Layout {
+export default class Force extends Layout {
   constructor (p) {
     super(p)
     this.name = 'Force directed'
@@ -33,7 +33,7 @@ export default class Self extends Layout {
    */
   update (graph, enteredNodes) {
     // recreate new adaptor due to https://github.com/tgdwyer/WebCola/wiki/Troubleshooting
-    this._force = webcola.d3adaptor()
+    this._force = d3adaptor(d3)
       .linkDistance(100)
       .avoidOverlaps(true)
       .size([this.width, this.height])

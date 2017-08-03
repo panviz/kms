@@ -3,7 +3,9 @@
  * @event enable
  * @event disable
  */
-export default class Self extends EventEmitter {
+import EventEmitter from 'eventemitter3'
+
+export default class Action extends EventEmitter {
   constructor (p = {}) {
     super()
     this.registrar = p.registrar

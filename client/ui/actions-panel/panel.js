@@ -1,25 +1,22 @@
 /**
  * Actions panel control
  */
+import EventEmitter from 'eventemitter3'
 import Util from '../../../core/util'
+import template from './panel.html'
+import groupTemplate from './group.html'
+import actionTemplate from './action.html'
+import './panel.scss'
 
-export default class Self extends EventEmitter {
+export default class ActionsPanel extends EventEmitter {
   constructor (p = {}) {
     super()
     this.p = p
-    this.selectors = {
-      panel: '.actions-panel',
-      group: '.group',
-      action: '.action',
-    }
     this.actions = this.p.actions
 
-    const $html = $(G.Templates['ui/actions-panel/panel']())
+    const $html = $(template())
     this.p.container.append($html)
     this.elements = Util.findElements($html, this.selectors)
-
-    this.actionTemplate = G.Templates['ui/actions-panel/action']
-    this.groupTemplate = G.Templates['ui/actions-panel/group']
 
     _.each(this.actions, function (action) {
       this.addMenuItem(action)
@@ -28,18 +25,26 @@ export default class Self extends EventEmitter {
     this.elements.root.on('click', this.selectors.group, this._onGroupClick.bind(this))
   }
 
+  get selectors () {
+    return {
+      panel: '.actions-panel',
+      group: '.group',
+      action: '.action',
+    }
+  }
+
   addMenuItem (action) {
     action.on('enable', this.enableMenuItem.bind(this, action))
     action.on('disable', this.disableMenuItem.bind(this, action))
     action.on('show', this.addMenuItem.bind(this, action))
     action.on('hide', this.removeMenuItem.bind(this, action))
 
-    const actionHTML = this.actionTemplate(action)
+    const actionHTML = actionTemplate(action)
     const $actionHTML = $(actionHTML).toggleClass('enabled', action.isEnabled())
     const group = action.group || 'main'
     let $group = this.elements.root.find(`.${group}`)
     if (_.isEmpty($group)) {
-      $group = $(this.groupTemplate({ group }))
+      $group = $(groupTemplate({ group }))
       this.elements.root.append($group)
     }
     $group.find('.actions').append($actionHTML)

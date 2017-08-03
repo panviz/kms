@@ -1,15 +1,15 @@
 /**
  * Client application is run in browser
  */
-import co from 'co'
 import Util from '../core/util'
 import ClientUtil from './util' //eslint-disable-line
 import Provider from '../provider/api.client/index'
 import Collection from '../core/collection'
 import UI from './ui/ui'
 import Graph from '../provider/graph/index'
+import './index.scss'
 
-class Self {
+class App {
   constructor () {
     this.rootKey = '00000000-0000-4000-8000-000000000000'
     this._itemtypes = ['tag', 'note']
@@ -29,7 +29,7 @@ class Self {
     this.ui = new UI({ itemman: this, selection: this.selection })
     this.ui.search.on('update', this._onSearch.bind(this))
 
-    co(this._loadRepo())
+    this._loadRepo()
   }
 
   showChildren (keyS) {
@@ -116,9 +116,9 @@ class Self {
   /**
    * Populate view with user data from previous time
    */
-  *_loadRepo () {
-    let graph = yield this.provider.request('getGraph', this.rootKey, 1)
-    if (_.isEmpty(graph.getItemsMap())) yield this._initRepo()
+  async _loadRepo () {
+    let graph = await this.provider.request('getGraph', this.rootKey, 1)
+    if (_.isEmpty(graph.getItemsMap())) await this._initRepo()
     else {
       _.each(this._serviceItems.concat(this._itemtypes), (item) => {
         this.serviceItem[item] = graph.search(this.rootKey, item)[0]
@@ -126,7 +126,7 @@ class Self {
       this.serviceItem.root = this.rootKey
     }
 
-    graph = yield this.provider.request('getGraph', this.serviceItem.visibleItem, 1)
+    graph = await this.provider.request('getGraph', this.serviceItem.visibleItem, 1)
     this._filter(graph)
     const keys = graph.getItemKeys()
     this.visibleItems.add(keys)
@@ -211,6 +211,4 @@ class Self {
   }
 }
 
-const templates = G.Templates
-G = new Self()
-G.Templates = templates
+window.G = new App()

@@ -2,8 +2,11 @@
  * Main app menu
  */
 import Util from '../../../core/util'
+import template from './menu.html'
+import './menu.scss'
+import './menu.svg'
 
-export default function Self (p) {
+export default function Menu (p) {
   this.p = p || {}
 
   this.selectors = {
@@ -30,7 +33,7 @@ export default function Self (p) {
       url: '/graphitabs.html',
     },
   ]
-  const $html = $(G.Templates['ui/main-menu/menu']({ items: this._menuItems }))
+  const $html = $(template({ items: this._menuItems }))
   this.p.container.append($html)
   this.elements = Util.findElements($html, this.selectors)
 }

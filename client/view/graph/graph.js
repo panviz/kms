@@ -13,6 +13,7 @@ import RectSelectioning from '../../behavior/selection/rectangular'
 import Pan from '../../behavior/pan/pan'
 import Drag from '../../behavior/drag/drag'
 import Util from '../../../core/util'
+import template from './graph.html'
 /**
  * @param Object p.node Default spatial parameters for rendering node
  * @inner Graph _graph rendered last time
@@ -20,7 +21,7 @@ import Util from '../../../core/util'
  * @inner Array _nodes d3 selection of DOM nodes
  * @inner Array _edges d3 selection of DOM edges
  */
-export default class Self extends View {
+export default class Graph extends View {
   constructor (p) {
     super(p)
 
@@ -28,17 +29,7 @@ export default class Self extends View {
     this.actionman = p.actionman
     this.selection = p.selection
 
-    this.selectors = {
-      svg: 'svg',
-      canvas: 'svg .canvas',
-      edgeGroup: '.edgeGroup',
-      nodeGroup: '.nodeGroup',
-      link: '.link',
-      node: '.node',
-      hidden: '.hide',
-      selected: '.selected',
-    }
-    const $html = $(G.Templates['view/graph/graph']())
+    const $html = $(template())
     this.p.container.append($html)
     this.elements = Util.findElements($html, this.selectors)
 
@@ -54,9 +45,9 @@ export default class Self extends View {
       },
     }
     this._graph = undefined
-    this._items = []
-    this._edges = []
-    this._nodes = []
+    this._items
+    this._edges
+    this._nodes
 
     this.canvas = d3.select(this.selectors.canvas)
     this.resize()
@@ -67,6 +58,19 @@ export default class Self extends View {
     this.selection.on('remove', this._onDeselect.bind(this))
     this.elements.svg.on('dblclick', this.selectors.node, this._onNodeDblClick.bind(this))
     $(window).on('resize', this.resize.bind(this))
+  }
+
+  get selectors () {
+    return {
+      svg: 'svg',
+      canvas: 'svg .canvas',
+      edgeGroup: '.edgeGroup',
+      nodeGroup: '.nodeGroup',
+      link: '.link',
+      node: '.node',
+      hidden: '.hide',
+      selected: '.selected',
+    }
   }
   /**
    * initialize all available layouts in view
@@ -153,7 +157,7 @@ export default class Self extends View {
     this._updateNodes()
     this._exitNodes()
 
-    this.layout.update(graph, this._enteredNodes[0])
+    this.layout.update(graph, this._enteredNodes.nodes())
 
     // init edges only after its coord are ready
     this._edges = this.canvas.select(this.selectors.edgeGroup)
@@ -256,7 +260,7 @@ export default class Self extends View {
   _updatePosition () {
     const items = this._items
     const coords = this.layout.getCoords()
-    _.each(this._nodes[0], (node) => {
+    _.each(this._nodes.nodes(), (node) => {
       const $node = $(node)
       const item = node.__data__
       const coord = coords[items.indexOf(item)]
@@ -291,7 +295,7 @@ export default class Self extends View {
   _onNodeMove (delta) {
     const keys = this.selection.getAll()
     _.each(keys, (key) => {
-      const node = _.find(this._nodes[0], _node => _node.__data__ === key)
+      const node = _.find(this._nodes.nodes(), _node => _node.__data__ === key)
       const item = node.__data__
       d3.select(node).append('image')
         .attr('x', 0)
@@ -309,14 +313,14 @@ export default class Self extends View {
 
   _onSelect (keys) {
     _.each(keys, (key) => {
-      const node = _.find(this._nodes[0], _node => _node.__data__ === key)
+      const node = _.find(this._nodes.nodes(), _node => _node.__data__ === key)
       if (node) node.classList.add(this.selectors.selected.slice(1))
     })
   }
 
   _onDeselect (keys) {
     _.each(keys, (key) => {
-      const node = _.find(this._nodes[0], _node => _node.__data__ === key)
+      const node = _.find(this._nodes.nodes(), _node => _node.__data__ === key)
       if (node) node.classList.remove(this.selectors.selected.slice(1))
     })
   }
