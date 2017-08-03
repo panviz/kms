@@ -1,8 +1,11 @@
 /**
- * Server Application
+ * Server Instance
  */
+import _ from 'lodash'
 import express from 'express'
 import Path from 'path'
+import App from './app'
+import Raw from '../provider/raw/index'
 import APIServer from '../provider/api.server/index'
 import bodyParser from 'body-parser'
 import multer from 'multer'
@@ -15,11 +18,19 @@ class Self {
   constructor () {
     this.p = config
     this.p.version = packageConf.version
-    this.provider = new APIServer({
-      source: this.p.repository.path,
-      target: this.p.repository.path,
-      provider: this.p.repository.provider,
-    })
+    this.provider = Raw
+    this.provider.read(this.p.repository.path)
+      .then((graph) => {
+        this.graph = graph
+        console.info(`Serving items total: ${graph.getItemKeys().length} from ${this.p.repository.path}`)
+        this.apiServerProvider = new APIServer({
+           source: this.p.repository.path,
+           target: this.p.repository.path,
+           graph: this.graph,
+           provider: this.provider
+        })
+        this.app = new App(this.graph)
+      })
 
     this.server = express()
     this.server.use(bodyParser.json())
@@ -38,7 +49,9 @@ class Self {
   initRoutes (req, res) {
     this.server.get('/', this._onRootRequest.bind(this))
     this.server.get(/client*/, this._onResourceRequest.bind(this))
-    this.server.post(/item/, upload.array(), this._onAppRequest.bind(this))
+    this.server.post(/item/, upload.array(), this._onAPIRequest.bind(this))
+    this.server.post(/find/, upload.array(), this._onAppRequest.bind(this))
+    this.server.get(/tags/, this._onAppSelectInit.bind(this))
     this.server.get(/^(.+)$/, this._onOtherRequest.bind(this))
   }
 
@@ -55,7 +68,23 @@ class Self {
   }
 
   _onAppRequest (req, res) {
-    this.provider.request(req.body)
+    console.log('send', req.body.args)
+    this.app[req.body.method](req.body.args)
+      .then((data) => {
+        res.send(data)
+      })
+  }
+
+  _onAppSelectInit(req, res){
+    let query = req.query.q
+    this.app.initAutocomplite(query)
+      .then(data => {
+        res.send(JSON.stringify(data))
+      })
+  }
+
+  _onAPIRequest (req, res) {
+    this.apiServerProvider.request(req.body)
       .then((data) => {
         res.send(data)
       })

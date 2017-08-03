@@ -3,6 +3,7 @@
 
   .small & .mdl-button {
     min-width: 0;
+    height: auto;
   }
 
   .group > span {
@@ -46,7 +47,7 @@
       }
       .small & {
         padding: 0;
-        height: 48px;
+        min-height: 48px;
       }
       i {
         padding: 0 8px;

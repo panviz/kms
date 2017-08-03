@@ -20,19 +20,21 @@ class Self {
 
     // IDs array of visible items
     this.visibleItems = new Collection()
+    this.tagItems = new Collection()
+    this.noteItems = new Collection()
     const providerSet = {
       url: '/item',
     }
     this.provider = new Provider(providerSet)
 
     this.selection.on('change', this._onSelect.bind(this))
-    this.ui = new UI({ itemman: this, selection: this.selection })
-    this.ui.search.on('update', this._onSearch.bind(this))
+    this.ui = new UI({ itemman: this, selection: this.selection})
+    this.ui.search.on('search', this._onSearch.bind(this))
 
-    co(this._loadRepo())
+    this._loadRepo()
   }
 
-  showChildren (keyS) {
+  showChildren (keyS, actionLabel) {
     const keys = Util.pluralize(keyS)
 
     // TODO multiple
@@ -44,6 +46,7 @@ class Self {
         const linkedKeys = graph.getItemKeys()
         this.visibleItems.add(linkedKeys)
 
+        this.ui.linkedList.setTitle(actionLabel)
         this.ui.linkedList.show()
 
         // TODO when one view on common container is changed fire event and resize others
@@ -51,7 +54,7 @@ class Self {
       })
   }
 
-  createItem () {
+  createItem (p = {}) {
     const selected = this.selection.getAll()
     let updatesCounter = selected.length
     this.provider.request('set')
@@ -67,6 +70,14 @@ class Self {
         } else {
           this.visibleItems.add(key)
           this.selection.add(key)
+        }
+        if(p === 'tag') {
+          this.provider.request('associate', key, this.serviceItem.tag)
+          this.tagItems.add(key)
+        }
+        if(p === 'note') {
+          this.provider.request('associate', key, this.serviceItem.note)
+          this.noteItems.add(key)
         }
       })
   }
@@ -113,27 +124,40 @@ class Self {
   visibleLinked (parent) {
     return this._graph.getLinked(parent)
   }
+
   /**
    * Populate view with user data from previous time
    */
-  *_loadRepo () {
-    let graph = yield this.provider.request('getGraph', this.rootKey, 1)
-    if (_.isEmpty(graph.getItemsMap())) yield this._initRepo()
-    else {
-      _.each(this._serviceItems.concat(this._itemtypes), (item) => {
-        this.serviceItem[item] = graph.search(this.rootKey, item)[0]
-      })
-      this.serviceItem.root = this.rootKey
+  async _loadRepo () {
+    try {
+      let graph = await this.provider.request('getGraph', this.rootKey, 1)
+      if (_.isEmpty(graph.getItemsMap())) await this._initRepo()
+      else {
+        _.each(this._serviceItems.concat(this._itemtypes), (item) => {
+          this.serviceItem[item] = graph.search(this.rootKey, item)[0]
+        })
+        this.serviceItem.root = this.rootKey
+      }
+
+      graph = await this.provider.request('getGraph', this.serviceItem.visibleItem, 1)
+      const tagLink = await this.provider.request('getLinked', this.serviceItem.tag)
+      const noteLink = await this.provider.request('getLinked', this.serviceItem.note)
+      this._filter(graph)
+      this._filter(tagLink)
+      this._filter(noteLink)
+      const keys = graph.getItemKeys()
+      this.visibleItems.add(keys)
+      this.tagItems.add(tagLink)
+      this.noteItems.add(noteLink)
+      this._updateGraphView(graph, {tags: tagLink, note: noteLink})
+
+      this.visibleItems.on('change', this._reloadGraph.bind(this))
+      this.visibleItems.on('add', this._onVisibleItemsAdd.bind(this))
+      this.visibleItems.on('remove', this._onVisibleItemsRemove.bind(this))
+    }catch(e) {
+      console.log(e)
     }
 
-    graph = yield this.provider.request('getGraph', this.serviceItem.visibleItem, 1)
-    this._filter(graph)
-    const keys = graph.getItemKeys()
-    this.visibleItems.add(keys)
-    this._updateGraphView(graph)
-    this.visibleItems.on('change', this._reloadGraph.bind(this))
-    this.visibleItems.on('add', this._onVisibleItemsAdd.bind(this))
-    this.visibleItems.on('remove', this._onVisibleItemsRemove.bind(this))
   }
 
   _initRepo () {
@@ -164,13 +188,25 @@ class Self {
     } else if (keys.length === 0) this.ui.hideSecondaryViews()
   }
 
-  _onSearch (data) {
-    this.provider.request('find', data.str, data.flags)
-      .then(keys => {
-        this.visibleItems.add(keys)
+  _onSearch (data){
+    const promise = new Promise((resolve, reject) => {
+      const request = $.post({
+        url: '/find',
+        data: {
+          method: 'findNodesByTags',
+          args: JSON.stringify(data),
+        },
       })
+      request.then((data) => {
+        _.each(data, (value, key) => {
+          this.selection.add(key)
+        })
+        this.ui.linkedList.setTitle('search by tags')
+        this.ui.linkedList.show()
+        this.ui.linkedList.render(data)
+      })
+    })
   }
-
   _onVisibleItemsRemove (keys) {
     this.selection.remove(keys)
     this.provider.request('setDisassociate', this.serviceItem.visibleItem, keys)
@@ -184,17 +220,20 @@ class Self {
   /**
    * Sync graph with server
    */
+
   _reloadGraph () {
+    // TODO get only required notes and tags
     const keys = this.visibleItems.getAll()
     this.provider.request('getGraph', keys)
       .then(graph => {
-        this._updateGraphView(graph)
-      })
+          this._updateGraphView(graph, {tags: this.tagItems._items, note: this.noteItems._items})
+        })
+
   }
 
-  _updateGraphView (graph) {
+   _updateGraphView (graph, links) {
     this._graph = graph
-    this.ui.graphView.render(graph)
+    this.ui.graphView.render(graph, links)
   }
 
   _filter (data) {
@@ -207,7 +246,8 @@ class Self {
       graph.remove(serviceKeys)
       return graph
     }
-    return _.without(keys, serviceKeys)
+    _.pullAll(keys, serviceKeys)
+    return keys
   }
 }
 

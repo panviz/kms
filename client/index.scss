@@ -19,6 +19,11 @@
 $mdi-font-path: '/client/fonts';
 @import '../node_modules/mdi/scss/materialdesignicons';
 
+@import '../node_modules/select2/src/scss/_dropdown';
+@import '../node_modules/select2/src/scss/_multiple';
+@import '../node_modules/select2/src/scss/_single';
+@import '../node_modules/select2/src/scss/core';
+
 $fa-font-path: '/client/fonts';
 @import '../node_modules/font-awesome/scss/font-awesome';
 @import './style/material';

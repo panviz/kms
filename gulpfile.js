@@ -130,7 +130,9 @@ gulp.task('styles', () => {
 gulp.task('template', () => {
   gulp.src(path.template)
     .pipe(tap((file, t) => {
+
       file.path = Path.relative(file.base, file.path) //eslint-disable-line
+      //console.log(file.path);
     }))
     .pipe(handlebars({
       handlebars: Handlebars,
@@ -139,7 +141,12 @@ gulp.task('template', () => {
     .pipe(declare({
       namespace: 'G.Templates',
       processName (filePath) {
-        // strip .js extension out
+        //replacing \ for windows on /
+        if(Path.sep === '\\'){
+          const regexp = new RegExp('\\\\', "g");
+          // strip .js extension out
+          return filePath.slice(0, -3).replace(regexp, '/')
+        }
         return filePath.slice(0, -3)
       },
       noRedeclare: true,

@@ -3,7 +3,11 @@
   padding: 0;
   border: 1px solid grey;
   overflow: hidden;
-
+  h4 {
+    padding: 5px;
+    margin: 0;
+    display: none
+  }
   .items-list {
     margin: 0;
     padding: 0;

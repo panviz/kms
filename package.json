@@ -67,12 +67,14 @@
     "moment": "2.14.1",
     "multer": "1.1.0",
     "plusjs": "git+https://github.com/Dmitra/plusjs.git",
+    "select2": "^4.0.3",
     "to-markdown": "2.0.1",
     "webcola": "git+https://github.com/tgdwyer/WebCola.git#7c47ad8e6e6a3f1ef87df13378b3b3caba3839e8"
   },
   "devDependencies": {
     "babel": "6.5.2",
     "babel-cli": "6.6.5",
+    "babel-preset-es2015": "^6.24.1",
     "babel-preset-node6": "11.0.0",
     "babelify": "7.2.0",
     "chalk": "1.1.3",

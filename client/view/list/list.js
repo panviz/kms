@@ -10,6 +10,7 @@ export default class Self extends View {
     super(p)
     this.selectors = {
       list: '.items-list',
+      title: '.title',
     }
     const $html = $(G.Templates['view/list/list']())
     this._rowTemplate = G.Templates['view/list/row']
@@ -45,5 +46,15 @@ export default class Self extends View {
     _.each(selection, (key) => {
       this.elements.list.find(`li[data-key="${key}"]`).toggleClass('selected')
     })
+  }
+
+  setTitle (title) {
+    this.title = title
+    this._showTitle()
+  }
+
+  _showTitle() {
+    this.elements.title.text(this.title)
+    this.elements.title.show()
   }
 }
