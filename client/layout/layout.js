@@ -3,7 +3,7 @@
  */
 import EventEmitter from 'eventemitter3'
 
-export default class Self extends EventEmitter {
+export default class Layout extends EventEmitter {
   constructor (p = {}) {
     super()
     this.p = p

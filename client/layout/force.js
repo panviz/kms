@@ -3,8 +3,8 @@
  * with constraints implemented with WebCola to decrease jitter and avoid nodes overlap
  * perform additional transition animation to decrease jitter
  */
-import Layout from './layout'
 import { d3adaptor } from 'webcola'
+import Layout from './layout'
 import Util from '../../core/util'
 
 export default class Force extends Layout {
@@ -125,8 +125,8 @@ export default class Force extends Layout {
     const shape = this._shapes[this._items.indexOf(item)]
     shape.px = shape.x
     shape.py = shape.y
-    shape.x = shape.x + delta.x
-    shape.y = shape.y + delta.y
+    shape.x += delta.x
+    shape.y += delta.y
   }
   /**
    * on internal force layout iteration tick

@@ -1,17 +1,21 @@
 /**
  * Server Application
  */
+import webpack from 'webpack'
+import webpackMiddleware from 'webpack-dev-middleware'
 import express from 'express'
 import Path from 'path'
-import APIServer from '../provider/api.server/index'
 import bodyParser from 'body-parser'
 import multer from 'multer'
 import chalk from 'chalk'
+import webpackConfig from '../webpack.config.babel'
+import APIServer from '../provider/api.server/index'
+
 const upload = multer() // for parsing multipart/form-data
 const config = require('./config.json')
 const packageConf = require('../package.json')
 
-class Self {
+class Server {
   constructor () {
     this.p = config
     this.p.version = packageConf.version
@@ -36,8 +40,24 @@ class Self {
   }
 
   initRoutes (req, res) {
+    // TODO use environment variable
+    process.ENV = 'DEV'
+    if (process.ENV === 'DEV') {
+      const webpackOptions = {
+        entry: './client/app.js',
+        output: {
+          path: '/',
+        }
+      }
+      const wmOptions = {
+        index: 'client/index.html',
+        publicPath: '/',
+      }
+      this.server.use(webpackMiddleware(webpack(webpackConfig()), wmOptions))
+    } else {
+      this.server.get(/build*/, this._onResourceRequest.bind(this))
+    }
     this.server.get('/', this._onRootRequest.bind(this))
-    this.server.get(/client*/, this._onResourceRequest.bind(this))
     this.server.post(/item/, upload.array(), this._onAppRequest.bind(this))
     this.server.get(/^(.+)$/, this._onOtherRequest.bind(this))
   }
@@ -66,4 +86,5 @@ class Self {
     res.sendFile(Path.join(this.p.static + req.params[0]))
   }
 }
-export default new Self
+
+export default new Server

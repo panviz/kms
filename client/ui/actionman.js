@@ -3,7 +3,7 @@
  */
 import EventEmitter from 'eventemitter3'
 
-export default class Self extends EventEmitter {
+export default class Actionman extends EventEmitter {
   constructor (p = {}) {
     super()
     this._instances = {}
