@@ -21,19 +21,11 @@ class Server {
   constructor () {
     this.p = config
     this.p.version = packageConf.version
-    this.provider = Raw
-    this.provider.read(this.p.repository.path)
-      .then((graph) => {
-        this.graph = graph
-        console.info(`Serving items total: ${graph.getItemKeys().length} from ${this.p.repository.path}`)
-        this.apiServerProvider = new APIServer({
-           source: this.p.repository.path,
-           target: this.p.repository.path,
-           graph: this.graph,
-           provider: this.provider
-        })
-        this.app = new App(this.graph)
-      })
+    this.provider = new APIServer({
+      source: this.p.repository.path,
+      target: this.p.repository.path,
+      provider: this.p.repository.provider,
+    })
 
     this.server = express()
     this.server.use(bodyParser.json())
