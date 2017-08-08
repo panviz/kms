@@ -14,11 +14,7 @@ export default class Search extends EventEmitter {
       input: 'input[type="text"]',
       ignoreCase: 'input[name="ignoreCase"]',
     }
-<<<<<<< HEAD
     const $html = $(template())
-=======
-    const $html = $(G.Templates['ui\\search\\search']())
->>>>>>> 959dd01... add itemType tag and note
     this.p.container.append($html)
     this.elements = Util.findElements($html, this.selectors)
 
