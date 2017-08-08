@@ -13,7 +13,7 @@ export default class Expand extends Action {
 
   _execute () {
     const keys = this.registrar.selection.getAll()
-    this.registrar.showChildren(keys)
+    this.registrar.showChildren(keys, this.label)
   }
 
   evaluate (selection) {

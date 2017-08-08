@@ -28,14 +28,13 @@ class App {
     this.provider = new Provider(providerSet)
 
     this.selection.on('change', this._onSelect.bind(this))
-    this.ui = new UI({ itemman: this, selection: this.selection, tags: this.visibleItems })
- //   this.ui.search.on('update', this._onSearch.bind(this))
-    this.ui.search.on('searchTag', this._onSearchTag.bind(this))
+    this.ui = new UI({ itemman: this, selection: this.selection})
+    this.ui.search.on('search', this._onSearch.bind(this))
 
     this._loadRepo()
   }
 
-  showChildren (keyS) {
+  showChildren (keyS, actionLabel) {
     const keys = Util.pluralize(keyS)
 
     // TODO multiple
@@ -47,6 +46,7 @@ class App {
         const linkedKeys = graph.getItemKeys()
         this.visibleItems.add(linkedKeys)
 
+        this.ui.linkedList.setTitle(actionLabel)
         this.ui.linkedList.show()
 
         // TODO when one view on common container is changed fire event and resize others
@@ -124,27 +124,39 @@ class App {
   visibleLinked (parent) {
     return this._graph.getLinked(parent)
   }
+
   /**
    * Populate view with user data from previous time
    */
   async _loadRepo () {
-    let graph = await this.provider.request('getGraph', this.rootKey, 1)
-    if (_.isEmpty(graph.getItemsMap())) await this._initRepo()
-    else {
-      _.each(this._serviceItems.concat(this._itemtypes), (item) => {
-        this.serviceItem[item] = graph.search(this.rootKey, item)[0]
-      })
-      this.serviceItem.root = this.rootKey
-    }
+    try {
+      let graph = await this.provider.request('getGraph', this.rootKey, 1)
+      if (_.isEmpty(graph.getItemsMap())) await this._initRepo()
+      else {
+        _.each(this._serviceItems.concat(this._itemtypes), (item) => {
+          this.serviceItem[item] = graph.search(this.rootKey, item)[0]
+        })
+        this.serviceItem.root = this.rootKey
+      }
 
-    graph = await this.provider.request('getGraph', this.serviceItem.visibleItem, 1)
-    this._filter(graph)
-    const keys = graph.getItemKeys()
-    this.visibleItems.add(keys)
-    this._updateGraphView(graph)
-    this.visibleItems.on('change', this._reloadGraph.bind(this))
-    this.visibleItems.on('add', this._onVisibleItemsAdd.bind(this))
-    this.visibleItems.on('remove', this._onVisibleItemsRemove.bind(this))
+      graph = await this.provider.request('getGraph', this.serviceItem.visibleItem, 1)
+      const tagLink = await this.provider.request('getLinked', this.serviceItem.tag)
+      const noteLink = await this.provider.request('getLinked', this.serviceItem.note)
+      this._filter(graph)
+      this._filter(tagLink)
+      this._filter(noteLink)
+      const keys = graph.getItemKeys()
+      this.visibleItems.add(keys)
+      this.tagItems.add(tagLink)
+      this.noteItems.add(noteLink)
+      this._updateGraphView(graph, {tags: tagLink, note: noteLink})
+
+      this.visibleItems.on('change', this._reloadGraph.bind(this))
+      this.visibleItems.on('add', this._onVisibleItemsAdd.bind(this))
+      this.visibleItems.on('remove', this._onVisibleItemsRemove.bind(this))
+    }catch(e) {
+      console.log(e)
+    }
   }
 
   _initRepo () {
@@ -175,15 +187,7 @@ class App {
     } else if (keys.length === 0) this.ui.hideSecondaryViews()
   }
 
- /* _onSearch (data) {
-    this.provider.request('find', data.str, data.flags)
-      .then(keys => {
-        this.visibleItems.add(keys)
-      })
-  }*/
-
-  _onSearchTag (data){
-    data.root = this.serviceItem.tag
+  _onSearch (data){
     const promise = new Promise((resolve, reject) => {
       const request = $.post({
         url: '/find',
@@ -193,32 +197,15 @@ class App {
         },
       })
       request.then((data) => {
+        _.each(data, (value, key) => {
+          this.selection.add(key)
+        })
+        this.ui.linkedList.setTitle('search by tags')
         this.ui.linkedList.show()
-
-        this.ui.linkedList.render(data, 'search by tags')
-        console.log(data);
-
+        this.ui.linkedList.render(data)
       })
     })
-    /*this.request('findItemsByTags', data)
-      /!*.then(keys => {
-        const result = this._filter(keys)
-        console.log(keys)
-        this.ui.linkedList.show()
-      })*!/
-      .then(p => {
-        console.log(p)
-       let graph = new Graph(p.graph)
-        _.each(p.tags, tag => {
-          graph.remove(tag)
-        })
-        this._filter(graph)
-        this.ui.linkedList.show()
 
-        this.ui.linkedList.render(graph.getItemsMap(), 'search by tags')
-
-      })
-*/
   }
   _onVisibleItemsRemove (keys) {
     this.selection.remove(keys)
@@ -234,16 +221,18 @@ class App {
    * Sync graph with server
    */
   _reloadGraph () {
+    // TODO get only required notes and tags
     const keys = this.visibleItems.getAll()
     this.provider.request('getGraph', keys)
       .then(graph => {
-        this._updateGraphView(graph)
-      })
+          this._updateGraphView(graph, {tags: this.tagItems._items, note: this.noteItems._items})
+        })
+
   }
 
-   _updateGraphView (graph) {
+   _updateGraphView (graph, links) {
     this._graph = graph
-    this.ui.graphView.render(graph)
+    this.ui.graphView.render(graph, links)
   }
 
   _filter (data) {

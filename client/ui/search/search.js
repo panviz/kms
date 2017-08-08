@@ -3,7 +3,6 @@
  */
 import EventEmitter from 'eventemitter3'
 import Util from '../../../core/util'
-
 import template from './search.html'
 
 
@@ -11,40 +10,62 @@ export default class Search extends EventEmitter {
   constructor (p = {}) {
     super()
     this.p = p
-
-    this.selectors = {
-      //input: 'input[type="text"]',
-      //ignoreCase: 'input[name="ignoreCase"]',
-      select2: '#tags',
-      search: '#search',
-    }
     const $html = $(template())
     this.p.container.append($html)
     this.elements = Util.findElements($html, this.selectors)
 
-    this.elements.select2.select2({
-      data: this.p.tags.getAll(),
+    this.elements.select2And.select2({
+      minimumInputLength: 2,
+      ajax: {
+        url: "/tags",
+        dataType: 'json',
+        delay: 250,
+        processResults: data => {
+          return {results: data}
+        },
+        cache: true
+      },
       tags: true,
       tokenSeparators: [',', ' '],
-      placeholder: "Add your tags here"
+      placeholder: "Add your tags here (AND)"
     })
-   // this.elements.input.on('keyup', this._onChange.bind(this))
-   //this.elements.ignoreCase.on('click', this._onChange.bind(this))
-    this.elements.search.on('click', this._onSearch.bind(this))
+    this.elements.select2Or.select2({minimumInputLength: 2,
+      ajax: {
+        url: "/tags",
+        dataType: 'json',
+        delay: 250,
+        processResults: data => {
+          return {results: data}
+        },
+        cache: true
+      },
+      tags: true,
+      tokenSeparators: [',', ' '],
+      placeholder: "Add your tags here (OR)"
+    })
+     this.elements.button.on('click', this._onSearch.bind(this))
+  }
+
+  get selectors () {
+    return  {
+      select2And: '#tags',
+      select2Or: '#value',
+      button: '.button',
+    }
   }
 
   _onSearch (e) {
-    const value = this.elements.select2.val()
-    this.trigger('searchTag', {
-      tags: value
+    const tagValuesAnd = _.map(this.elements.select2And.select2('data'), (obj) => {
+      return obj.text
+    })
+    const tagValuesOr = _.map(this.elements.select2Or.select2('data'), (obj) => {
+      return obj.text
+    })
+
+    this.trigger('search', {
+      tagsAnd: tagValuesAnd,
+      tagsOr: tagValuesOr,
     })
   }
-  /*_onChange (e) {
-    const value = e.target.value
-    if (value.length < 3) return
-    this.trigger('update', {
-      str: value,
-      flags: this.elements.ignoreCase.is(':checked') ? 'i' : '',
-    })
-  }*/
 }
+

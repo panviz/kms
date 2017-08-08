@@ -10,7 +10,9 @@ import rowTemplate from './row.html'
 export default class List extends View {
   constructor (p) {
     super(p)
+
     const $html = $(template())
+
     if (this.p.hidden) $html.css('display', 'none')
     this.p.container.append($html)
     this.elements = Util.findElements($html, this.selectors)
@@ -22,6 +24,7 @@ export default class List extends View {
   get selectors () {
     return {
       list: '.items-list',
+      title: '.title',
     }
   }
   /**
@@ -49,5 +52,15 @@ export default class List extends View {
     _.each(selection, (key) => {
       this.elements.list.find(`li[data-key="${key}"]`).toggleClass('selected')
     })
+  }
+
+  setTitle (title) {
+    this.title = title
+    this._showTitle()
+  }
+
+  _showTitle() {
+    this.elements.title.text(this.title)
+    this.elements.title.show()
   }
 }

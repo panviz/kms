@@ -1,15 +1,13 @@
 <div class='search-bar autocomplete'>
- <!-- <div class="mdl-textfield mdl-js-textfield">
-    <input class="mdl-textfield__input" type="text" id="search-string">
-    <label class="mdl-textfield__label" for="search-string">Search for ...</label>
+  <div class="mdl-textfield mdl-js-textfield">
+    <label class="search-label" for="value">Filter notes by tag (OR)</label>
+    <select id="value" multiple="multiple"></select>
   </div>
-  <input name="ignoreCase" type="checkbox" checked id="case"/>
-  <label for="case">ignore case</label>-->
 
   <div class="mdl-textfield mdl-js-textfield">
-    <label class="search-label" for="tags">Search items for tags</label>
-    <select id="tags" multiple="multiple">
-    </select>
-      <button id="search">search</button>
+    <label class="search-label" for="tags">Search notes by tags (AND)</label>
+    <select id="tags" multiple="multiple"></select>
   </div>
+
+  <button class="button">search</button>
 </div>

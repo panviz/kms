@@ -66,6 +66,8 @@ export default class Graph extends View {
       nodeGroup: '.nodeGroup',
       link: '.link',
       node: '.node',
+      tag: '.tag',
+      note: '.note',
       hidden: '.hide',
       selected: '.selected',
     }
@@ -142,8 +144,9 @@ export default class Graph extends View {
   /**
    * render new graph in the view using current layout
    */
-  render (graph) {
+  render (graph, links) {
     this._graph = graph
+
     this._items = graph.getItemKeys()
 
     // bind DOM nodes to items
@@ -152,7 +155,7 @@ export default class Graph extends View {
       .data(this._items, d => d)
 
     this._enterNodes()
-    this._updateNodes()
+    this._updateNodes(links)
     this._exitNodes()
 
     this.layout.update(graph, this._enteredNodes.nodes())
@@ -171,7 +174,10 @@ export default class Graph extends View {
       this._exitedNodes.classed(this.selectors.hidden.slice(1), true)
       this._exitedEdges.classed(this.selectors.hidden.slice(1), true)
     })
+
     this.updateLayout({ duration: 1000 })
+    //this.illuminationNodes(links)
+
   }
   /**
    * take all available space
@@ -236,11 +242,25 @@ export default class Graph extends View {
   /**
    * update DOM nodes
    */
-  _updateNodes () {
+  _updateNodes (links) {
+
     this._nodes
       .select('text')
       .text(this._getLabel.bind(this))
+
+    this._nodes
+      .select('circle')
+      .attr('fill', (key) => {
+        if(_.indexOf(links.tags, key) != -1){
+          return '#ff00ff'
+        }
+        if(_.indexOf(links.note, key) != -1){
+          return '#00ff00'
+        }
+        return 'rgb(215, 236, 251)'
+      })
   }
+
   /**
    * remove DOM nodes
    */
@@ -278,6 +298,9 @@ export default class Graph extends View {
     })
   }
 
+  _getColor (key) {
+
+  }
   _getLabel (key) {
     let value = this._graph.get(key)
     value = value.substr(0, value.indexOf('\n')) || value
@@ -326,4 +349,5 @@ export default class Graph extends View {
   _onNodeDblClick (e) {
     this.actionman.get('itemShowChildren').apply()
   }
+
 }
