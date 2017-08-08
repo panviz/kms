@@ -14,6 +14,7 @@ import Pan from '../../behavior/pan/pan'
 import Drag from '../../behavior/drag/drag'
 import Util from '../../../core/util'
 import template from './graph.html'
+import './graph.scss'
 /**
  * @param Object p.node Default spatial parameters for rendering node
  * @inner Graph _graph rendered last time
@@ -45,9 +46,6 @@ export default class Graph extends View {
       },
     }
     this._graph = undefined
-    this._items
-    this._edges
-    this._nodes
 
     this.canvas = d3.select(this.selectors.canvas)
     this.resize()
@@ -260,7 +258,7 @@ export default class Graph extends View {
   _updatePosition () {
     const items = this._items
     const coords = this.layout.getCoords()
-    _.each(this._nodes.nodes(), (node) => {
+    _.each(this._nodes.merge(this._enteredNodes).nodes(), (node) => {
       const $node = $(node)
       const item = node.__data__
       const coord = coords[items.indexOf(item)]
@@ -269,7 +267,7 @@ export default class Graph extends View {
 
       // if (item == 'job') console.log(coord.x + ', ' + coord.y);
     })
-    _.each(this._edges[0], (edge) => {
+    _.each(this._edges.merge(this._enteredEdges).nodes(), (edge) => {
       const [source, target] = edge.__data__
       const sCoord = coords[items.indexOf(source)]
       const tCoord = coords[items.indexOf(target)]

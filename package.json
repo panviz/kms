@@ -24,7 +24,7 @@
   "scripts": {
     "build": "webpack --env.prod",
     "build:clean": "rm -rf build/* && yarn run build",
-    "start": "NODE_ENV=DEV babel-node server/instance.js",
+    "start": "cross-env NODE_ENV=DEV babel-node server/instance.js",
     "lint": "eslint .",
     "doc": "jsdoc src -r -d docs",
     "test": "mocha test/unit"
@@ -83,6 +83,7 @@
   },
   "devDependencies": {
     "chalk": "^2.0.1",
+    "cross-env": "^5.0.4",
     "eslint": "^4.3.0",
     "eslint-config-airbnb": "^15.1.0",
     "eslint-plugin-import": "^2.7.0",
