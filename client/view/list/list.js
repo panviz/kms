@@ -6,6 +6,7 @@ import View from '../view'
 import Util from '../../../core/util'
 import template from './list.html'
 import rowTemplate from './row.html'
+import './list.scss'
 
 export default class List extends View {
   constructor (p) {

@@ -236,7 +236,7 @@ class App {
   }
 
   _filter (data) {
-    let graphK
+    let graph
     let keys
     const serviceKeys = _.toArray(this.serviceItem)
     if (data.providerID) graph = data

@@ -6,14 +6,23 @@
     width: 75%;
     margin-left: 24px;
     padding: 16px 0;
-    .mdl-textfield__label:after {
-      bottom: 16px;
+    label {
+      display: block;
+      margin-bottom: 10px;
+    }
+    .select2 {
+      width: 70%;
     }
   }
   &>input[name="ignoreCase"], &>label {
     display: none;
   }
-  #tags {
-    width: 100%;
+  .tags {
+    width: 70%;
+  }
+  button {
+    position: absolute;
+    top: 50%;
+    left: 70%
   }
 }

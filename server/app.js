@@ -5,18 +5,33 @@
 
 import _ from 'lodash'
 import Util from '../core/util'
+import Raw from '../provider/raw/index'
+import APIServer from '../provider/api.server/index'
 
 export default class Self {
-  constructor (graph) {
+  constructor (p) {
     this.rootKey = '00000000-0000-4000-8000-000000000000'
     this._itemtypes = ['tag', 'note']
     this._serviceItems = ['root', 'visibleItem', 'itemtype']
     this.serviceItem = {}
-    this.graph = graph
+    this.p = p
 
-    this._initServiceItems()
+
+
+    this.provider = Raw
+    this.provider.read(this.p.repository.path)
+      .then((graph) => {
+        this.graph = graph
+        console.info(`Serving items total: ${graph.getItemKeys().length} from ${this.p.source}`)
+        this.apiServer = new APIServer( {
+          source: this.p.repository.path,
+          target: this.p.repository.path,
+          graph: this.graph,
+          provider: this.provider
+        })
+        this._initServiceItems()
+      })
   }
-
 
   _initServiceItems(){
     let serviceGraph = this.graph.getGraph(this.rootKey, 1)
@@ -67,9 +82,6 @@ export default class Self {
       resolve(itemsMap)
     })
   }
-
-
-
 
   initAutocomplite(query) {
     return new Promise((resolve, reject) => {

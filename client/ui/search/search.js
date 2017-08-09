@@ -4,6 +4,8 @@
 import EventEmitter from 'eventemitter3'
 import Util from '../../../core/util'
 import template from './search.html'
+import select2 from "../../../node_modules/select2/dist/css/select2.css"
+import './search.scss'
 
 
 export default class Search extends EventEmitter {
@@ -48,8 +50,8 @@ export default class Search extends EventEmitter {
 
   get selectors () {
     return  {
-      select2And: '#tags',
-      select2Or: '#value',
+      select2And: '#tagsAnd',
+      select2Or: '#tagsOr',
       button: '.button',
     }
   }

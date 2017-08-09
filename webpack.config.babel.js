@@ -10,7 +10,7 @@ let fileName = 'bundle'
 const defaultEnv = {dev: true}
 const plugins = []
 const rules = [{
-  test: /\.scss$/,
+  test: /\.(scss|css)$/,
   loader: ExtractTextPlugin.extract({
     fallback: 'style-loader',
     use: ['css-loader', 'sass-loader']
@@ -48,7 +48,7 @@ export default (env = defaultEnv) => {
 
   return {
     entry: {
-      libs: ['webcola', 'jquery.easing', 'eventemitter3'],
+      libs: ['webcola', 'jquery.easing', 'eventemitter3', 'select2'],
       client: './client/app.js',
     },
     output: {

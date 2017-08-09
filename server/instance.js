@@ -11,7 +11,7 @@ import bodyParser from 'body-parser'
 import multer from 'multer'
 import chalk from 'chalk'
 import webpackConfig from '../webpack.config.babel'
-import APIServer from '../provider/api.server/index'
+
 
 const upload = multer() // for parsing multipart/form-data
 const config = require('./config.json')
@@ -21,19 +21,7 @@ class Server {
   constructor () {
     this.p = config
     this.p.version = packageConf.version
-    this.provider = Raw
-    this.provider.read(this.p.repository.path)
-      .then((graph) => {
-        this.graph = graph
-        console.info(`Serving items total: ${graph.getItemKeys().length} from ${this.p.repository.path}`)
-        this.apiServerProvider = new APIServer({
-           source: this.p.repository.path,
-           target: this.p.repository.path,
-           graph: this.graph,
-           provider: this.provider
-        })
-        this.app = new App(this.graph)
-      })
+    this.app = new App(this.p)
 
     this.server = express()
     this.server.use(bodyParser.json())
@@ -66,7 +54,7 @@ class Server {
       this.server.get(/build*/, this._onResourceRequest.bind(this))
     }
     this.server.get('/', this._onRootRequest.bind(this))
-    this.server.post(/item/, upload.array(), this._onAppRequest.bind(this))
+    this.server.post(/item/, upload.array(), this._onAPIRequest.bind(this))
     this.server.post(/find/, upload.array(), this._onAppRequest.bind(this))
     this.server.get(/tags/, this._onAppSelectInit.bind(this))
     this.server.get(/^(.+)$/, this._onOtherRequest.bind(this))
@@ -100,7 +88,8 @@ class Server {
   }
 
   _onAPIRequest (req, res) {
-    this.apiServerProvider.request(req.body)
+    this.app.apiServer.request(req.body)
+  //  this.provider.request(req.body)
       .then((data) => {
         res.send(data)
       })

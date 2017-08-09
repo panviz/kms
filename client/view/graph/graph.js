@@ -248,7 +248,8 @@ export default class Graph extends View {
       .select('text')
       .text(this._getLabel.bind(this))
 
-    this._nodes
+
+    this._nodes.merge(this._enteredNodes)
       .select('circle')
       .attr('fill', (key) => {
         if(_.indexOf(links.tags, key) != -1){
@@ -298,9 +299,6 @@ export default class Graph extends View {
     })
   }
 
-  _getColor (key) {
-
-  }
   _getLabel (key) {
     let value = this._graph.get(key)
     value = value.substr(0, value.indexOf('\n')) || value
@@ -316,7 +314,7 @@ export default class Graph extends View {
   _onNodeMove (delta) {
     const keys = this.selection.getAll()
     _.each(keys, (key) => {
-      const node = _.find(this._nodes.nodes(), _node => _node.__data__ === key)
+      const node = _.find(this._nodes.merge(this._enteredNodes).nodes(), _node => _node.__data__ === key)
       const item = node.__data__
       d3.select(node).append('image')
         .attr('x', 0)
@@ -334,14 +332,14 @@ export default class Graph extends View {
 
   _onSelect (keys) {
     _.each(keys, (key) => {
-      const node = _.find(this._nodes.nodes(), _node => _node.__data__ === key)
+      const node = _.find(this._nodes.merge(this._enteredNodes).nodes(), _node => _node.__data__ === key)
       if (node) node.classList.add(this.selectors.selected.slice(1))
     })
   }
 
   _onDeselect (keys) {
     _.each(keys, (key) => {
-      const node = _.find(this._nodes.nodes(), _node => _node.__data__ === key)
+      const node = _.find(this._nodes.merge(this._enteredNodes).nodes(), _node => _node.__data__ === key)
       if (node) node.classList.remove(this.selectors.selected.slice(1))
     })
   }

@@ -1,6 +1,7 @@
 import View from '../view'
 import Util from '../../../core/util'
 import template from './editor.html'
+import './editor.scss'
 
 export default class Editor extends View {
   constructor (p) {

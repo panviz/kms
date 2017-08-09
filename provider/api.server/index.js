@@ -3,13 +3,14 @@
  * endpoint for api.client module
  */
 import _ from 'lodash'
-import Raw from '../raw/index'
+
 
 export default class APIServer {
-  constructor (p = {}) {
+  constructor (p) {
     this.p = p
     this.graph = p.graph
     this.provider = p.provider
+
   }
 
   request (params) {
