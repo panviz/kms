@@ -6,6 +6,8 @@ function absolute (...args) {
   return path.join(__dirname, ...args)
 }
 
+let fileName = 'bundle'
+let externalFileName = 'exBundle'
 const defaultEnv = {dev: true}
 const plugins = []
 const rules = [{
@@ -51,10 +53,7 @@ export default (env = defaultEnv) => {
     entry: {
       libs: ['webcola', 'jquery.easing', 'eventemitter3', 'select2'],
       client: './client/app.js',
-      libcss: ['./node_modules/select2/dist/css/select2.css',
-               './node_modules/font-awesome/scss/font-awesome.scss',
-               './node_modules/mdi/scss/materialdesignicons.scss',
-              './client/style/material.scss'],
+      libcss: ['./client/style/libs.scss'],
     },
     output: {
       path: absolute('build'),
