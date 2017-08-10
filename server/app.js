@@ -83,19 +83,19 @@ export default class Self {
     })
   }
 
-  initAutocomplite(query) {
+  /**
+   * retrieves tags in select2 consumable format by search query
+   * @param {String} query
+   * @returns {Promise}
+   */
+  searchTags(query) {
     return new Promise((resolve, reject) => {
-      let data = []
-      const serviceKeys = []
-      const nodeHashes = this.graph.search(this.serviceItem.tag, query, 'g')
-      for (let key in this.serviceItem) {
-        serviceKeys.push(this.serviceItem[key])
-      }
-      _.pullAll(nodeHashes, serviceKeys)
+      const tagKeys = this.graph.search(this.serviceItem.tag, query, 'g')
+      const serviceKeys = _.keys(this.serviceItem)
+      _.pullAll(tagKeys, serviceKeys)
 
-      _.each(nodeHashes, (nodeHash) => {
-        const nodeValue = this.graph.get(nodeHash)
-        data.push({id: nodeHash, text: nodeValue})
+      let data = _.map(tagKeys, key => {
+        return {id: key, text: this.graph.get(key)}
       })
       resolve(data)
     })

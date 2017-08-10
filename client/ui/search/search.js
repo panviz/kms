@@ -4,9 +4,7 @@
 import EventEmitter from 'eventemitter3'
 import Util from '../../../core/util'
 import template from './search.html'
-import select2 from "../../../node_modules/select2/dist/css/select2.css"
 import './search.scss'
-
 
 export default class Search extends EventEmitter {
   constructor (p = {}) {

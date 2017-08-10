@@ -1,14 +1,14 @@
 /**
- * List view
+ * Search Result view
  * Items are represented with rows
  */
 import View from '../view'
 import Util from '../../../core/util'
-import template from './list.html'
+import template from './searchResult.html'
 import rowTemplate from './row.html'
-import './list.scss'
+import './searchResult.scss'
 
-export default class List extends View {
+export default class SearchResult extends View {
   constructor (p) {
     super(p)
 

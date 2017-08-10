@@ -140,16 +140,17 @@ class App {
       }
 
       graph = await this.provider.request('getGraph', this.serviceItem.visibleItem, 1)
-      const tagLink = await this.provider.request('getLinked', this.serviceItem.tag)
-      const noteLink = await this.provider.request('getLinked', this.serviceItem.note)
+
+      const tagKeys = await this.provider.request('getLinked', this.serviceItem.tag)
+      const noteKeys = await this.provider.request('getLinked', this.serviceItem.note)
       this._filter(graph)
-      this._filter(tagLink)
-      this._filter(noteLink)
+      this._filter(tagKeys)
+      this._filter(noteKeys)
       const keys = graph.getItemKeys()
       this.visibleItems.add(keys)
-      this.tagItems.add(tagLink)
-      this.noteItems.add(noteLink)
-      this._updateGraphView(graph, {tags: tagLink, note: noteLink})
+      this.tagItems.add(tagKeys)
+      this.noteItems.add(noteKeys)
+      this._updateGraphView(graph, {tags: tagKeys, note: noteKeys})
 
       this.visibleItems.on('change', this._reloadGraph.bind(this))
       this.visibleItems.on('add', this._onVisibleItemsAdd.bind(this))
@@ -200,12 +201,11 @@ class App {
         _.each(data, (value, key) => {
           this.selection.add(key)
         })
-        this.ui.linkedList.setTitle('search by tags')
-        this.ui.linkedList.show()
-        this.ui.linkedList.render(data)
+        this.ui.searchResultList.setTitle('Search by tags')
+        this.ui.searchResultList.show()
+        this.ui.searchResultList.render(data)
       })
     })
-
   }
   _onVisibleItemsRemove (keys) {
     this.selection.remove(keys)
@@ -225,14 +225,14 @@ class App {
     const keys = this.visibleItems.getAll()
     this.provider.request('getGraph', keys)
       .then(graph => {
-          this._updateGraphView(graph, {tags: this.tagItems._items, note: this.noteItems._items})
+          this._updateGraphView(graph, {tags: this.tagItems.getAll(), note: this.noteItems.getAll()})
         })
 
   }
 
-   _updateGraphView (graph, links) {
+   _updateGraphView (graph, itemsKeys) {
     this._graph = graph
-    this.ui.graphView.render(graph, links)
+    this.ui.graphView.render(graph, itemsKeys)
   }
 
   _filter (data) {

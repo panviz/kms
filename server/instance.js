@@ -81,7 +81,7 @@ class Server {
 
   _onAppSelectInit(req, res){
     let query = req.query.q
-    this.app.initAutocomplite(query)
+    this.app.searchTags(query)
       .then(data => {
         res.send(JSON.stringify(data))
       })

@@ -5,6 +5,7 @@ import Util from '../../core/util'
 import Actionman from './actionman'
 import GraphView from '../view/graph/graph'
 import ListView from '../view/list/list'
+import SearchResultView from '../view/searchResult/searchResult'
 import Editor from '../view/editor/editor'
 import Search from './search/search'
 import Menu from './main-menu/menu'
@@ -31,7 +32,6 @@ export default class UI {
     this.actionman = new Actionman()
     this.p = p
     this.selection = p.selection
-    this.tags = p.tags
 
     this.elements = Util.findElements('body', this.selectors)
 
@@ -41,6 +41,12 @@ export default class UI {
       selection: this.selection,
     }
     const listViewSet = {
+      actionman: this.actionman,
+      container: this.elements.container,
+      selection: this.selection,
+      hidden: true,
+    }
+    const searchResultViewSet = {
       actionman: this.actionman,
       container: this.elements.container,
       selection: this.selection,
@@ -58,6 +64,10 @@ export default class UI {
     this.linkedList.on('show', this._layoutViews.bind(this))
     this.linkedList.on('hide', this._layoutViews.bind(this))
 
+    this.searchResultList = new SearchResultView(searchResultViewSet)
+    this.searchResultList.on('show', this._layoutViews.bind(this))
+    this.searchResultList.on('hide', this._layoutViews.bind(this))
+
     this.editor = new Editor(editorSet)
     this.editor.on('hide', () => {
       this.actionman.get('itemSave').apply()
@@ -66,12 +76,13 @@ export default class UI {
     this.editor.on('hide', this._layoutViews.bind(this))
 
     this.search = new Search({ container: this.elements.header})
+
     this.actionsPanel = new ActionsPanel({
       container: this.elements.sidebar,
       actions: this.actionman.getAll(),
     })
     this.actionman.on('add', this.actionsPanel.addMenuItem.bind(this.actionsPanel))
-    // this.menu = new Menu({ container: this.elements.header })
+    this.menu = new Menu({ container: this.elements.header })
 
     this.actions = _actions
     setTimeout(() => {

@@ -144,7 +144,7 @@ export default class Graph extends View {
   /**
    * render new graph in the view using current layout
    */
-  render (graph, links) {
+  render (graph, items) {
     this._graph = graph
 
     this._items = graph.getItemKeys()
@@ -155,7 +155,7 @@ export default class Graph extends View {
       .data(this._items, d => d)
 
     this._enterNodes()
-    this._updateNodes(links)
+    this._updateNodes(items)
     this._exitNodes()
 
     this.layout.update(graph, this._enteredNodes.nodes())
@@ -176,8 +176,6 @@ export default class Graph extends View {
     })
 
     this.updateLayout({ duration: 1000 })
-    //this.illuminationNodes(links)
-
   }
   /**
    * take all available space
@@ -242,7 +240,7 @@ export default class Graph extends View {
   /**
    * update DOM nodes
    */
-  _updateNodes (links) {
+  _updateNodes (items) {
 
     this._nodes
       .select('text')
@@ -251,14 +249,10 @@ export default class Graph extends View {
 
     this._nodes.merge(this._enteredNodes)
       .select('circle')
-      .attr('fill', (key) => {
-        if(_.indexOf(links.tags, key) != -1){
-          return '#ff00ff'
-        }
-        if(_.indexOf(links.note, key) != -1){
-          return '#00ff00'
-        }
-        return 'rgb(215, 236, 251)'
+      .attr('style', key => {
+        if(_.includes(items.tags, key)) return 'fill: #ff00ff'
+        if(_.includes(items.note, key)) return 'fill: #00ff00'
+        return 'fill: rgb(215, 236, 251)'
       })
   }
 

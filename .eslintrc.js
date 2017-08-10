@@ -14,7 +14,7 @@ module.exports = {
     'no-unused-vars': ['error', { 'args': 'none' }],
     // undefined is pretty usefull by itself
     'no-undefined': 0,
-    // no need in empty parentheses after self-explanatory new keyword
+    // no need in empty parentheses after self-explanatory new tagKeysword
     'new-parens': 0,
     'no-loop-func': 0,
     // naming convention for private methods and params
