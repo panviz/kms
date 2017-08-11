@@ -17,37 +17,34 @@ export default class Search extends EventEmitter {
     this.elements.select2And.select2({
       minimumInputLength: 2,
       ajax: {
-        url: "/tags",
+        url: '/tags',
         dataType: 'json',
         delay: 250,
-        processResults: data => {
-          return {results: data}
-        },
-        cache: true
+        processResults: data => ({ results: data }),
+        cache: true,
       },
       tags: true,
       tokenSeparators: [',', ' '],
-      placeholder: "Add your tags here (AND)"
+      placeholder: 'Add your tags here (AND)',
     })
-    this.elements.select2Or.select2({minimumInputLength: 2,
+    this.elements.select2Or.select2({
+      minimumInputLength: 2,
       ajax: {
-        url: "/tags",
+        url: '/tags',
         dataType: 'json',
         delay: 250,
-        processResults: data => {
-          return {results: data}
-        },
-        cache: true
+        processResults: data => ({ results: data }),
+        cache: true,
       },
       tags: true,
       tokenSeparators: [',', ' '],
-      placeholder: "Add your tags here (OR)"
+      placeholder: 'Add your tags here (OR)',
     })
-     this.elements.button.on('click', this._onSearch.bind(this))
+    this.elements.button.on('click', this._onSearch.bind(this))
   }
 
   get selectors () {
-    return  {
+    return {
       select2And: '#tagsAnd',
       select2Or: '#tagsOr',
       button: '.button',
@@ -55,12 +52,8 @@ export default class Search extends EventEmitter {
   }
 
   _onSearch (e) {
-    const tagValuesAnd = _.map(this.elements.select2And.select2('data'), (obj) => {
-      return obj.text
-    })
-    const tagValuesOr = _.map(this.elements.select2Or.select2('data'), (obj) => {
-      return obj.text
-    })
+    const tagValuesAnd = _.map(this.elements.select2And.select2('data'), obj => obj.text)
+    const tagValuesOr = _.map(this.elements.select2Or.select2('data'), obj => obj.text)
 
     this.trigger('search', {
       tagsAnd: tagValuesAnd,

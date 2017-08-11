@@ -251,7 +251,7 @@ export default class Graph extends View {
       .select('circle')
       .attr('style', key => {
         if(_.includes(items.tags, key)) return 'fill: #ff00ff'
-        if(_.includes(items.note, key)) return 'fill: #00ff00'
+        if(_.includes(items.notes, key)) return 'fill: #00ff00'
         return 'fill: rgb(215, 236, 251)'
       })
   }

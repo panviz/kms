@@ -7,7 +7,7 @@ import Provider from '../provider/api.client/index'
 import Collection from '../core/collection'
 import UI from './ui/ui'
 import Graph from '../provider/graph/index'
-import './index.scss'
+import './style/index.scss'
 
 class App {
   constructor () {
@@ -28,7 +28,7 @@ class App {
     this.provider = new Provider(providerSet)
 
     this.selection.on('change', this._onSelect.bind(this))
-    this.ui = new UI({ itemman: this, selection: this.selection})
+    this.ui = new UI({ itemman: this, selection: this.selection })
     this.ui.search.on('search', this._onSearch.bind(this))
 
     this._loadRepo()
@@ -40,7 +40,7 @@ class App {
     // TODO multiple
     const rootKey = keys[0]
     this.provider.request('getGraph', rootKey, 1)
-      .then(graph => {
+      .then((graph) => {
         graph.remove(rootKey)
         this._filter(graph)
         const linkedKeys = graph.getItemKeys()
@@ -58,11 +58,11 @@ class App {
     const selected = this.selection.getAll()
     let updatesCounter = selected.length
     this.provider.request('set')
-      .then(key => {
+      .then((key) => {
         if (!_.isEmpty(selected)) {
           _.each(selected, (relatedKey) => {
             this.provider.request('associate', key, relatedKey)
-              .then(updated => {
+              .then((updated) => {
                 --updatesCounter
                 if (updatesCounter === 0) this.visibleItems.add(key)
               })
@@ -71,11 +71,11 @@ class App {
           this.visibleItems.add(key)
           this.selection.add(key)
         }
-        if(p === 'tag') {
+        if (p === 'tag') {
           this.provider.request('associate', key, this.serviceItem.tag)
           this.tagItems.add(key)
         }
-        if(p === 'note') {
+        if (p === 'note') {
           this.provider.request('associate', key, this.serviceItem.note)
           this.noteItems.add(key)
         }
@@ -84,7 +84,7 @@ class App {
 
   editItem (key) {
     this.provider.request('get', key)
-      .then(value => {
+      .then((value) => {
         this.ui.editor.set(value, key)
         this.ui.editor.show()
       })
@@ -92,7 +92,7 @@ class App {
 
   saveItem (value, key) {
     this.provider.request('set', value, key)
-      .then(_key => {
+      .then((_key) => {
         if (_key === key) {
           this.ui.editor.saved()
           this._reloadGraph()
@@ -102,21 +102,21 @@ class App {
 
   removeItem (keys) {
     this.provider.request('remove', keys)
-      .then(updated => {
+      .then((updated) => {
         this.visibleItems.remove(keys)
       })
   }
 
   linkItems (source, targets) {
     this.provider.request('associate', source, targets)
-      .then(updated => {
+      .then((updated) => {
         this._reloadGraph()
       })
   }
 
   unlinkItems (source, targets) {
     this.provider.request('setDisassociate', source, targets)
-      .then(updated => {
+      .then((updated) => {
         this._reloadGraph()
       })
   }
@@ -150,13 +150,13 @@ class App {
       this.visibleItems.add(keys)
       this.tagItems.add(tagKeys)
       this.noteItems.add(noteKeys)
-      this._updateGraphView(graph, {tags: tagKeys, note: noteKeys})
+      this._updateGraphView(graph, { tags: tagKeys, notes: noteKeys })
 
       this.visibleItems.on('change', this._reloadGraph.bind(this))
       this.visibleItems.on('add', this._onVisibleItemsAdd.bind(this))
       this.visibleItems.on('remove', this._onVisibleItemsRemove.bind(this))
-    }catch(e) {
-      console.log(e)
+    } catch (e) {
+      console.error(e)
     }
   }
 
@@ -181,30 +181,27 @@ class App {
       if (this.ui.editor.isVisible()) {
         // TODO make local _graph.get and retrieve value only for partially loaded items
         this.provider.request('get', key)
-          .then(value => {
+          .then((value) => {
             this.ui.editor.set(value, key)
           })
       }
     } else if (keys.length === 0) this.ui.hideSecondaryViews()
   }
 
-  _onSearch (data){
-    const promise = new Promise((resolve, reject) => {
-      const request = $.post({
-        url: '/find',
-        data: {
-          method: 'findNodesByTags',
-          args: JSON.stringify(data),
-        },
+  _onSearch (data) {
+    $.post({
+      url: '/find',
+      data: {
+        method: 'findNodesByTags',
+        args: JSON.stringify(data),
+      },
+    }).then((items) => {
+      _.each(items, (value, key) => {
+        this.selection.add(key)
       })
-      request.then((data) => {
-        _.each(data, (value, key) => {
-          this.selection.add(key)
-        })
-        this.ui.searchResultList.setTitle('Search by tags')
-        this.ui.searchResultList.show()
-        this.ui.searchResultList.render(data)
-      })
+      this.ui.searchResultList.setTitle('Search by tags')
+      this.ui.searchResultList.show()
+      this.ui.searchResultList.render(items)
     })
   }
   _onVisibleItemsRemove (keys) {
@@ -223,14 +220,15 @@ class App {
   _reloadGraph () {
     // TODO get only required notes and tags
     const keys = this.visibleItems.getAll()
+    const tagItems = this.tagItems.getAll()
+    const noteItems = this.noteItems.getAll()
     this.provider.request('getGraph', keys)
-      .then(graph => {
-          this._updateGraphView(graph, {tags: this.tagItems.getAll(), note: this.noteItems.getAll()})
-        })
-
+      .then((graph) => {
+        this._updateGraphView(graph, { tags: tagItems, notes: noteItems })
+      })
   }
 
-   _updateGraphView (graph, itemsKeys) {
+  _updateGraphView (graph, itemsKeys) {
     this._graph = graph
     this.ui.graphView.render(graph, itemsKeys)
   }

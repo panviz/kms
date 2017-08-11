@@ -17,24 +17,23 @@ export default class Self {
     this.p = p
 
 
-
     this.provider = Raw
     this.provider.read(this.p.repository.path)
       .then((graph) => {
         this.graph = graph
         console.info(`Serving items total: ${graph.getItemKeys().length} from ${this.p.source}`)
-        this.apiServer = new APIServer( {
+        this.apiServer = new APIServer({
           source: this.p.repository.path,
           target: this.p.repository.path,
           graph: this.graph,
-          provider: this.provider
+          provider: this.provider,
         })
         this._initServiceItems()
       })
   }
 
-  _initServiceItems(){
-    let serviceGraph = this.graph.getGraph(this.rootKey, 1)
+  _initServiceItems () {
+    const serviceGraph = this.graph.getGraph(this.rootKey, 1)
     _.each(this._serviceItems.concat(this._itemtypes), (item) => {
       this.serviceItem[item] = this.graph.search(this.rootKey, item)[0]
     })
@@ -44,39 +43,39 @@ export default class Self {
    * Find Items by value from root
    * @param p
    */
-  findNodesByTags(p){
+  findNodesByTags (p) {
     return new Promise((resolve, reject) => {
       const args = JSON.parse(p)
       const tagsAnd = Util.pluralize(args.tagsAnd)
       const tagsOr = Util.pluralize(args.tagsOr)
       const serviceKeys = this.graph.find(this.rootKey)
-      let itemsMap = {}
+      const itemsMap = {}
       let arrLinkedKeysOr = []
       let arrLinkedKeysAnd = []
 
-      if(tagsOr.length > 0) {
-        const tags =[]
-        _.each(tagsOr, value => {
+      if (tagsOr.length > 0) {
+        const tags = []
+        _.each(tagsOr, (value) => {
           tags.push(this.graph.search(this.serviceItem.tag, value, 'g')[0])
         })
         arrLinkedKeysOr = _.map(tags, key => this.graph.getLinked(key))
         arrLinkedKeysOr = _.intersection(...arrLinkedKeysOr)
       }
 
-      if(tagsAnd.length > 0 ) {
+      if (tagsAnd.length > 0) {
         const tags = []
-        _.each(tagsAnd, value => {
+        _.each(tagsAnd, (value) => {
           tags.push(this.graph.search(this.serviceItem.tag, value, 'g')[0])
         })
         arrLinkedKeysAnd = _.map(tags, key => this.graph.getLinked(key))
         arrLinkedKeysAnd = _.union(...arrLinkedKeysAnd)
       }
 
-      let arrLinkedKeys = _.union(arrLinkedKeysOr, arrLinkedKeysAnd);
+      const arrLinkedKeys = _.union(arrLinkedKeysOr, arrLinkedKeysAnd)
       _.pullAll(arrLinkedKeys, serviceKeys)
 
-      _.each(arrLinkedKeys, key => {
-        itemsMap[key] =  this.graph.get(key)
+      _.each(arrLinkedKeys, (key) => {
+        itemsMap[key] = this.graph.get(key)
       })
 
       resolve(itemsMap)
@@ -88,18 +87,14 @@ export default class Self {
    * @param {String} query
    * @returns {Promise}
    */
-  searchTags(query) {
+  searchTags (query) {
     return new Promise((resolve, reject) => {
       const tagKeys = this.graph.search(this.serviceItem.tag, query, 'g')
       const serviceKeys = _.keys(this.serviceItem)
       _.pullAll(tagKeys, serviceKeys)
 
-      let data = _.map(tagKeys, key => {
-        return {id: key, text: this.graph.get(key)}
-      })
+      const data = _.map(tagKeys, key => ({ id: key, text: this.graph.get(key) }))
       resolve(data)
     })
   }
-
-
 }

@@ -6,10 +6,10 @@ import webpack from 'webpack'
 import webpackMiddleware from 'webpack-dev-middleware'
 import express from 'express'
 import Path from 'path'
-import App from './app'
 import bodyParser from 'body-parser'
 import multer from 'multer'
 import chalk from 'chalk'
+import App from './app'
 import webpackConfig from '../webpack.config.babel'
 
 
@@ -39,12 +39,12 @@ class Server {
 
   initRoutes (req, res) {
     if (process.env.NODE_ENV === 'DEV') {
-      const webpackOptions = {
+     /* const webpackOptions = {
         entry: './client/app.js',
         output: {
           path: '/',
-        }
-      }
+        },
+      }*/
       const wmOptions = {
         index: 'client/index.html',
         publicPath: '/',
@@ -79,17 +79,16 @@ class Server {
       })
   }
 
-  _onAppSelectInit(req, res){
-    let query = req.query.q
+  _onAppSelectInit (req, res) {
+    const query = req.query.q
     this.app.searchTags(query)
-      .then(data => {
+      .then((data) => {
         res.send(JSON.stringify(data))
       })
   }
 
   _onAPIRequest (req, res) {
     this.app.apiServer.request(req.body)
-  //  this.provider.request(req.body)
       .then((data) => {
         res.send(data)
       })

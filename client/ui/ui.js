@@ -75,7 +75,7 @@ export default class UI {
     this.editor.on('show', this._layoutViews.bind(this))
     this.editor.on('hide', this._layoutViews.bind(this))
 
-    this.search = new Search({ container: this.elements.header})
+    this.search = new Search({ container: this.elements.header })
 
     this.actionsPanel = new ActionsPanel({
       container: this.elements.sidebar,

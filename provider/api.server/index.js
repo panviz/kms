@@ -10,7 +10,6 @@ export default class APIServer {
     this.p = p
     this.graph = p.graph
     this.provider = p.provider
-
   }
 
   request (params) {

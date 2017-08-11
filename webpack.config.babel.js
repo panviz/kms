@@ -51,7 +51,12 @@ export default (env = defaultEnv) => {
 
   return {
     entry: {
-      libs: ['webcola', 'jquery.easing', 'eventemitter3', 'select2'],
+      libs: ['webcola',
+             'jquery.easing',
+             'eventemitter3',
+             'select2',
+             './node_modules/material-design-lite/src/mdlComponentHandler.js',
+             './node_modules/material-design-lite/src/menu/menu.js'],
       client: './client/app.js',
       libcss: ['./client/style/libs.scss'],
     },
