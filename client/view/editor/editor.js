@@ -9,14 +9,18 @@ export default class Editor extends View {
     this._item = {}
     const $html = $(template())
     if (this.p.hidden) $html.css('display', 'none')
-    this.p.container.append($html)
-    this.elements = Util.findElements($html, this.selectors)
-    this.elements.text.on('input', this._onChange.bind(this))
+    this.setElement($html)
   }
   get selectors () {
-    return {
+    return _.extend(super.selectors, {
       text: 'textarea',
-    }
+    })
+  }
+
+  get events () {
+    return _.extend(super.events, {
+      'input text': this._onChange,
+    })
   }
   /**
    * @param ID key of item to edit

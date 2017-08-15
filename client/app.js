@@ -34,7 +34,7 @@ class App {
     this._loadRepo()
   }
 
-  showChildren (keyS, actionLabel) {
+  showChildren (keyS) {
     const keys = Util.pluralize(keyS)
 
     // TODO multiple
@@ -46,7 +46,7 @@ class App {
         const linkedKeys = graph.getItemKeys()
         this.visibleItems.add(linkedKeys)
 
-        this.ui.linkedList.setTitle(actionLabel)
+        this.ui.linkedList.setTitle('Show children')
         this.ui.linkedList.show()
 
         // TODO when one view on common container is changed fire event and resize others
@@ -86,6 +86,7 @@ class App {
     this.provider.request('get', key)
       .then((value) => {
         this.ui.editor.set(value, key)
+        this.ui.editor.setTitle('Edit item')
         this.ui.editor.show()
       })
   }

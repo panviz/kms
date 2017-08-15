@@ -3,7 +3,6 @@
  * Items are represented with rows
  */
 import View from '../view'
-import Util from '../../../core/util'
 import template from './list.html'
 import rowTemplate from './row.html'
 import './list.scss'
@@ -11,23 +10,24 @@ import './list.scss'
 export default class List extends View {
   constructor (p) {
     super(p)
-
     const $html = $(template())
-
     if (this.p.hidden) $html.css('display', 'none')
-    this.p.container.append($html)
-    this.elements = Util.findElements($html, this.selectors)
-
-    this.elements.list.on('click', this._onRowClick.bind(this))
+    this.setElement($html)
     this.p.selection.on('change', this._onSelectionChange.bind(this))
   }
 
   get selectors () {
-    return {
+    return _.extend(super.selectors, {
       list: '.items-list',
-      title: '.title',
-    }
+    })
   }
+
+  get events () {
+    return _.extend(super.events, {
+      'click list': this._onRowClick,
+    })
+  }
+
   /**
    * populate list with items
    */
@@ -35,6 +35,7 @@ export default class List extends View {
     const list = _.map(itemsMap, (value, key) => rowTemplate({ value, key })).join('')
     this.elements.list.html(list)
   }
+
   /**
    * Select row in click
    */
@@ -45,6 +46,7 @@ export default class List extends View {
     this.p.selection.clear()
     this.p.selection.add(key)
   }
+
   /**
    * Highlight selected row
    * @param Array selection keys
@@ -53,11 +55,5 @@ export default class List extends View {
     _.each(selection, (key) => {
       this.elements.list.find(`li[data-key="${key}"]`).toggleClass('selected')
     })
-  }
-
-  setTitle (title) {
-    this.title = title
-    this.elements.title.text(this.title)
-    this.elements.title.show()
   }
 }

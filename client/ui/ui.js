@@ -5,7 +5,6 @@ import Util from '../../core/util'
 import Actionman from './actionman'
 import GraphView from '../view/graph/graph'
 import ListView from '../view/list/list'
-import SearchResultView from '../view/searchResult/searchResult'
 import Editor from '../view/editor/editor'
 import Search from './search/search'
 import Menu from './main-menu/menu'
@@ -37,24 +36,24 @@ export default class UI {
 
     const graphViewSet = {
       actionman: this.actionman,
-      container: this.elements.container,
+      container: this.elements.viewContainer,
       selection: this.selection,
     }
     const listViewSet = {
       actionman: this.actionman,
-      container: this.elements.container,
+      container: this.elements.viewContainer,
       selection: this.selection,
       hidden: true,
     }
     const searchResultViewSet = {
       actionman: this.actionman,
-      container: this.elements.container,
+      container: this.elements.viewContainer,
       selection: this.selection,
       hidden: true,
     }
     const editorSet = {
       actionman: this.actionman,
-      container: this.elements.container,
+      container: this.elements.viewContainer,
       hidden: true,
     }
 
@@ -63,10 +62,12 @@ export default class UI {
     this.linkedList = new ListView(listViewSet)
     this.linkedList.on('show', this._layoutViews.bind(this))
     this.linkedList.on('hide', this._layoutViews.bind(this))
+    this.linkedList.on('toogleSize', this._toogleViewsSize.bind(this))
 
-    this.searchResultList = new SearchResultView(searchResultViewSet)
+    this.searchResultList = new ListView(searchResultViewSet)
     this.searchResultList.on('show', this._layoutViews.bind(this))
     this.searchResultList.on('hide', this._layoutViews.bind(this))
+    this.searchResultList.on('toogleSize', this._toogleViewsSize.bind(this))
 
     this.editor = new Editor(editorSet)
     this.editor.on('hide', () => {
@@ -74,6 +75,7 @@ export default class UI {
     })
     this.editor.on('show', this._layoutViews.bind(this))
     this.editor.on('hide', this._layoutViews.bind(this))
+    this.editor.on('toogleSize', this._toogleViewsSize.bind(this))
 
     this.search = new Search({ container: this.elements.header })
 
@@ -95,6 +97,8 @@ export default class UI {
       header: 'header',
       container: '.container',
       sidebar: '.sidebar',
+      viewContainer: '.view-container',
+
     }
   }
   /**
@@ -107,5 +111,9 @@ export default class UI {
 
   _layoutViews () {
     this.graphView.resize()
+  }
+
+  _toogleViewsSize (target) {
+    $(target).closest('.view').toggleClass('max min')
   }
 }
