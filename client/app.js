@@ -29,7 +29,6 @@ class App {
 
     this.selection.on('change', this._onSelect.bind(this))
     this.ui = new UI({ itemman: this, selection: this.selection })
-    this.ui.search.on('search', this._onSearch.bind(this))
 
     this._loadRepo()
   }
@@ -189,22 +188,6 @@ class App {
     } else if (keys.length === 0) this.ui.hideSecondaryViews()
   }
 
-  _onSearch (data) {
-    $.post({
-      url: '/find',
-      data: {
-        method: 'findNodesByTags',
-        args: JSON.stringify(data),
-      },
-    }).then((items) => {
-      _.each(items, (value, key) => {
-        this.selection.add(key)
-      })
-      this.ui.searchResultList.setTitle('Search by tags')
-      this.ui.searchResultList.show()
-      this.ui.searchResultList.render(items)
-    })
-  }
   _onVisibleItemsRemove (keys) {
     this.selection.remove(keys)
     this.provider.request('setDisassociate', this.serviceItem.visibleItem, keys)
