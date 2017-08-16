@@ -23,4 +23,10 @@ body {
       color: unquote("rgb(#{$color-primary})");
     }
   }
+  &> .footer {
+    position: fixed;
+    bottom: 16px;
+    right: 16px;
+    color: #fd2b31;
+  }
 }
