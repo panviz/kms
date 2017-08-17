@@ -25,6 +25,7 @@
     "build": "webpack",
     "build:clean": "rm -rf build/* && yarn run build",
     "start": "cross-env NODE_ENV=DEV babel-node server/instance.js",
+    "webpack": "webpack-dev-server",
     "lint": "eslint .",
     "doc": "jsdoc src -r -d docs",
     "test": "mocha test/unit"
@@ -92,6 +93,7 @@
     "eslint-plugin-react": "^7.1.0",
     "jsdoc": "^3.5.3",
     "mocha": "^3.5.0",
+    "request": "^2.81.0",
     "webpack-dev-middleware": "^1.12.0",
     "webpack-dev-server": "^2.6.1",
     "webpack-hot-middleware": "^2.18.2"
