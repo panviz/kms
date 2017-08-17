@@ -24,11 +24,12 @@
   "scripts": {
     "build": "webpack",
     "build:clean": "rm -rf build/* && yarn run build",
-    "start": "cross-env NODE_ENV=DEV babel-node server/instance.js",
+    "start": "babel-node server/instance.js",
     "webpack": "webpack-dev-server",
     "lint": "eslint .",
     "doc": "jsdoc src -r -d docs",
-    "test": "mocha test/unit"
+    "test": "mocha test/unit",
+    "dev": "cross-env NODE_ENV=DEV yarn run start"
   },
   "babel": {
     "presets": [
