@@ -7,8 +7,10 @@
  * Binary Items are only referenced by path
  */
 import _ from 'lodash'
+import uuidBase62 from 'uuid-base62'
 import dijkstra from '../../core/dijkstra'
 import Util from '../../core/util'
+
 
 function filterKeys (obj, filter) {
   const filtered = {}
@@ -28,9 +30,9 @@ function compareWeight (link1, link2) {
 /**
  * generate random UUID
  */
-function generateID (a) {
-  if (a) return (a ^ Math.random() * 16 >> a / 4).toString(16)
-  return ([1e7] + -1e3 + -4e3 + -8e3 + -1e11).replace(/[018]/g, generateID)
+
+function generateID () {
+  return uuidBase62.v4()
 }
 
 const idPattern = /[a-z0-9]{8}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{12}/g

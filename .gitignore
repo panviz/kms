@@ -3,3 +3,4 @@ npm-debug.log
 build/*
 server/config.json
 .tags*
+.idea/*

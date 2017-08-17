@@ -11,7 +11,7 @@ import './style/index.scss'
 
 class App {
   constructor () {
-    this.rootKey = '00000000-0000-4000-8000-000000000000'
+    this.rootKey = '000000001vGeH72LxVtxKg'
     this._itemtypes = ['tag', 'note']
     this._serviceItems = ['root', 'visibleItem', 'itemtype']
     this.serviceItem = {}
