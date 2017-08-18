@@ -81,6 +81,7 @@
     "style-loader": "^0.18.2",
     "uglifyjs-webpack-plugin": "^0.4.6",
     "url-loader": "^0.5.9",
+    "uuid-base62": "^0.1.0",
     "webcola": "^3.3.6",
     "webpack": "^3.4.1"
   },
