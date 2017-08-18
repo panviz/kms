@@ -24,10 +24,12 @@
   "scripts": {
     "build": "webpack",
     "build:clean": "rm -rf build/* && yarn run build",
-    "start": "cross-env NODE_ENV=DEV babel-node server/instance.js",
+    "start": "babel-node server/instance.js",
     "lint": "eslint .",
     "doc": "jsdoc src -r -d docs",
-    "test": "mocha test/unit"
+    "test": "mocha test/unit",
+    "dev": "cross-env NODE_ENV=DEV yarn run start",
+    "webpack": "webpack-dev-server"
   },
   "babel": {
     "presets": [
@@ -92,6 +94,7 @@
     "eslint-plugin-react": "^7.1.0",
     "jsdoc": "^3.5.3",
     "mocha": "^3.5.0",
+    "request": "^2.81.0",
     "webpack-dev-middleware": "^1.12.0",
     "webpack-dev-server": "^2.6.1",
     "webpack-hot-middleware": "^2.18.2"

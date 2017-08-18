@@ -2,15 +2,13 @@
  * Server Instance
  */
 
-import webpack from 'webpack'
-import webpackMiddleware from 'webpack-dev-middleware'
 import express from 'express'
+import request from 'request'
 import Path from 'path'
 import bodyParser from 'body-parser'
 import multer from 'multer'
 import chalk from 'chalk'
 import App from './app'
-import webpackConfig from '../webpack.config.babel'
 
 
 const upload = multer() // for parsing multipart/form-data
@@ -37,22 +35,9 @@ class Server {
     })
   }
 
-  initRoutes (req, res) {
-    if (process.env.NODE_ENV === 'DEV') {
-     /* const webpackOptions = {
-        entry: './client/app.js',
-        output: {
-          path: '/',
-        },
-      }*/
-      const wmOptions = {
-        index: 'client/index.html',
-        publicPath: '/',
-      }
-      this.server.use(webpackMiddleware(webpack(webpackConfig()), wmOptions))
-    } else {
-      this.server.get(/build*/, this._onResourceRequest.bind(this))
-    }
+  initRoutes () {
+    this.server.get(/^\/build*/, this._onResourceRequest.bind(this))
+
     this.server.get('/', this._onRootRequest.bind(this))
     this.server.post(/item/, upload.array(), this._onAPIRequest.bind(this))
     this.server.get(/^(.+)$/, this._onOtherRequest.bind(this))
@@ -63,7 +48,13 @@ class Server {
   }
 
   _onResourceRequest (req, res) {
-    res.sendFile(Path.join(this.p.app.path, req.path))
+    if (process.env.NODE_ENV === 'DEV') {
+      // send request to webpack-dev-server and return response to browser
+      const url = req.url.substr(6)
+      req.pipe(request.get(`http://localhost:8080${url}`)).pipe(res)
+    } else {
+      res.sendFile(Path.join(this.p.app.path, req.path))
+    }
   }
 
   _on3dpartyRequest (req, res) {
