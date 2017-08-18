@@ -1,7 +1,7 @@
-Graphiy Docs
-==============
+Graphiy KMS Docs
+================
 
-This repo is the source behind https://docs.graphiy.com
+This repo is the source behind http://docs.graphiy.com
 
 Editing
 -------

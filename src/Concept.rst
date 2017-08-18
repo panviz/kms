@@ -3,13 +3,13 @@ Concept
 
 Principles
 ----------
-
-- General-purpose graph/network data editing software.
-- Human brain associative thinking.
-- Proficient User eXperience.
+- :doc:`Advanced graph visualization<app/interface/Graph visualization>`
+- Human brain associative thinking
+- Proficient User eXperience
 
 Graph
 -----
+:doc:`(Network / Multidimensional Array / Database) <app/Graph data model>`
 
 | The memory of the system is a graph.
 | There are only two main features to store content in Graphiy KMS.
@@ -19,7 +19,7 @@ Graph
 
 Item
 -----------------------
-(Element / Unit / Node)
+:doc:`(Element / Unit / Node) <app/Item>`
 
 Every piece of information is an Item just like our thoughts or memory.
 It may be anything: just a word, number, date, url, or a bigger chunk of
@@ -37,7 +37,7 @@ to others.
 
 Link
 ------------------------------
-(Relation / Connection / Edge)
+:doc:`(Relation / Connection / Edge)<app/Link>`
 
 | Item to item relationship.
 | Works like human brain association. It has neither direction nor
@@ -51,7 +51,17 @@ related.
 
 Itemtype
 --------
+:doc:`(Metadata / Predicate / Context)<app/Itemtype>`
 
-It is a set of rules which define complex information.
+Here comes the tricky part. Contemporary graph databases store Items
+along with metadata. Same goes for links. They all have a type. Making
+typed links between items is like putting verbs into a sentence: “John”
+-likes-> “Boston”. And having Item typed is the way to define the
+context of the specific information. Here "John" is a “Person” type and
+“Boston” is a “City” type. That's definitely an abstraction of some
+kind. Human thoughts and memories don't have types as well as
+associations.
 
-For details, see :doc:`Implementation <./core/Implementation>`
+Type is all about what this Item is linked to.
+
+For details, see :doc:`Implementation <./app/Implementation>`

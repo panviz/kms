@@ -30,8 +30,13 @@
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
-extensions = ['sphinx.ext.todo',
-    'sphinx.ext.githubpages']
+extensions = ['sphinx.ext.todo', 'sphinx.ext.githubpages']
+
+# Try to use jsdoc integration
+#  extensions = ['sphinx.ext.todo', 'sphinx.ext.githubpages', 'sphinx_js']
+#  js_source_path = '../'
+#  primary_domain = 'js'
+#  jsdoc_config_path = 'conf.json'
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
@@ -168,5 +173,5 @@ texinfo_documents = [
      'Miscellaneous'),
 ]
 
-
-
+def setup(app):
+    app.add_stylesheet('custom.css')

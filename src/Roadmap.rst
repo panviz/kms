@@ -7,13 +7,12 @@ Prototype which clearly demonstrates what it is about
 
 -  Graph visualization
 -  CRUD nodes and links
--  Full-text search
 
 v0.2 - limited PIM
 ------------------------------------------------------------------
 MVP for limited Personal Information Manager (PIM) use case
 
--  notes and tags itemtypes
+-  Note and Tag itemtypes
 -  Search & Filters
 -  Improved Graph interface
 -  Batch actions
@@ -22,8 +21,8 @@ v0.3 - feature-rich PIM
 ----------------------------
 
 -  rich text editor
--  binary files management - first itemtype
--  import text Notes from FS
+-  binary files support
+-  import text Notes from file system
 
 --------------
 
