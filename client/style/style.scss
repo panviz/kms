@@ -45,11 +45,11 @@ html {
         transition: flex 0.4s linear;
       }
     }
-  }
-  &> .footer {
-    position: fixed;
-    bottom: 16px;
-    right: 16px;
-    color: #fd2b31;
+    &> .footer {
+      position: fixed;
+      bottom: 16px;
+      right: 16px;
+      color: #fd2b31;
+    }
   }
 }

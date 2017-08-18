@@ -14,8 +14,8 @@ export default class Menu {
         title: 'Blog',
         url: 'http://dmitra.com/graphiy',
       }, {
-        title: 'Documentation on Wiki',
-        url: 'http://github.com/Graphiy/kms/wiki',
+        title: 'Documentation',
+        url: 'http://docs.graphiy.com',
       }, {
         title: 'Vote for features',
         url: 'https://trello.com/b/W1Zvc6Pn/kms',
