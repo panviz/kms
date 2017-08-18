@@ -3,8 +3,9 @@
  * allows multiple
  */
 import Behavior from '../behavior'
+import './selectioning.scss'
 
-export default class Self extends Behavior {
+export default class Selectioning extends Behavior {
   constructor (p) {
     super(p)
     this.modeKey = 'ctrlKey'

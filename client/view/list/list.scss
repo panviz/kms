@@ -3,6 +3,26 @@
   padding: 0;
   border: 1px solid grey;
   overflow: hidden;
+  flex: 1 1 15%;
+  position: relative;
+  z-index: 10;
+  background-color: white;
+
+  .header {
+    background-color: lemonchiffon;
+
+    h4 {
+      padding: 5px;
+      margin: 0;
+      display: none;
+    }
+    .close, .size {
+      &:hover {
+       cursor: pointer;
+      }
+
+    }
+  }
 
   .items-list {
     margin: 0;
@@ -20,4 +40,10 @@
       background-color: rgb(137, 255, 137);
     }
   }
+}
+.view.list.max {
+  flex: 1 0 99.7%;
+}
+.view.list.min {
+  flex: 0 1 15%;
 }

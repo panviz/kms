@@ -9,7 +9,7 @@ import yaml from 'js-yaml'
 import inflection from 'inflection'
 import Graph from '../graph/index'
 
-export default function Self (p = {}) {
+export default function YAML (p = {}) {
   this.p = p
 }
 /**
@@ -18,7 +18,7 @@ export default function Self (p = {}) {
  * but if value is array just link each value item to key
  * @return Graph
  */
-Self.prototype.read = function (str) {
+YAML.prototype.read = function (str) {
   const graph = new Graph
 
   const data = yaml.load(str)
@@ -49,7 +49,7 @@ Self.prototype.read = function (str) {
   return graph
 }
 // TODO use native yaml linking feature to not duplicate content
-Self.prototype.write = function (graph) {
+YAML.prototype.write = function (graph) {
   if (!this.p.target) console.info('no path specified to write a file')
   else if (!this.p.target.match('yml')) this.p.target = Path.join(this.p.target, 'data.yml')
   const items = {}

@@ -2,13 +2,14 @@
  * Drag behavior
  */
 import Behavior from '../behavior'
+import './drag.scss'
 
 /**
  * this._dragged - node on which dragging started
  * this._draggedClone - copy of the node on which dragging started - to visualize dragging
  * this._target - node on which dragged node is dropped
  */
-export default class Self extends Behavior {
+export default class Drag extends Behavior {
   constructor (p) {
     super(p)
     this.container = p.container

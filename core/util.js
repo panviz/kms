@@ -1,7 +1,7 @@
 import _ from 'lodash'
-const Self = {}
+const Util = {}
 
-Self.findElements = function (root, selectors) {
+Util.findElements = function (root, selectors) {
   const elements = {}
   elements.root = root instanceof $ ? root : $(root)
   _.forEach(selectors, (selector, key) => {
@@ -12,13 +12,13 @@ Self.findElements = function (root, selectors) {
 /**
  * update elements reference
  */
-Self.updateElements = function (control) {
+Util.updateElements = function (control) {
   /* eslint-disable no-param-reassign */
-  control.elements = Self.findElements(control.elements.root, control.selectors)
+  control.elements = Util.findElements(control.elements.root, control.selectors)
   /* eslint-enable */
 }
 
-Self.animate = function (duration, draw) {
+Util.animate = function (duration, draw) {
   let start = undefined
   let id
   const tick = (timestamp) => {
@@ -34,7 +34,7 @@ Self.animate = function (duration, draw) {
   id = requestAnimationFrame(tick)
 }
 
-Self.pluralize = function (arg) {
+Util.pluralize = function (arg) {
   return _.isArray(arg) ? arg : [arg]
 }
 /**
@@ -42,7 +42,7 @@ Self.pluralize = function (arg) {
  * @param value Integer
  * @param max Integer
  */
-Self.between = function (min, value, max) {
+Util.between = function (min, value, max) {
   let result = false
   if (min < max) {
     if (value > min && value < max) {
@@ -64,25 +64,25 @@ Self.between = function (min, value, max) {
  * @param point Object {x, y}
  * @param rect Object {top, left, right, bottom}
  */
-Self.pointInRectangle = function (point, rect) {
+Util.pointInRectangle = function (point, rect) {
   let result = false
 
-  if (Self.between(rect.left, point.x, rect.right) &&
-      Self.between(rect.top, point.y, rect.bottom)) {
+  if (Util.between(rect.left, point.x, rect.right) &&
+      Util.between(rect.top, point.y, rect.bottom)) {
     result = true
   }
   return result
 }
 
-Self.log = function (message) {
+Util.log = function (message) {
   if (typeof DEBUG !== 'undefined' && DEBUG) console.info(message)
 }
 /**
  * requires sequential perimeter points
  * polygon without intersections
  */
-Self.centroid = function (_points) {
-  const points = Self.simplifyPolygon(_points)
+Util.centroid = function (_points) {
+  const points = Util.simplifyPolygon(_points)
   let i, j, p1, p2, f, area, x, y, center // eslint-disable-line
   const length = points.length
 
@@ -112,7 +112,7 @@ Self.centroid = function (_points) {
 /**
  * get circumscribing quadrilateral
  */
-Self.simplifyPolygon = function (points) {
+Util.simplifyPolygon = function (points) {
   if (points.length < 4) return points
   var left, right, top, bottom // eslint-disable-line
   _.each(points, (point) => {
@@ -132,5 +132,5 @@ Self.simplifyPolygon = function (points) {
 
 RegExp.prototype.toJSON = function () { return this.toString() } // eslint-disable-line
 
-export default Self
-global.$util = Self
+export default Util
+global.$util = Util

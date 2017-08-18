@@ -35,7 +35,7 @@ function generateID (a) {
 
 const idPattern = /[a-z0-9]{8}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{12}/g
 
-export default class Self {
+export default class Graph {
   constructor (p = {}) {
     this.providerID = 'graph'
     this._items = _.cloneDeep(p.items) || {}
@@ -50,7 +50,7 @@ export default class Self {
   set (_data, _key) {
     let key = _key
     let data = _data
-    if (_.isArray(data)) return _.map(data, (datum) => this.set(datum))
+    if (_.isArray(data)) return _.map(data, datum => this.set(datum))
 
     if (data === '' || _.isNil(data)) {
       if (key && _.isEmpty(this.getLinks(key))) return this.remove(key)
@@ -99,7 +99,7 @@ export default class Self {
    */
   merge (_graph, p = { overwrite: true }) {
     if (!_graph) return []
-    const graph = _graph.items ? new Self(_graph) : _graph
+    const graph = _graph.items ? new Graph(_graph) : _graph
     const newItems = graph.getItemsMap()
     const changed = []
 
@@ -208,7 +208,7 @@ export default class Self {
    */
   setDisassociate (key1, keyS) {
     const keys = Util.pluralize(keyS)
-    const changed = _.map(keys, (key2) => this._disassociate(key1, key2))
+    const changed = _.map(keys, key2 => this._disassociate(key1, key2))
     return _.uniq(_.flatten(changed))
   }
   /**
@@ -216,7 +216,7 @@ export default class Self {
    */
   associate (key1, keyS, weight, p) {
     const keys = Util.pluralize(keyS)
-    const changed = _.map(keys, (key2) => this._associate(key1, key2, weight, p))
+    const changed = _.map(keys, key2 => this._associate(key1, key2, weight, p))
     return _.uniq(_.flatten(changed))
   }
   /**
@@ -276,13 +276,13 @@ export default class Self {
    * @return Array of distinct Items linked with specified Item(s)
    */
   getLinked (key) {
-    return _.map(this.getLinks(key), (link) => link[0])
+    return _.map(this.getLinks(key), link => link[0])
   }
   /**
    * TODO works only for depth 0/1
    * @param rootKey Key of item to traverse graph from
    * @param depth
-   * @return Graph starting from the item provided
+   * @return Graph starting from the item(s) provided
    */
   getGraph (rootKeyS, depth = 0) {
     const sgItems = {} // sub graph items
@@ -307,17 +307,19 @@ export default class Self {
       sgLinks[sgItemKey] = filteredSgItemLinks
     })
 
-    return new Self({ items: sgItems, links: sgLinks })
+    return new Graph({ items: sgItems, links: sgLinks })
   }
   /**
    * Find items linked with each one of specified
-   * @param {String|Array} Keys of items connected to the item looked for
+   * @param {String|Array} keyS of items connected to the item looked for
+   * @return {Array} of keys
    */
   find (keyS) {
     const keys = Util.pluralize(keyS)
     const arrLinkedKeys = _.map(keys, key => this.getLinked(key))
     return _.intersection(...arrLinkedKeys)
   }
+
   /**
    * Search linked items for one with value matching the string
    * @param Key key of the item to search children of
@@ -345,7 +347,7 @@ export default class Self {
    * @return Object.Provider new
    */
   filter (filterer) {
-    const filteredStorage = new Self()
+    const filteredStorage = new Graph()
     const items = filteredStorage._items = filterKeys(this._items, filterer)
     const fLinks = filteredStorage._links
     _.each(this._links, (links, key) => {

@@ -1,7 +1,9 @@
 /**
  * Action Manager
  */
-export default class Self extends EventEmitter {
+import EventEmitter from 'eventemitter3'
+
+export default class Actionman extends EventEmitter {
   constructor (p = {}) {
     super()
     this._instances = {}

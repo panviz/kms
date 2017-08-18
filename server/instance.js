@@ -1,25 +1,27 @@
 /**
- * Server Application
+ * Server Instance
  */
+
+import webpack from 'webpack'
+import webpackMiddleware from 'webpack-dev-middleware'
 import express from 'express'
 import Path from 'path'
-import APIServer from '../provider/api.server/index'
 import bodyParser from 'body-parser'
 import multer from 'multer'
 import chalk from 'chalk'
+import App from './app'
+import webpackConfig from '../webpack.config.babel'
+
+
 const upload = multer() // for parsing multipart/form-data
 const config = require('./config.json')
 const packageConf = require('../package.json')
 
-class Self {
+class Server {
   constructor () {
     this.p = config
     this.p.version = packageConf.version
-    this.provider = new APIServer({
-      source: this.p.repository.path,
-      target: this.p.repository.path,
-      provider: this.p.repository.provider,
-    })
+    this.app = new App(this.p)
 
     this.server = express()
     this.server.use(bodyParser.json())
@@ -36,9 +38,23 @@ class Self {
   }
 
   initRoutes (req, res) {
+    if (process.env.NODE_ENV === 'DEV') {
+     /* const webpackOptions = {
+        entry: './client/app.js',
+        output: {
+          path: '/',
+        },
+      }*/
+      const wmOptions = {
+        index: 'client/index.html',
+        publicPath: '/',
+      }
+      this.server.use(webpackMiddleware(webpack(webpackConfig()), wmOptions))
+    } else {
+      this.server.get(/build*/, this._onResourceRequest.bind(this))
+    }
     this.server.get('/', this._onRootRequest.bind(this))
-    this.server.get(/client*/, this._onResourceRequest.bind(this))
-    this.server.post(/item/, upload.array(), this._onAppRequest.bind(this))
+    this.server.post(/item/, upload.array(), this._onAPIRequest.bind(this))
     this.server.get(/^(.+)$/, this._onOtherRequest.bind(this))
   }
 
@@ -54,8 +70,8 @@ class Self {
     res.sendFile(Path.join(this.p.app.path, '..', req.path))
   }
 
-  _onAppRequest (req, res) {
-    this.provider.request(req.body)
+  _onAPIRequest (req, res) {
+    this.app.apiServer.request(req.body)
       .then((data) => {
         res.send(data)
       })
@@ -66,4 +82,4 @@ class Self {
     res.sendFile(Path.join(this.p.static + req.params[0]))
   }
 }
-export default new Self
+export default new Server

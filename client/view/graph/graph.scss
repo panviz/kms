@@ -1,5 +1,6 @@
 .view.graph {
   flex: 3 1 320px;
+  overflow: hidden;
 
   svg {
     background-color: #F1F2F7;
@@ -23,6 +24,7 @@
       fill: rgb(215, 236, 251);
       stroke: #498AE6;
     }
+
   }
 
   .link {
@@ -36,4 +38,10 @@
   }
   text {
   }
+}
+.view.graph.min {
+  flex: 0.000000001 0.00000001 0%;
+}
+.view.graph.max {
+  flex: 3 1 320px;
 }

@@ -1,6 +1,6 @@
 import Action from '../../action'
 
-export default class Self extends Action {
+export default class Unlink extends Action {
   constructor (p) {
     super(p)
     this._id = 'itemUnlink'

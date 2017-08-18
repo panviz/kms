@@ -13,6 +13,8 @@ import RectSelectioning from '../../behavior/selection/rectangular'
 import Pan from '../../behavior/pan/pan'
 import Drag from '../../behavior/drag/drag'
 import Util from '../../../core/util'
+import template from './graph.html'
+import './graph.scss'
 /**
  * @param Object p.node Default spatial parameters for rendering node
  * @inner Graph _graph rendered last time
@@ -20,7 +22,7 @@ import Util from '../../../core/util'
  * @inner Array _nodes d3 selection of DOM nodes
  * @inner Array _edges d3 selection of DOM edges
  */
-export default class Self extends View {
+export default class Graph extends View {
   constructor (p) {
     super(p)
 
@@ -28,19 +30,8 @@ export default class Self extends View {
     this.actionman = p.actionman
     this.selection = p.selection
 
-    this.selectors = {
-      svg: 'svg',
-      canvas: 'svg .canvas',
-      edgeGroup: '.edgeGroup',
-      nodeGroup: '.nodeGroup',
-      link: '.link',
-      node: '.node',
-      hidden: '.hide',
-      selected: '.selected',
-    }
-    const $html = $(G.Templates['view/graph/graph']())
-    this.p.container.append($html)
-    this.elements = Util.findElements($html, this.selectors)
+    const $html = $(template())
+    this.setElement($html)
 
     this.p.node = {
       selector: this.selectors.node,
@@ -54,9 +45,6 @@ export default class Self extends View {
       },
     }
     this._graph = undefined
-    this._items = []
-    this._edges = []
-    this._nodes = []
 
     this.canvas = d3.select(this.selectors.canvas)
     this.resize()
@@ -65,8 +53,28 @@ export default class Self extends View {
 
     this.selection.on('add', this._onSelect.bind(this))
     this.selection.on('remove', this._onDeselect.bind(this))
-    this.elements.svg.on('dblclick', this.selectors.node, this._onNodeDblClick.bind(this))
     $(window).on('resize', this.resize.bind(this))
+  }
+
+  get selectors () {
+    return _.extend(super.selectors, {
+      svg: 'svg',
+      canvas: 'svg .canvas',
+      edgeGroup: '.edgeGroup',
+      nodeGroup: '.nodeGroup',
+      link: '.link',
+      node: '.node',
+      tag: '.tag',
+      note: '.note',
+      hidden: '.hide',
+      selected: '.selected',
+    })
+  }
+
+  get events () {
+    return _.extend(super.events, {
+      'dblclick svg': this._onNodeDblClick,
+    })
   }
   /**
    * initialize all available layouts in view
@@ -78,34 +86,35 @@ export default class Self extends View {
       node: this.p.node,
     })
     // const gridLayout = new GridLayout({
-      // width: this.p.width,
-      // height: this.p.height,
-      // node: this.p.node.size,
-      // offset: { x: this.p.node.size.width, y: this.p.node.size.height },
-      // spacing: 100,
+    // width: this.p.width,
+    // height: this.p.height,
+    // node: this.p.node.size,
+    // offset: { x: this.p.node.size.width, y: this.p.node.size.height },
+    // spacing: 100,
     // })
     // const radialLayout = new RadialLayout({
-      // width: this.p.width,
-      // height: this.p.height,
+    // width: this.p.width,
+    // height: this.p.height,
     // })
     this.layouts = {
       force: forceLayout,
-      //grid: gridLayout,
-      //radial: radialLayout,
+      // grid: gridLayout,
+      // radial: radialLayout,
     }
 
     // TODO change Grid and Radial layouts firing
     // this.actions = [
-      // require('./action/forceLayout'),
-      // require('./action/gridLayout'),
-      // require('./action/radialLayout')
+    // require('./action/forceLayout'),
+    // require('./action/gridLayout'),
+    // require('./action/radialLayout')
     // ]
     // _.each(this.actions, (action) => {
-      // this.actionman.set(action, this)
+    // this.actionman.set(action, this)
     // })
     this.layout = this.layouts.force
     this.layout.on('tick', this._updatePosition, this)
   }
+
   /**
    * initialize View actions and their functions
    */
@@ -137,10 +146,11 @@ export default class Self extends View {
       eventTarget: this.elements.svg,
     })
   }
+
   /**
    * render new graph in the view using current layout
    */
-  render (graph) {
+  render (graph, items) {
     this._graph = graph
     this._items = graph.getItemKeys()
 
@@ -150,10 +160,10 @@ export default class Self extends View {
       .data(this._items, d => d)
 
     this._enterNodes()
-    this._updateNodes()
+    this._updateNodes(items)
     this._exitNodes()
 
-    this.layout.update(graph, this._enteredNodes[0])
+    this.layout.update(graph, this._enteredNodes.nodes())
 
     // init edges only after its coord are ready
     this._edges = this.canvas.select(this.selectors.edgeGroup)
@@ -169,8 +179,10 @@ export default class Self extends View {
       this._exitedNodes.classed(this.selectors.hidden.slice(1), true)
       this._exitedEdges.classed(this.selectors.hidden.slice(1), true)
     })
+
     this.updateLayout({ duration: 1000 })
   }
+
   /**
    * take all available space
    */
@@ -183,18 +195,21 @@ export default class Self extends View {
       .width(this.p.width)
       .height(this.p.height)
   }
+
   /**
    * run current view layout for
    */
   updateLayout (p) {
     if (this.autoLayout) this.layout.run(p, this._graph)
   }
+
   /**
    * TODO make action for it
    */
   toggleAutoLayout () {
     this.autoLayout = !this.autoLayout
   }
+
   /**
    * append new Edges to DOM
    */
@@ -203,6 +218,7 @@ export default class Self extends View {
     this._enteredEdges
       .classed(`${this.selectors.link.slice(1)} ${this.selectors.hidden.slice(1)}`, true)
   }
+
   /**
    * remove dropped off Edges from DOM
    */
@@ -214,6 +230,7 @@ export default class Self extends View {
       this._exitedEdges.remove()
     }, 750)
   }
+
   /**
    * append new nodes to DOM
    */
@@ -231,14 +248,24 @@ export default class Self extends View {
       .attr('y', this.p.node.size.width * -0.19)
       .text(this._getLabel.bind(this))
   }
+
   /**
    * update DOM nodes
    */
-  _updateNodes () {
+  _updateNodes (items) {
     this._nodes
       .select('text')
       .text(this._getLabel.bind(this))
+
+    this._nodes.merge(this._enteredNodes)
+      .select('circle')
+      .attr('style', (key) => {
+        if (_.includes(items.tags, key)) return 'fill: #ff00ff'
+        if (_.includes(items.notes, key)) return 'fill: #00ff00'
+        return 'fill: rgb(215, 236, 251)'
+      })
   }
+
   /**
    * remove DOM nodes
    */
@@ -250,13 +277,14 @@ export default class Self extends View {
       this._exitedNodes.remove()
     }, 750)
   }
+
   /**
    * update nodes and edges positions in DOM
    */
   _updatePosition () {
     const items = this._items
     const coords = this.layout.getCoords()
-    _.each(this._nodes[0], (node) => {
+    _.each(this._nodes.merge(this._enteredNodes).nodes(), (node) => {
       const $node = $(node)
       const item = node.__data__
       const coord = coords[items.indexOf(item)]
@@ -265,7 +293,7 @@ export default class Self extends View {
 
       // if (item == 'job') console.log(coord.x + ', ' + coord.y);
     })
-    _.each(this._edges[0], (edge) => {
+    _.each(this._edges.merge(this._enteredEdges).nodes(), (edge) => {
       const [source, target] = edge.__data__
       const sCoord = coords[items.indexOf(source)]
       const tCoord = coords[items.indexOf(target)]
@@ -291,7 +319,9 @@ export default class Self extends View {
   _onNodeMove (delta) {
     const keys = this.selection.getAll()
     _.each(keys, (key) => {
-      const node = _.find(this._nodes[0], _node => _node.__data__ === key)
+      const node = _.find(this._nodes.merge(this._enteredNodes).nodes(),
+        _node => _node.__data__ === key)
+
       const item = node.__data__
       d3.select(node).append('image')
         .attr('x', 0)
@@ -309,14 +339,18 @@ export default class Self extends View {
 
   _onSelect (keys) {
     _.each(keys, (key) => {
-      const node = _.find(this._nodes[0], _node => _node.__data__ === key)
+      const node = _.find(this._nodes.merge(this._enteredNodes).nodes(),
+        _node => _node.__data__ === key)
+
       if (node) node.classList.add(this.selectors.selected.slice(1))
     })
   }
 
   _onDeselect (keys) {
     _.each(keys, (key) => {
-      const node = _.find(this._nodes[0], _node => _node.__data__ === key)
+      const node = _.find(this._nodes.merge(this._enteredNodes).nodes(),
+        _node => _node.__data__ === key)
+
       if (node) node.classList.remove(this.selectors.selected.slice(1))
     })
   }

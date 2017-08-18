@@ -10,7 +10,7 @@ import glob from 'glob'
 import Graph from '../graph/index'
 import isbinaryfile from 'isbinaryfile'
 
-export default function Self (p = {}) {
+export default function FS (p = {}) {
   this.p = p
   this.storage = new Graph()
 }
@@ -22,7 +22,7 @@ export default function Self (p = {}) {
   connect Group with children
   connect folder name (with groups) with each other
 */
-Self.prototype.read = function () {
+FS.prototype.read = function () {
   this.inDir = Path.normalize(this.p.source || '.')
   this.outDir = Path.normalize(this.p.target || '.')
   const files = glob.sync(Path.join(this.inDir, '**/*'))
@@ -40,7 +40,7 @@ Self.prototype.read = function () {
   return this.storage
 }
 
-Self.prototype.findTagDuplicates = function (path) {
+FS.prototype.findTagDuplicates = function (path) {
   const relative = Path.relative(this.inDir, path)
   const names = this._getTagsFromPath(path)
 
@@ -55,7 +55,7 @@ Self.prototype.findTagDuplicates = function (path) {
   this.tagPaths[last] = relative
 }
 
-Self.prototype.parse = function (path) {
+FS.prototype.parse = function (path) {
   const names = this._getTagsFromPath(path)
   const items = []
 
@@ -78,7 +78,7 @@ Self.prototype.parse = function (path) {
   this.parseSequence(items)
 }
 // Link parent-child
-Self.prototype.parseSequence = function (items) {
+FS.prototype.parseSequence = function (items) {
   items.forEach((item, index) => {
     if (_.isArray(item)) {
       const groupedIds = this.parseGroup(item)
@@ -101,7 +101,7 @@ Self.prototype.parseSequence = function (items) {
  * save grouped Items
  * @returns Array grouped Items ids
  */
-Self.prototype.parseGroup = function (items) {
+FS.prototype.parseGroup = function (items) {
   const groupedItemIds = []
   items.forEach((item, index) => {
     this.tagIds[item] = this.storage.setUniq(item)
@@ -110,7 +110,7 @@ Self.prototype.parseGroup = function (items) {
   return groupedItemIds
 }
 
-Self.prototype._getTagsFromPath = function (path) {
+FS.prototype._getTagsFromPath = function (path) {
   let relative = Path.relative(this.inDir, path)
   // ignore file extension
   if (!fs.lstatSync(path).isDirectory()) {

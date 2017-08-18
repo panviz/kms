@@ -1,8 +1,35 @@
 .view.editor {
-  flex: 3 1 320px;
+  flex: 1 1 15%;
+  position: relative;
+  z-index: 10;
+  border: 1px solid grey;
+  overflow: hidden;
+
+  .header {
+    background-color: lemonchiffon;
+
+    h4 {
+      padding: 5px;
+      margin: 0;
+      display: none;
+    }
+    .close, .size {
+      &:hover {
+        cursor: pointer;
+      }
+
+    }
+  }
 
   textarea {
     width: 100%;
     height: 100%;
   }
 }
+.view.editor.max {
+  flex: 1 0 99.7%;
+}
+.view.editor.min {
+  flex: 0 1 15%;
+}
+

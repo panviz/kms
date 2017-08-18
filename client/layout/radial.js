@@ -5,7 +5,7 @@
 import radialLayout from 'plusjs/src/layout/Radial'
 import Layout from './layout'
 
-export default function Self (p) {
+export default function Radial (p) {
   Layout.call(this, p)
   this.name = 'Radial'
   this._radial = radialLayout()
@@ -13,9 +13,9 @@ export default function Self (p) {
     .position(d => d.index)
     .radius((Math.min(this.width, this.height)) / 2 * 0.8)
 }
-Self.prototype = Object.create(Layout.prototype)
+Radial.prototype = Object.create(Layout.prototype)
 
-Self.prototype.run = function (items) {
+Radial.prototype.run = function (items) {
   _.each(items, (item, key) => {
     if (!item.index) item.index = key // eslint-disable-line no-param-reassign
   })
