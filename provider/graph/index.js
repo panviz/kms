@@ -282,7 +282,7 @@ export default class Graph {
    * TODO works only for depth 0/1
    * @param rootKey Key of item to traverse graph from
    * @param depth
-   * @return Graph starting from the item provided
+   * @return Graph starting from the item(s) provided
    */
   getGraph (rootKeyS, depth = 0) {
     const sgItems = {} // sub graph items
@@ -311,13 +311,15 @@ export default class Graph {
   }
   /**
    * Find items linked with each one of specified
-   * @param {String|Array} Keys of items connected to the item looked for
+   * @param {String|Array} keyS of items connected to the item looked for
+   * @return {Array} of keys
    */
   find (keyS) {
     const keys = Util.pluralize(keyS)
     const arrLinkedKeys = _.map(keys, key => this.getLinked(key))
     return _.intersection(...arrLinkedKeys)
   }
+
   /**
    * Search linked items for one with value matching the string
    * @param Key key of the item to search children of

@@ -7,15 +7,18 @@ function absolute (...args) {
 }
 
 let fileName = 'bundle'
+let externalFileName = 'exBundle'
 const defaultEnv = {dev: true}
 const plugins = []
 const rules = [{
-  test: /\.scss$/,
+  test: /\.(scss|css)$/,
   loader: ExtractTextPlugin.extract({
     fallback: 'style-loader',
     use: ['css-loader', 'sass-loader']
   }),
-}, {
+},
+
+  {
   test: /\.html/,
   loader: 'handlebars-loader',
 }, {
@@ -44,12 +47,18 @@ export default (env = defaultEnv) => {
     }))
   }
 
-  plugins.push(new ExtractTextPlugin(`${fileName}.css`))
+  plugins.push(new ExtractTextPlugin(`[name].css`))
 
   return {
     entry: {
-      libs: ['webcola', 'jquery.easing', 'eventemitter3'],
+      libs: ['webcola',
+             'jquery.easing',
+             'eventemitter3',
+             'select2',
+             'material-design-lite/src/mdlComponentHandler',
+             'material-design-lite/src/menu/menu'],
       client: './client/app.js',
+      libcss: ['./client/style/libs.scss'],
     },
     output: {
       path: absolute('build'),

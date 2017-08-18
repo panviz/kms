@@ -22,9 +22,9 @@
   },
   "license": "SEE LICENSE IN LICENSE",
   "scripts": {
-    "build": "webpack --env.prod",
+    "build": "webpack",
     "build:clean": "rm -rf build/* && yarn run build",
-    "start": "NODE_ENV=DEV babel-node server/instance.js",
+    "start": "cross-env NODE_ENV=DEV babel-node server/instance.js",
     "lint": "eslint .",
     "doc": "jsdoc src -r -d docs",
     "test": "mocha test/unit"
@@ -52,7 +52,7 @@
     "d3": "^4.10.0",
     "eventemitter3": "Graphiy/eventemitter3",
     "express": "^4.15.3",
-    "extract-text-webpack-plugin": "^3.0.0",
+    "extract-text-webpack-plugin": "2.1.2",
     "file-loader": "^0.11.2",
     "file-type": "^5.2.0",
     "font-awesome": "^4.7.0",
@@ -75,6 +75,7 @@
     "plusjs": "Dmitra/plusjs",
     "raw-loader": "^0.5.1",
     "sass-loader": "^6.0.6",
+    "select2": "^4.0.3",
     "style-loader": "^0.18.2",
     "uglifyjs-webpack-plugin": "^0.4.6",
     "url-loader": "^0.5.9",
@@ -83,6 +84,7 @@
   },
   "devDependencies": {
     "chalk": "^2.0.1",
+    "cross-env": "^5.0.4",
     "eslint": "^4.3.0",
     "eslint-config-airbnb": "^15.1.0",
     "eslint-plugin-import": "^2.7.0",
