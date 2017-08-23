@@ -97,4 +97,26 @@ export default class Self {
       resolve(data)
     })
   }
+
+  createAndLinkItem (args) {
+    const keyS = JSON.parse(args)
+    const key = this.graph.set()
+    if (!_.isEmpty(keyS)) {
+      this.graph.associate(key, keyS)
+    }
+    return new Promise((resolve, reject) => {
+      this.provider.set(key, this.graph.get(key), this.graph.getLinks(key), {
+        target: this.p.repository.path,
+      })
+      resolve()
+    })
+  }
+
+  getGraph (context) {
+    const contextS = Util.pluralize(JSON.parse(context))
+    return new Promise((resolve, reject) => {
+      const graph = this.graph.getGraph(contextS, 1)
+      resolve(this.graph.getGraph(contextS, 1))
+    })
+  }
 }

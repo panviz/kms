@@ -33,12 +33,65 @@ class App {
     this._loadRepo()
   }
 
+  /**
+   * Populate view with user data from previous time
+   */
+  async _loadRepo () {
+    let graph = await this._request('getGraph', this.rootKey, 1)
+    if (_.isEmpty(graph.getItemsMap())) {
+      await this._initRepo()
+    } else {
+      _.each(this._serviceItems.concat(this._itemtypes), (item) => {
+        this.serviceItem[item] = graph.search(this.rootKey, item)[0]
+      })
+      this.serviceItem.root = this.rootKey
+    }
+    //todo getGraph некоректно работает с массивом (строка - ок)
+    graph = await this._request('getGraph', [this.serviceItem.visibleItem,
+      this.serviceItem.tag,
+      this.serviceItem.note], 1)
+    //this._filter(graph)
+    this._updateGraphView(graph, { tags: [], notes: [] })
+
+    /*try {
+      let graph = await this.provider.request('getGraph', this.rootKey, 1)
+      if (_.isEmpty(graph.getItemsMap())) await this._initRepo()
+      else {
+        _.each(this._serviceItems.concat(this._itemtypes), (item) => {
+          this.serviceItem[item] = graph.search(this.rootKey, item)[0]
+        })
+        this.serviceItem.root = this.rootKey
+      }
+
+      graph = await this.provider.request('getGraph', [this.serviceItem.visibleItem, this.serviceItem.tag, this.serviceItem.note], 1)
+
+      const tagKeys = graph.getLinked(this.serviceItem.tag)
+      const noteKeys = graph.getLinked(this.serviceItem.note)
+
+      this._filter(graph)
+      this._filter(tagKeys)
+      this._filter(noteKeys)
+      this._updateGraphView(graph, { tags: tagKeys, notes: noteKeys })
+
+      const keys = graph.getItemKeys()
+      this.visibleItems.add(keys)
+      this.tagItems.add(tagKeys)
+      this.noteItems.add(noteKeys)
+
+      this.visibleItems.on('change', this._reloadGraph.bind(this))
+      this.visibleItems.on('add', this._onVisibleItemsAdd.bind(this))
+      this.visibleItems.on('remove', this._onVisibleItemsRemove.bind(this))
+    } catch (e) {
+      console.error(e)
+    }*/
+  }
+
   showChildren (keyS) {
     const keys = Util.pluralize(keyS)
 
     // TODO multiple
     const rootKey = keys[0]
-    this.provider.request('getGraph', rootKey, 1)
+    this.provider.request('get Graph', rootKey, 1)
       .then((graph) => {
         graph.remove(rootKey)
         this._filter(graph)
@@ -53,32 +106,22 @@ class App {
       })
   }
 
-  createItem (p = {}) {
+  async createItem (p = {}) {
     const selected = this.selection.getAll()
-    let updatesCounter = selected.length
-    this.provider.request('set')
-      .then((key) => {
-        if (!_.isEmpty(selected)) {
-          _.each(selected, (relatedKey) => {
-            this.provider.request('associate', key, relatedKey)
-              .then((updated) => {
-                --updatesCounter
-                if (updatesCounter === 0) this.visibleItems.add(key)
-              })
+    await this._request('createAndLinkItem', this.serviceItem.visibleItem, this.serviceItem[p], selected.join(','))
+    const data = await this._request('getGraph', this.serviceItem.visibleItem)
+    // const graph = this._filter(data)
+    // this._updateGraphView(graph, { tags: [], notes: [] })
+    this._updateGraphView(data, { tags: [], notes: [] })
+
+    /*this._request('createAndLinkItem', this.serviceItem.visibleItem, this.serviceItem[p], selected.join(','))
+      .then(() => {
+        this._request('getGraph', this.serviceItem.visibleItem)
+          .then((data) => {
+            // const graph = this._filter(data)
+            this._updateGraphView(graph, [])
           })
-        } else {
-          this.visibleItems.add(key)
-          this.selection.add(key)
-        }
-        if (p === 'tag') {
-          this.provider.request('associate', key, this.serviceItem.tag)
-          this.tagItems.add(key)
-        }
-        if (p === 'note') {
-          this.provider.request('associate', key, this.serviceItem.note)
-          this.noteItems.add(key)
-        }
-      })
+      })*/
   }
 
   editItem (key) {
@@ -107,11 +150,12 @@ class App {
       })
   }
 
-  linkItems (source, targets) {
-    this.provider.request('associate', source, targets)
-      .then((updated) => {
-        this._reloadGraph()
-      })
+  async linkItems (source, targets) {
+    const reply = await this.provider.request('associate', source, targets)
+    if (reply.success) {
+      const graph = await this.provider.request('getGraph', this._serviceItems.visibleItem)
+      this._updateGraphView(graph, {})
+    }
   }
 
   unlinkItems (source, targets) {
@@ -123,41 +167,6 @@ class App {
 
   visibleLinked (parent) {
     return this._graph.getLinked(parent)
-  }
-
-  /**
-   * Populate view with user data from previous time
-   */
-  async _loadRepo () {
-    try {
-      let graph = await this.provider.request('getGraph', this.rootKey, 1)
-      if (_.isEmpty(graph.getItemsMap())) await this._initRepo()
-      else {
-        _.each(this._serviceItems.concat(this._itemtypes), (item) => {
-          this.serviceItem[item] = graph.search(this.rootKey, item)[0]
-        })
-        this.serviceItem.root = this.rootKey
-      }
-
-      graph = await this.provider.request('getGraph', this.serviceItem.visibleItem, 1)
-
-      const tagKeys = await this.provider.request('getLinked', this.serviceItem.tag)
-      const noteKeys = await this.provider.request('getLinked', this.serviceItem.note)
-      this._filter(graph)
-      this._filter(tagKeys)
-      this._filter(noteKeys)
-      const keys = graph.getItemKeys()
-      this.visibleItems.add(keys)
-      this.tagItems.add(tagKeys)
-      this.noteItems.add(noteKeys)
-      this._updateGraphView(graph, { tags: tagKeys, notes: noteKeys })
-
-      this.visibleItems.on('change', this._reloadGraph.bind(this))
-      this.visibleItems.on('add', this._onVisibleItemsAdd.bind(this))
-      this.visibleItems.on('remove', this._onVisibleItemsRemove.bind(this))
-    } catch (e) {
-      console.error(e)
-    }
   }
 
   _initRepo () {
@@ -229,6 +238,26 @@ class App {
     }
     _.pullAll(keys, serviceKeys)
     return keys
+  }
+
+  /**
+   * Translate graph function calls to server
+   */
+  _request (method, ...args) {
+    const promise = new Promise((resolve, reject) => {
+      const request = $.post({
+        url: '/graph/',
+        data: {
+          method,
+          args: JSON.stringify(args),
+        },
+      })
+      request.then((data) => {
+        const graph = data.items && data.links ? new Graph(data) : data
+        resolve(graph)
+      })
+    })
+    return promise
   }
 }
 
