@@ -16,6 +16,8 @@ export default class Self {
     this.serviceItem = {}
     this.p = p
 
+    // todo delete and change in raw provider line 84 p.target => p.repository.path
+    this.p.target = this.p.repository.path
 
     this.provider = Raw
     this.provider.read(this.p.repository.path)
@@ -99,24 +101,82 @@ export default class Self {
   }
 
   createAndLinkItem (args) {
-    const keyS = JSON.parse(args)
+    const linkedKeys = JSON.parse(args)[0]
     const key = this.graph.set()
-    if (!_.isEmpty(keyS)) {
-      this.graph.associate(key, keyS)
+    if (!_.isEmpty(linkedKeys)) {
+      this.graph.associate(key, linkedKeys)
     }
     return new Promise((resolve, reject) => {
-      this.provider.set(key, this.graph.get(key), this.graph.getLinks(key), {
-        target: this.p.repository.path,
+      this.provider.set(key, this.graph.get(key), this.graph.getLinks(key), this.p)
+      resolve()
+    })
+  }
+
+  getGraph (args) {
+    const data = JSON.parse(args)
+    const weight = data[1]
+    const contextS = Util.pluralize(data[0])
+    return new Promise((resolve, reject) => {
+      resolve(this.graph.getGraph(contextS, weight))
+    })
+  }
+
+  remove (keys) {
+    const result = this.graph.remove(JSON.parse(keys)[0])
+    return new Promise((resolve, reject) => {
+      _.each(result, (key) => {
+        this.provider.set(key, this.graph.get(key), this.graph.getLinks(key), this.p)
       })
       resolve()
     })
   }
 
-  getGraph (context) {
-    const contextS = Util.pluralize(JSON.parse(context))
+  set (args) {
+    const data = JSON.parse(args)
+    const value = data[0]
+    let key = data[1]
+    key = this.graph.set(value, key)
+
     return new Promise((resolve, reject) => {
-      const graph = this.graph.getGraph(contextS, 1)
-      resolve(this.graph.getGraph(contextS, 1))
+      this.provider.set(key, this.graph.get(key), this.graph.getLinks(key), this.p)
+      resolve(key)
+    })
+  }
+
+  get (args) {
+    const data = JSON.parse(args)
+    const key = data[0]
+    return new Promise((resolve, reject) => {
+      resolve(this.graph.get(key))
+    })
+  }
+
+  associate (args) {
+    const data = JSON.parse(args)
+    const source = data[0]
+    const target = data[1]
+    const result = this.graph.associate(source, target, 1, this.p)
+
+    return new Promise((resolve, reject) => {
+      _.each(result, (key) => {
+        this.provider.set(key, this.graph.get(key), this.graph.getLinks(key), this.p)
+      })
+      resolve()
+    })
+  }
+
+  // todo не работает множественное разеденение
+  setDisassociate (args) {
+    const data = JSON.parse(args)
+    const source = data[0]
+    const target = data[1]
+    const result = this.graph.setDisassociate(source, target)
+
+    return new Promise((resolve, reject) => {
+      _.each(result, (key) => {
+        this.provider.set(key, this.graph.get(key), this.graph.getLinks(key), this.p)
+      })
+      resolve()
     })
   }
 }

@@ -33,65 +33,12 @@ class App {
     this._loadRepo()
   }
 
-  /**
-   * Populate view with user data from previous time
-   */
-  async _loadRepo () {
-    let graph = await this._request('getGraph', this.rootKey, 1)
-    if (_.isEmpty(graph.getItemsMap())) {
-      await this._initRepo()
-    } else {
-      _.each(this._serviceItems.concat(this._itemtypes), (item) => {
-        this.serviceItem[item] = graph.search(this.rootKey, item)[0]
-      })
-      this.serviceItem.root = this.rootKey
-    }
-    //todo getGraph некоректно работает с массивом (строка - ок)
-    graph = await this._request('getGraph', [this.serviceItem.visibleItem,
-      this.serviceItem.tag,
-      this.serviceItem.note], 1)
-    //this._filter(graph)
-    this._updateGraphView(graph, { tags: [], notes: [] })
-
-    /*try {
-      let graph = await this.provider.request('getGraph', this.rootKey, 1)
-      if (_.isEmpty(graph.getItemsMap())) await this._initRepo()
-      else {
-        _.each(this._serviceItems.concat(this._itemtypes), (item) => {
-          this.serviceItem[item] = graph.search(this.rootKey, item)[0]
-        })
-        this.serviceItem.root = this.rootKey
-      }
-
-      graph = await this.provider.request('getGraph', [this.serviceItem.visibleItem, this.serviceItem.tag, this.serviceItem.note], 1)
-
-      const tagKeys = graph.getLinked(this.serviceItem.tag)
-      const noteKeys = graph.getLinked(this.serviceItem.note)
-
-      this._filter(graph)
-      this._filter(tagKeys)
-      this._filter(noteKeys)
-      this._updateGraphView(graph, { tags: tagKeys, notes: noteKeys })
-
-      const keys = graph.getItemKeys()
-      this.visibleItems.add(keys)
-      this.tagItems.add(tagKeys)
-      this.noteItems.add(noteKeys)
-
-      this.visibleItems.on('change', this._reloadGraph.bind(this))
-      this.visibleItems.on('add', this._onVisibleItemsAdd.bind(this))
-      this.visibleItems.on('remove', this._onVisibleItemsRemove.bind(this))
-    } catch (e) {
-      console.error(e)
-    }*/
-  }
-
   showChildren (keyS) {
     const keys = Util.pluralize(keyS)
 
     // TODO multiple
     const rootKey = keys[0]
-    this.provider.request('get Graph', rootKey, 1)
+    this._request('getGraph', rootKey, 1)
       .then((graph) => {
         graph.remove(rootKey)
         this._filter(graph)
@@ -108,65 +55,73 @@ class App {
 
   async createItem (p = {}) {
     const selected = this.selection.getAll()
-    await this._request('createAndLinkItem', this.serviceItem.visibleItem, this.serviceItem[p], selected.join(','))
-    const data = await this._request('getGraph', this.serviceItem.visibleItem)
-    // const graph = this._filter(data)
-    // this._updateGraphView(graph, { tags: [], notes: [] })
-    this._updateGraphView(data, { tags: [], notes: [] })
-
-    /*this._request('createAndLinkItem', this.serviceItem.visibleItem, this.serviceItem[p], selected.join(','))
-      .then(() => {
-        this._request('getGraph', this.serviceItem.visibleItem)
-          .then((data) => {
-            // const graph = this._filter(data)
-            this._updateGraphView(graph, [])
-          })
-      })*/
+    await this._request('createAndLinkItem', _.concat(this.serviceItem.visibleItem, this.serviceItem[p], selected))
+    const graph = await this._request('getGraph', this.serviceItem.visibleItem, 1)
+    this._filter(graph)
+    this._updateGraphView(graph, { tags: [], notes: [] })
   }
 
-  editItem (key) {
-    this.provider.request('get', key)
-      .then((value) => {
-        this.ui.editor.set(value, key)
-        this.ui.editor.setTitle('Edit item')
-        this.ui.editor.show()
-      })
+  async editItem (key) {
+    const value = await this._request('get', key)
+    this.ui.editor.set(value, key)
+    this.ui.editor.setTitle('Edit item')
+    this.ui.editor.show()
   }
 
-  saveItem (value, key) {
-    this.provider.request('set', value, key)
-      .then((_key) => {
-        if (_key === key) {
-          this.ui.editor.saved()
-          this._reloadGraph()
-        }
-      })
-  }
-
-  removeItem (keys) {
-    this.provider.request('remove', keys)
-      .then((updated) => {
-        this.visibleItems.remove(keys)
-      })
-  }
-
-  async linkItems (source, targets) {
-    const reply = await this.provider.request('associate', source, targets)
-    if (reply.success) {
-      const graph = await this.provider.request('getGraph', this._serviceItems.visibleItem)
-      this._updateGraphView(graph, {})
+  async saveItem (value, key) {
+    const _key = await this._request('set', value, key)
+    if (_key === key) {
+      this.ui.editor.saved()
+      const graph = await this._request('getGraph', this.serviceItem.visibleItem, 1)
+      this._filter(graph)
+      this._updateGraphView(graph, { tags: [], notes: [] })
     }
   }
 
-  unlinkItems (source, targets) {
-    this.provider.request('setDisassociate', source, targets)
-      .then((updated) => {
-        this._reloadGraph()
-      })
+  async removeItem (keys) {
+    await this._request('remove', keys)
+    const graph = await this._request('getGraph', this.serviceItem.visibleItem, 1)
+    this._filter(graph)
+    this._updateGraphView(graph, { tags: [], notes: [] })
+  }
+
+  async linkItems (source, targets) {
+    await this._request('associate', source, targets)
+    const graph = await this._request('getGraph', this.serviceItem.visibleItem, 1)
+    this._filter(graph)
+    this._updateGraphView(graph, { tags: [], notes: [] })
+  }
+
+  // todo не работает множественное разеденение
+  async unlinkItems (source, targets) {
+    this._request('setDisassociate', source, targets)
+    const graph = await this._request('getGraph', this.serviceItem.visibleItem, 1)
+    this._filter(graph)
+    this._updateGraphView(graph, { tags: [], notes: [] })
   }
 
   visibleLinked (parent) {
     return this._graph.getLinked(parent)
+  }
+  /**
+   * Populate view with user data from previous time
+   */
+  async _loadRepo () {
+    let graph = await this._request('getGraph', this.rootKey, 1)
+    if (_.isEmpty(graph.getItemsMap())) {
+      await this._initRepo()
+    } else {
+      _.each(this._serviceItems.concat(this._itemtypes), (item) => {
+        this.serviceItem[item] = graph.search(this.rootKey, item)[0]
+      })
+      this.serviceItem.root = this.rootKey
+    }
+    // получаем все для обработки иконок
+    graph = await this._request('getGraph', [this.serviceItem.visibleItem,
+      this.serviceItem.tag,
+      this.serviceItem.note], 1)
+    this._filter(graph)
+    this._updateGraphView(graph, { tags: [], notes: [] })
   }
 
   _initRepo () {

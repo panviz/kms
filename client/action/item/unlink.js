@@ -13,7 +13,9 @@ export default class Unlink extends Action {
 
   _execute () {
     const keys = this.registrar.selection.getAll()
-    this.registrar.unlinkItems(keys[0], keys[1])
+    const key1 = keys.shift()
+
+    this.registrar.unlinkItems(key1, keys)
   }
 
   evaluate (selection) {
