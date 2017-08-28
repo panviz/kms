@@ -13,7 +13,7 @@ export default class Hide extends Action {
 
   _execute () {
     const keys = this.registrar.selection.getAll()
-    this.registrar.visibleItems.remove(keys)
+    this.registrar.hide(keys)
   }
 
   evaluate (selection) {

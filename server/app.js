@@ -102,12 +102,13 @@ export default class Self {
 
   createAndLinkItem (args) {
     const linkedKeys = JSON.parse(args)[0]
-    const key = this.graph.set()
-    if (!_.isEmpty(linkedKeys)) {
-      this.graph.associate(key, linkedKeys)
-    }
-    return new Promise((resolve, reject) => {
-      this.provider.set(key, this.graph.get(key), this.graph.getLinks(key), this.p)
+    const newKey = this.graph.set()
+    const result = this.graph.associate(newKey, linkedKeys)
+
+      return new Promise((resolve, reject) => {
+        _.each(result, (key) => {
+            this.provider.set(key, this.graph.get(key), this.graph.getLinks(key), this.p)
+        })
       resolve()
     })
   }
@@ -165,7 +166,6 @@ export default class Self {
     })
   }
 
-  // todo не работает множественное разеденение
   setDisassociate (args) {
     const data = JSON.parse(args)
     const source = data[0]
@@ -178,5 +178,18 @@ export default class Self {
       })
       resolve()
     })
+  }
+
+  merge (args) {
+      const data = JSON.parse(args)
+      const graph = data[0]
+      const result = this.graph.merge(graph)
+
+      return new Promise((resolve, reject) => {
+          _.each(result, (key) => {
+              this.provider.set(key, this.graph.get(key), this.graph.getLinks(key), this.p)
+          })
+          resolve()
+      })
   }
 }
