@@ -23,7 +23,7 @@ export default class Self {
     this.provider.read(this.p.repository.path)
       .then((graph) => {
         this.graph = graph
-        console.info(`Serving items total: ${graph.getItemKeys().length} from ${this.p.source}`)
+        console.info(`Serving items total: ${graph.getItemKeys().length} from ${this.p.repository.path}`)
         this.apiServer = new APIServer({
           source: this.p.repository.path,
           target: this.p.repository.path,

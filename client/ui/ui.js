@@ -47,6 +47,7 @@ export default class UI {
     const editorSet = {
       actionman: this.actionman,
       container: this.elements.viewContainer,
+      selection: this.selection,
       hidden: true,
     }
 

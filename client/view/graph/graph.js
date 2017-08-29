@@ -356,6 +356,6 @@ export default class Graph extends View {
   }
 
   _onNodeDblClick (e) {
-    this.actionman.get('itemShowChildren').apply()
+    this.actionman.get('itemShowChildren').apply(e)
   }
 }

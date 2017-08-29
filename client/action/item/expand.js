@@ -11,9 +11,10 @@ export default class Expand extends Action {
     this.registrar.selection.on('change', this.evaluate.bind(this, this.registrar.selection))
   }
 
-  _execute () {
+  _execute (...args) {
     const keys = this.registrar.selection.getAll()
-    this.registrar.showChildren(keys)
+    if(args[0].type === 'dblclick') this.registrar.showChildren(keys, true)
+    else this.registrar.showChildren(keys, false)
   }
 
   evaluate (selection) {
