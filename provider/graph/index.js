@@ -40,6 +40,7 @@ const idPattern = /[a-z0-9]{8}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{12}/
 export default class Graph {
   constructor (p = {}) {
     this.providerID = 'graph'
+    this.context = []
     this._items = _.cloneDeep(p.items) || {}
     this._links = _.cloneDeep(p.links) || {}
   }
@@ -393,5 +394,13 @@ export default class Graph {
    */
   validateKeys (key1, key2) {
     return key1 && key2 && key1 !== key2
+  }
+
+  set Context (keys) {
+    const contextKeys = Util.pluralize(keys)
+    this.context = contextKeys
+  }
+  get Context () {
+    return this.context
   }
 }

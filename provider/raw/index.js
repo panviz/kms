@@ -81,7 +81,7 @@ Raw._getFile = function (path, p = {}) {
  * Save item
  */
 Raw.set = function (key, value, links, p) {
-  const path = Path.join(p.target, key)
+  const path = Path.join(p.repository.path, key)
   if ((_.isNil(value) || value === '') && _.isEmpty(links)) {
     try { fs.unlinkSync(path) } catch (e) {}
     return
