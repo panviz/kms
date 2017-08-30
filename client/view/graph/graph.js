@@ -47,6 +47,7 @@ export default class Graph extends View {
     this._graph = undefined
 
     this.canvas = d3.select(this.selectors.canvas)
+    this.svg = d3.select(this.selectors.svg)
     this.resize()
     this._initLayouts()
     this._initViewActions()
@@ -59,7 +60,8 @@ export default class Graph extends View {
   get selectors () {
     return _.extend(super.selectors, {
       svg: 'svg',
-      canvas: 'svg .canvas',
+      container: '.container',
+      canvas: '.container .canvas',
       edgeGroup: '.edgeGroup',
       nodeGroup: '.nodeGroup',
       link: '.link',
@@ -73,7 +75,7 @@ export default class Graph extends View {
 
   get events () {
     return _.extend(super.events, {
-      'dblclick svg': this._onNodeDblClick,
+      'dblclick .container': this._onNodeDblClick,
     })
   }
   /**
@@ -119,9 +121,9 @@ export default class Graph extends View {
    * initialize View actions and their functions
    */
   _initViewActions () {
-    this.elements.svg.addClass('behavior')
+    this.elements.container.addClass('behavior')
     this.drag = new Drag({
-      container: this.elements.svg,
+      container: this.elements.container,
       node: this.p.node,
     })
     this.drag.enable()
@@ -129,21 +131,21 @@ export default class Graph extends View {
     this.drag.on('move', this._onNodeMove.bind(this))
 
     this.pan = new Pan({
-      container: this.elements.svg,
+      container: this.elements.container,
       panElement: this.elements.canvas,
     })
     this.pan.enable()
 
     this.selectioning = new Selectioning({
       selection: this.selection,
-      container: this.elements.svg,
+      container: this.elements.container,
       nodeSelector: this.selectors.node,
     })
     this.rectSelectioning = new RectSelectioning({
       selection: this.selection,
       nodes: this._nodes,
       container: this.elements.root,
-      eventTarget: this.elements.svg,
+      eventTarget: this.elements.container,
     })
   }
 
@@ -166,9 +168,10 @@ export default class Graph extends View {
     this.layout.update(graph, this._enteredNodes.nodes())
 
     // init edges only after its coord are ready
-    this._edges = this.canvas.select(this.selectors.edgeGroup)
+    this._edges = this.svg.select(this.selectors.edgeGroup)
       .selectAll(this.selectors.link)
       .data(this._graph.getLinksArray())
+
     this._enterEdges()
     this._exitEdges()
 
@@ -190,7 +193,7 @@ export default class Graph extends View {
     this.elements.svg.detach()
     this.p.height = this.elements.root.height()
     this.p.width = this.elements.root.width()
-    this.elements.root.append(this.elements.svg)
+    this.elements.canvas.prepend(this.elements.svg)
     this.elements.svg
       .width(this.p.width)
       .height(this.p.height)
@@ -235,18 +238,19 @@ export default class Graph extends View {
    * append new nodes to DOM
    */
   _enterNodes () {
-    this._enteredNodes = this._nodes.enter().append('g')
+    this._enteredNodes = this._nodes.enter().append('div')
     this._enteredNodes
       .classed(`${this.selectors.node.slice(1)} ${this.selectors.hidden.slice(1)}`, true)
       .classed(this.selectors.selected.slice(1), key => _.includes(this.selection.getAll(), key))
     this._enteredNodes
-      .append('circle')
-      .attr('r', this.p.node.size.width / 2)
+      .append('div')
+      .attr('class', 'circle')
+      .style('width', this.p.node.size.width)
+      .style('height', this.p.node.size.height)
     this._enteredNodes
-      .append('text')
-      .attr('x', this.p.node.size.width * 0.56)
-      .attr('y', this.p.node.size.width * -0.19)
-      .text(this._getLabel.bind(this))
+      .append('div')
+      .attr('class', 'text')
+      .html(this._getLabel.bind(this))
   }
 
   /**
@@ -254,15 +258,15 @@ export default class Graph extends View {
    */
   _updateNodes (items) {
     this._nodes
-      .select('text')
-      .text(this._getLabel.bind(this))
+      .select('.text')
+      .html(this._getLabel.bind(this))
 
     this._nodes.merge(this._enteredNodes)
-      .select('circle')
-      .attr('style', (key) => {
-        if (_.includes(items.tags, key)) return 'fill: #ff00ff'
-        if (_.includes(items.notes, key)) return 'fill: #00ff00'
-        return 'fill: rgb(215, 236, 251)'
+      .select('.circle')
+      .style('background', (key) => {
+        if (_.includes(items.tags, key)) return '#ff00ff'
+        if (_.includes(items.notes, key)) return '#00ff00'
+        return 'rgb(215, 236, 251)'
       })
   }
 
