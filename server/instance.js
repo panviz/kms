@@ -76,7 +76,8 @@ class Server {
 
   _onAPPRequest (req, res) {
     console.info(`App request params: ${JSON.stringify(req.body)}`)
-    this.app[req.body.method](req.body.args)
+    const args = JSON.parse(req.body.args)
+    this.app[req.body.method](...args)
       .then((data) => {
         res.send(data)
       })

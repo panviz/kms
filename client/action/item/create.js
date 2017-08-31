@@ -1,4 +1,4 @@
-import Action from '../../action'
+import Action from '../action'
 
 export default class Create extends Action {
   constructor (p) {

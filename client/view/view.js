@@ -4,11 +4,13 @@
  */
 import EventEmitter from 'eventemitter3'
 import Util from '../../core/util'
+import Collection from '../../core/collection'
 
 export default class View extends EventEmitter {
   constructor (p = {}) {
     super()
     this.p = p
+    this.selection = new Collection()
   }
 
   get selectors () {

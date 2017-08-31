@@ -29,25 +29,22 @@ export default class UI {
   constructor (p = {}) {
     this.actionman = new Actionman()
     this.p = p
-    this.selection = p.selection
 
     this.elements = Util.findElements('body', this.selectors)
 
     const graphViewSet = {
+      ui: this,
       actionman: this.actionman,
       container: this.elements.viewContainer,
-      selection: this.selection,
     }
     const listViewSet = {
       actionman: this.actionman,
       container: this.elements.viewContainer,
-      selection: this.selection,
       hidden: true,
     }
     const editorSet = {
       actionman: this.actionman,
       container: this.elements.viewContainer,
-      selection: this.selection,
       hidden: true,
     }
 

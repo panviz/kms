@@ -28,7 +28,7 @@ export default class Graph extends View {
 
     this.autoLayout = true
     this.actionman = p.actionman
-    this.selection = p.selection
+    this.ui = p.ui
 
     const $html = $(template())
     this.setElement($html)
@@ -51,6 +51,7 @@ export default class Graph extends View {
     this._initLayouts()
     this._initViewActions()
 
+    this.selection.on('change', this._onSelectChange.bind(this))
     this.selection.on('add', this._onSelect.bind(this))
     this.selection.on('remove', this._onDeselect.bind(this))
     $(window).on('resize', this.resize.bind(this))
@@ -357,5 +358,16 @@ export default class Graph extends View {
 
   _onNodeDblClick (e) {
     this.actionman.get('itemShowChildren').apply(e)
+  }
+
+  _onSelectChange () {
+    const keys = this.selection.getAll()
+    if (keys.length === 1) {
+      const key = keys[0]
+      if (this.ui.editor.isVisible()) {
+        const value = this.graph.get(key)
+        this.ui.editor.set(value, key)
+      }
+    } else if (keys.length === 0) this.ui.hideSecondaryViews()
   }
 }

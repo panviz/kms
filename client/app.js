@@ -3,7 +3,7 @@
  */
 import Util from '../core/util'
 import ClientUtil from './util' //eslint-disable-line
-import Collection from '../core/collection'
+//import Collection from '../core/collection'
 import UI from './ui/ui'
 import Graph from '../provider/graph/index'
 import './style/index.scss'
@@ -16,9 +16,10 @@ class App {
     this.serviceItem = {}
     this.graph = {}
 
-    this.selection = new Collection()
-    this.selection.on('change', this._onSelect.bind(this))
-    this.ui = new UI({ itemman: this, selection: this.selection })
+    //this.selection = new Collection()
+    //this.selection.on('change', this._onSelect.bind(this))
+    // this.ui = new UI({ itemman: this, selection: this.selection })
+    this.ui = new UI({ itemman: this })
 
     this._loadRepo()
   }
@@ -44,37 +45,30 @@ class App {
   }
 
   async createItem (p = {}) {
-    const selected = this.selection.clear()
+    // const selected = this.selection.clear()
+    const selected = this.ui.graphView.selection.clear()
     const key = await App._request('createAndLinkItem', _.concat(this.serviceItem.visibleItem, this.serviceItem[p], selected))
-    this.selection.add(key)
+    this.ui.graphView.selection.add(key)
     await this._reloadGraph(this.serviceItem.visibleItem)
     this._updateGraphView({ tags: [], notes: [] })
   }
 
-  async editItem (key) {
-    const value = await App._request('get', key)
+  editItem (key) {
+    const value = this.graph.get(key)
     this.ui.editor.set(value, key)
     this.ui.editor.setTitle('Edit item')
     this.ui.editor.show()
   }
 
   async saveItem (value, key) {
-    const _key = await App._request('set', value, key)
-    if (_key === key) {
-      this.ui.editor.saved()
-      await this._reloadGraph(this.serviceItem.visibleItem)
-      this._updateGraphView({ tags: [], notes: [] })
-    }
-  }
-
-  async removeItem (keys) {
-    await App._request('remove', keys)
+    await App._request('set', value, key)
+    this.ui.editor.saved()
     await this._reloadGraph(this.serviceItem.visibleItem)
     this._updateGraphView({ tags: [], notes: [] })
   }
 
-  async hide (keys) {
-    await App._request('setDisassociate', this.serviceItem.visibleItem, keys)
+  async removeItem (keys) {
+    await App._request('remove', keys)
     await this._reloadGraph(this.serviceItem.visibleItem)
     this._updateGraphView({ tags: [], notes: [] })
   }
@@ -129,7 +123,7 @@ class App {
     return App._request('merge', graph)
   }
 
-  _onSelect () {
+  /*_onSelect () {
     const keys = this.selection.getAll()
     if (keys.length === 1) {
       const key = keys[0]
@@ -138,13 +132,12 @@ class App {
         this.ui.editor.set(value, key)
       }
     } else if (keys.length === 0) this.ui.hideSecondaryViews()
-  }
+  }*/
   /**
    * Sync graph with server
    */
   async _reloadGraph (context, depth = 1) {
     const graph = await App._request('getGraph', context, depth)
-    graph.context = context
     this._filter(graph)
     this.graph = graph
   }

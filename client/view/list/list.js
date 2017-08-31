@@ -13,7 +13,7 @@ export default class List extends View {
     const $html = $(template())
     if (this.p.hidden) $html.css('display', 'none')
     this.setElement($html)
-    this.p.selection.on('change', this._onSelectionChange.bind(this))
+    this.selection.on('change', this._onSelectionChange.bind(this))
   }
 
   get selectors () {

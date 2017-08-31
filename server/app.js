@@ -32,6 +32,12 @@ export default class Self {
     })
     this.serviceItem.root = this.rootKey
   }
+
+  _changeItemsInStoradge (result) {
+    _.each(result, (key) => {
+      this.provider.set(key, this.graph.get(key), this.graph.getLinks(key), this.p)
+    })
+  }
   /**
    * Find Items by value from root
    * @param p
@@ -90,83 +96,56 @@ export default class Self {
     })
   }
 
-  createAndLinkItem (args) {
-    const linkedKeys = JSON.parse(args)[0]
+  createAndLinkItem (linkedKeys) {
     const newKey = this.graph.set()
     const result = this.graph.associate(newKey, linkedKeys)
-    _.each(result, (key) => {
-      this.provider.set(key, this.graph.get(key), this.graph.getLinks(key), this.p)
-    })
+    this._changeItemsInStoradge(result)
 
     return Promise.resolve(newKey)
   }
 
-  getGraph (args) {
-    const data = JSON.parse(args)
-    const weight = data[1]
-    const contextS = Util.pluralize(data[0])
-
-    return Promise.resolve(this.graph.getGraph(contextS, weight))
+  getGraph (context, depth = 1) {
+    const contextS = Util.pluralize(context)
+    return Promise.resolve(this.graph.getGraph(contextS, depth))
   }
 
   remove (keys) {
-    const result = this.graph.remove(JSON.parse(keys)[0])
-    _.each(result, (key) => {
-      this.provider.set(key, this.graph.get(key), this.graph.getLinks(key), this.p)
-    })
+    const result = this.graph.remove(keys)
+    this._changeItemsInStoradge(result)
 
     return Promise.resolve()
   }
 
-  set (args) {
-    const data = JSON.parse(args)
-    const value = data[0]
-    let key = data[1]
-    key = this.graph.set(value, key)
+  set (value, key) {
+    this.graph.set(value, key)
     this.provider.set(key, this.graph.get(key), this.graph.getLinks(key), this.p)
 
-    return Promise.resolve(key)
+    return Promise.resolve()
   }
 
-  get (args) {
-    const data = JSON.parse(args)
-    const key = data[0]
-
+  get (key) {
     return Promise.resolve(this.graph.get(key))
   }
 
-  associate (args) {
-    const data = JSON.parse(args)
-    const source = data[0]
-    const target = data[1]
+  associate (source, target) {
     const result = this.graph.associate(source, target, 1, this.p)
-    _.each(result, (key) => {
-      this.provider.set(key, this.graph.get(key), this.graph.getLinks(key), this.p)
-    })
+    this._changeItemsInStoradge(result)
 
     return Promise.resolve()
   }
 
-  setDisassociate (args) {
-    const data = JSON.parse(args)
-    const source = data[0]
-    const target = data[1]
+  setDisassociate (source, target) {
     const result = this.graph.setDisassociate(source, target)
-    _.each(result, (key) => {
-      this.provider.set(key, this.graph.get(key), this.graph.getLinks(key), this.p)
-    })
+    this._changeItemsInStoradge(result)
 
     return Promise.resolve()
   }
 
-  merge (args) {
-    const data = JSON.parse(args)
-    const graph = data[0]
+  merge (graph) {
     const result = this.graph.merge(graph)
-    _.each(result, (key) => {
-      this.provider.set(key, this.graph.get(key), this.graph.getLinks(key), this.p)
-    })
+    this._changeItemsInStoradge(result)
 
     return Promise.resolve()
   }
+
 }
