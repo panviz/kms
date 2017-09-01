@@ -8,11 +8,11 @@ export default class Hide extends Action {
     this._icon = 'mdi mdi-eye-off'
     this.group = 'item'
 
-    this.registrar.ui.graphView.selection.on('change', this.evaluate.bind(this, this.registrar.ui.graphView.selection))
+    this.registrar.graphView.selection.on('change', this.evaluate.bind(this, this.registrar.graphView.selection))
   }
 
   _execute () {
-    const keys = this.registrar.ui.graphView.selection.getAll()
+    const keys = this.registrar.graphView.selection.getAll()
     this.registrar.unlinkItems(this.registrar.serviceItem.visibleItem, keys)
   }
 

@@ -9,6 +9,6 @@ export default class LinkedList extends Action {
   }
 
   _execute () {
-    this.registrar.ui.linkedList.toggle()
+    this.registrar.linkedList.toggle()
   }
 }
