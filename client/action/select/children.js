@@ -8,13 +8,13 @@ export default class SelectChildren extends Action {
     this._icon = 'mdi mdi-chemical-weapon'
     this.group = 'select'
 
-    this.registrar.ui.graphView.selection.on('change', this.evaluate.bind(this, this.registrar.ui.graphView.selection))
+    this.registrar.graphView.selection.on('change', this.evaluate.bind(this, this.registrar.graphView.selection))
   }
 
   _execute () {
-    const selected = this.registrar.ui.graphView.selection.clear()
+    const selected = this.registrar.graphView.selection.clear()
     _.each(selected, (item) => {
-      this.registrar.ui.graphView.selection.add(this.registrar.visibleLinked(item))
+      this.registrar.graphView.selection.add(this.registrar.visibleLinked(item))
     })
   }
 
@@ -22,7 +22,7 @@ export default class SelectChildren extends Action {
     const keyS = selection.getAll()
     let links = []
     _.find(keyS, (key) => {
-      links = this.registrar.graph.getLinks(key)
+      links = this.itemman.graph.getLinks(key)
       if (links.length > 0) return true
     })
     links.length ? super._evaluate(true) : super._evaluate(false)
