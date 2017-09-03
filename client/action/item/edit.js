@@ -1,4 +1,4 @@
-import Action from '../../action'
+import Action from '../action'
 
 export default class Edit extends Action {
   constructor (p) {
@@ -8,13 +8,13 @@ export default class Edit extends Action {
     this._icon = 'mdi mdi-pencil'
     this.group = 'item'
 
-    this.registrar.selection.on('change', this.evaluate.bind(this, this.registrar.selection))
-    this.registrar.ui.editor.on('show', this.evaluate.bind(this, this.registrar.selection))
-    this.registrar.ui.editor.on('hide', this.evaluate.bind(this, this.registrar.selection))
+    this.registrar.ui.graphView.selection.on('change', this.evaluate.bind(this, this.registrar.ui.graphView.selection))
+    this.registrar.ui.editor.on('show', this.evaluate.bind(this, this.registrar.ui.graphView.selection))
+    this.registrar.ui.editor.on('hide', this.evaluate.bind(this, this.registrar.ui.graphView.selection))
   }
 
   _execute () {
-    const keys = this.registrar.selection.getAll()
+    const keys = this.registrar.ui.graphView.selection.getAll()
     this.registrar.editItem(keys[0])
   }
 

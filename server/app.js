@@ -6,7 +6,6 @@
 import _ from 'lodash'
 import Util from '../core/util'
 import Raw from '../provider/raw/index'
-import APIServer from '../provider/api.server/index'
 
 export default class Self {
   constructor (p) {
@@ -16,28 +15,28 @@ export default class Self {
     this.serviceItem = {}
     this.p = p
 
-
     this.provider = Raw
-    this.provider.read(this.p.repository.path)
-      .then((graph) => {
-        this.graph = graph
-        console.info(`Serving items total: ${graph.getItemKeys().length} from ${this.p.source}`)
-        this.apiServer = new APIServer({
-          source: this.p.repository.path,
-          target: this.p.repository.path,
-          graph: this.graph,
-          provider: this.provider,
-        })
-        this._initServiceItems()
-      })
+    this._readGraph()
+  }
+
+  async _readGraph () {
+    const graph = await this.provider.read(this.p.repository.path)
+    this.graph = graph
+    console.info(`Serving items total: ${graph.getItemKeys().length} from ${this.p.repository.path}`)
+    this._initServiceItems()
   }
 
   _initServiceItems () {
-    const serviceGraph = this.graph.getGraph(this.rootKey, 1)
     _.each(this._serviceItems.concat(this._itemtypes), (item) => {
       this.serviceItem[item] = this.graph.search(this.rootKey, item)[0]
     })
     this.serviceItem.root = this.rootKey
+  }
+
+  _changeItemsInStoradge (result) {
+    _.each(result, (key) => {
+      this.provider.set(key, this.graph.get(key), this.graph.getLinks(key), this.p)
+    })
   }
   /**
    * Find Items by value from root
@@ -81,7 +80,6 @@ export default class Self {
       resolve(itemsMap)
     })
   }
-
   /**
    * retrieves tags in select2 consumable format by search query
    * @param {String} query
@@ -97,4 +95,57 @@ export default class Self {
       resolve(data)
     })
   }
+
+  createAndLinkItem (linkedKeys) {
+    const newKey = this.graph.set()
+    const result = this.graph.associate(newKey, linkedKeys)
+    this._changeItemsInStoradge(result)
+
+    return Promise.resolve(newKey)
+  }
+
+  getGraph (context, depth = 1) {
+    const contextS = Util.pluralize(context)
+    return Promise.resolve(this.graph.getGraph(contextS, depth))
+  }
+
+  remove (keys) {
+    const result = this.graph.remove(keys)
+    this._changeItemsInStoradge(result)
+
+    return Promise.resolve()
+  }
+
+  set (value, key) {
+    this.graph.set(value, key)
+    this.provider.set(key, this.graph.get(key), this.graph.getLinks(key), this.p)
+
+    return Promise.resolve()
+  }
+
+  get (key) {
+    return Promise.resolve(this.graph.get(key))
+  }
+
+  associate (source, target) {
+    const result = this.graph.associate(source, target, 1, this.p)
+    this._changeItemsInStoradge(result)
+
+    return Promise.resolve()
+  }
+
+  setDisassociate (source, target) {
+    const result = this.graph.setDisassociate(source, target)
+    this._changeItemsInStoradge(result)
+
+    return Promise.resolve()
+  }
+
+  merge (graph) {
+    const result = this.graph.merge(graph)
+    this._changeItemsInStoradge(result)
+
+    return Promise.resolve()
+  }
+
 }

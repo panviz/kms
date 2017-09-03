@@ -1,4 +1,4 @@
-import Action from '../../action'
+import Action from '../action'
 
 export default class Expand extends Action {
   constructor (p) {
@@ -8,12 +8,13 @@ export default class Expand extends Action {
     this._icon = 'mdi mdi-sitemap'
     this.group = 'item'
 
-    this.registrar.selection.on('change', this.evaluate.bind(this, this.registrar.selection))
+    this.registrar.ui.graphView.selection.on('change', this.evaluate.bind(this, this.registrar.ui.graphView.selection))
   }
 
-  _execute () {
-    const keys = this.registrar.selection.getAll()
-    this.registrar.showChildren(keys)
+  _execute (...args) {
+    const keys = this.registrar.ui.graphView.selection.getAll()
+    if (args[0].type === 'dblclick') this.registrar.showChildren(keys, true)
+    else this.registrar.showChildren(keys, false)
   }
 
   evaluate (selection) {

@@ -13,7 +13,7 @@ export default class APIServer {
   }
 
   request (params) {
-    console.info(`Request params: ${JSON.stringify(params)}`)
+    console.info(`Api request params : ${JSON.stringify(params)}`)
     const args = JSON.parse(params.args)
     const result = this.graph[params.method](...args)
 

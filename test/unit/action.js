@@ -1,5 +1,5 @@
 import assert from 'assert'
-import Action from '../../client/action'
+import Action from '../../client/action/action'
 
 class TestAction extends Action {
   constructor (p) {

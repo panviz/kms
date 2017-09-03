@@ -1,4 +1,4 @@
-import Action from '../../action'
+import Action from '../action'
 
 export default class Invert extends Action {
   constructor (p) {
@@ -8,17 +8,21 @@ export default class Invert extends Action {
     this._icon = 'mdi mdi-invert-colors'
     this.group = 'select'
 
-    this.registrar.selection.on('change', this.evaluate.bind(this, this.registrar.selection))
+    this.registrar.ui.graphView.selection.on('change', this.evaluate.bind(this, this.registrar.ui.graphView.selection))
   }
 
   _execute () {
-    const selection = this.registrar.selection
+    const selection = this.registrar.ui.graphView.selection
     const unselect = selection.clear()
-    const all = this.registrar.visibleItems.getAll()
+    const all = this.registrar.graph.getItemKeys()
     selection.add(_.difference(all, unselect))
   }
 
   evaluate (selection) {
-    super._evaluate(this.registrar.visibleItems.getCount())
+    const itemsCount = this.registrar.graph.getCount()
+    const selectionCount = selection.getCount()
+    if (selectionCount > 0) {
+      itemsCount - selectionCount > 0 ? super._evaluate(true) : super._evaluate(false)
+    } else super._evaluate(false)
   }
 }

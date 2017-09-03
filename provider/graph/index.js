@@ -40,6 +40,7 @@ const idPattern = /[a-z0-9]{8}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{12}/
 export default class Graph {
   constructor (p = {}) {
     this.providerID = 'graph'
+    this._context = _.cloneDeep(p.context) || {}
     this._items = _.cloneDeep(p.items) || {}
     this._links = _.cloneDeep(p.links) || {}
   }
@@ -309,7 +310,7 @@ export default class Graph {
       sgLinks[sgItemKey] = filteredSgItemLinks
     })
 
-    return new Graph({ items: sgItems, links: sgLinks })
+    return new Graph({ context: rootKeys, items: sgItems, links: sgLinks })
   }
   /**
    * Find items linked with each one of specified
@@ -373,7 +374,7 @@ export default class Graph {
   }
 
   toJSON () {
-    return { items: this._items, links: this._links }
+    return { context: this._context, items: this._items, links: this._links }
   }
 
   _replaceIds (_str) {
@@ -393,5 +394,17 @@ export default class Graph {
    */
   validateKeys (key1, key2) {
     return key1 && key2 && key1 !== key2
+  }
+
+  set context (keys) {
+    const contextKeys = Util.pluralize(keys)
+    this.context = contextKeys
+  }
+  get Context () {
+    return this.context
+  }
+
+  getCount () {
+    return Object.keys(this._items).length
   }
 }

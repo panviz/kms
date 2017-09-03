@@ -1,4 +1,4 @@
-import Action from '../../action'
+import Action from '../action'
 
 export default class SelectChildren extends Action {
   constructor (p) {
@@ -8,15 +8,23 @@ export default class SelectChildren extends Action {
     this._icon = 'mdi mdi-chemical-weapon'
     this.group = 'select'
 
-    this.registrar.selection.on('change', this.evaluate.bind(this, this.registrar.selection))
+    this.registrar.ui.graphView.selection.on('change', this.evaluate.bind(this, this.registrar.ui.graphView.selection))
   }
 
   _execute () {
-    const selected = this.registrar.selection.clear()[0]
-    this.registrar.selection.add(this.registrar.visibleLinked(selected))
+    const selected = this.registrar.ui.graphView.selection.clear()
+    _.each(selected, (item) => {
+      this.registrar.ui.graphView.selection.add(this.registrar.visibleLinked(item))
+    })
   }
 
   evaluate (selection) {
-    super._evaluate(selection.getCount() === 1)
+    const keyS = selection.getAll()
+    let links = []
+    _.find(keyS, (key) => {
+      links = this.registrar.graph.getLinks(key)
+      if (links.length > 0) return true
+    })
+    links.length ? super._evaluate(true) : super._evaluate(false)
   }
 }
