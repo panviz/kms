@@ -14,9 +14,6 @@ export default class Itemman extends EventEmitter {
     this._itemtypes = ['tag', 'note']
     this._serviceItems = ['root', 'visibleItem', 'itemtype']
     this.serviceItem = {}
-    this.graph = {}
-
-    this._loadRepo()
   }
 
   async showChildren (keyS, dbclick) {
@@ -31,17 +28,17 @@ export default class Itemman extends EventEmitter {
       graph.remove(rootKey)
       this.trigger('showList', { values: graph.getItemsMap(), title: `Show children for ${context} context` })
     } else {
-      await this._reloadGraph(rootKey)
-      this.graph.remove(rootKey)
-      this._updateGraphView({ tags: [], notes: [] })
+      const graph = await this._reloadGraph(rootKey)
+      graph.remove(rootKey)
+      this._updateGraphView(graph, { tags: [], notes: [] })
     }
   }
 
   async createItem (p = {}, selected) {
     const key = await Itemman._request('createAndLinkItem', _.concat(this.serviceItem.visibleItem, this.serviceItem[p], selected))
     this.trigger('addSelection', key)
-    await this._reloadGraph(this.serviceItem.visibleItem)
-    this._updateGraphView({ tags: [], notes: [] })
+    const graph = await this._reloadGraph(this.serviceItem.visibleItem)
+    this._updateGraphView(graph, { tags: [], notes: [] })
   }
 
   editItem (key, value) {
@@ -51,32 +48,32 @@ export default class Itemman extends EventEmitter {
   async saveItem (value, key) {
     await Itemman._request('set', value, key)
     this.trigger('saveEditor')
-    await this._reloadGraph(this.serviceItem.visibleItem)
-    this._updateGraphView({ tags: [], notes: [] })
+    const graph = await this._reloadGraph(this.serviceItem.visibleItem)
+    this._updateGraphView(graph, { tags: [], notes: [] })
   }
 
   async removeItem (keys) {
     await Itemman._request('remove', keys)
-    await this._reloadGraph(this.serviceItem.visibleItem)
-    this._updateGraphView({ tags: [], notes: [] })
+    const graph = await this._reloadGraph(this.serviceItem.visibleItem)
+    this._updateGraphView(graph, { tags: [], notes: [] })
   }
 
   async linkItems (source, targets) {
     await Itemman._request('associate', source, targets)
-    await this._reloadGraph(this.serviceItem.visibleItem)
-    this._updateGraphView({ tags: [], notes: [] })
+    const graph = await this._reloadGraph(this.serviceItem.visibleItem)
+    this._updateGraphView(graph, { tags: [], notes: [] })
   }
 
   async unlinkItems (source, targets) {
     await Itemman._request('setDisassociate', source, targets)
-    await this._reloadGraph(this.serviceItem.visibleItem)
-    this._updateGraphView({ tags: [], notes: [] })
+    const graph = await this._reloadGraph(this.serviceItem.visibleItem)
+    this._updateGraphView(graph, { tags: [], notes: [] })
   }
   /**
    * Populate view with user data from previous time
    */
   async _loadRepo () {
-    const graph = await Itemman._request('getGraph', this.rootKey, 1)
+    let graph = await Itemman._request('getGraph', this.rootKey, 1)
     if (_.isEmpty(graph.getItemsMap())) {
       await this._initRepo()
     } else {
@@ -86,8 +83,9 @@ export default class Itemman extends EventEmitter {
       this.serviceItem.root = this.rootKey
     }
 
-    await this._reloadGraph([this.serviceItem.visibleItem])
-    this._updateGraphView({ tags: [], notes: [] })
+    graph = await this._reloadGraph([this.serviceItem.visibleItem])
+    this._updateGraphView(graph, { tags: [], notes: [] })
+    return graph
   }
 
   _initRepo () {
@@ -109,11 +107,11 @@ export default class Itemman extends EventEmitter {
   async _reloadGraph (context, depth = 1) {
     const graph = await Itemman._request('getGraph', context, depth)
     this._filter(graph)
-    this.graph = graph
+    return graph
   }
 
-  _updateGraphView (itemsKeys) {
-    this.trigger('updateView', this.graph, itemsKeys)
+  _updateGraphView (graph, itemsKeys) {
+    this.trigger('updateView', graph, itemsKeys)
   }
 
   _filter (data) {

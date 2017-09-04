@@ -25,10 +25,14 @@ import './graph.scss'
 export default class Graph extends View {
   constructor (p) {
     super(p)
+    this.graph = {}
 
     this.autoLayout = true
+    this.app = p.app
     this.actionman = p.actionman
-    this.ui = p.ui
+    this.itemman = p.itemman
+
+    this._loadRepo()
 
     const $html = $(template())
     this.setElement($html)
@@ -364,10 +368,14 @@ export default class Graph extends View {
     const keys = this.selection.getAll()
     if (keys.length === 1) {
       const key = keys[0]
-      if (this.ui.editor.isVisible()) {
+      if (this.app.editor.isVisible()) {
         const value = this.graph.get(key)
-        this.ui.editor.set(value, key)
+        this.app.editor.set(value, key)
       }
-    } else if (keys.length === 0) this.ui.hideSecondaryViews()
+    } else if (keys.length === 0) this.app.hideSecondaryViews()
+  }
+
+  async _loadRepo () {
+    this.graph = await this.itemman._loadRepo()
   }
 }

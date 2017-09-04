@@ -40,8 +40,9 @@ export default class App {
     this.elements = Util.findElements('body', this.selectors)
 
     const graphViewSet = {
-      ui: this,
+      app: this,
       actionman: this.actionman,
+      itemman: this.itemman,
       container: this.elements.viewContainer,
     }
     const listViewSet = {
