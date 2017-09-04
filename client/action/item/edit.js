@@ -8,17 +8,17 @@ export default class Edit extends Action {
     this._icon = 'mdi mdi-pencil'
     this.group = 'item'
 
-    this.registrar.ui.graphView.selection.on('change', this.evaluate.bind(this, this.registrar.ui.graphView.selection))
-    this.registrar.ui.editor.on('show', this.evaluate.bind(this, this.registrar.ui.graphView.selection))
-    this.registrar.ui.editor.on('hide', this.evaluate.bind(this, this.registrar.ui.graphView.selection))
+    this.registrar.graphView.selection.on('change', this.evaluate.bind(this, this.registrar.graphView.selection))
+    this.registrar.editor.on('show', this.evaluate.bind(this, this.registrar.graphView.selection))
+    this.registrar.editor.on('hide', this.evaluate.bind(this, this.registrar.graphView.selection))
   }
 
   _execute () {
-    const keys = this.registrar.ui.graphView.selection.getAll()
+    const keys = this.registrar.graphView.selection.getAll()
     this.registrar.editItem(keys[0])
   }
 
   evaluate (selection) {
-    super._evaluate(selection.getCount() === 1 && !this.registrar.ui.editor.isVisible())
+    super._evaluate(selection.getCount() === 1 && !this.registrar.editor.isVisible())
   }
 }
