@@ -8,18 +8,18 @@ export default class Invert extends Action {
     this._icon = 'mdi mdi-invert-colors'
     this.group = 'select'
 
-    this.registrar.ui.graphView.selection.on('change', this.evaluate.bind(this, this.registrar.ui.graphView.selection))
+    this.registrar.graphView.selection.on('change', this.evaluate.bind(this, this.registrar.graphView.selection))
   }
 
   _execute () {
-    const selection = this.registrar.ui.graphView.selection
+    const selection = this.registrar.graphView.selection
     const unselect = selection.clear()
-    const all = this.registrar.graph.getItemKeys()
+    const all = this.itemman.graph.getItemKeys()
     selection.add(_.difference(all, unselect))
   }
 
   evaluate (selection) {
-    const itemsCount = this.registrar.graph.getCount()
+    const itemsCount = this.itemman.graph.getCount()
     const selectionCount = selection.getCount()
     if (selectionCount > 0) {
       itemsCount - selectionCount > 0 ? super._evaluate(true) : super._evaluate(false)

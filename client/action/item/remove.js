@@ -9,12 +9,12 @@ export default class Remove extends Action {
     this._type = 'attention'
     this.group = 'item'
 
-    this.registrar.ui.graphView.selection.on('change', this.evaluate.bind(this, this.registrar.ui.graphView.selection))
+    this.registrar.graphView.selection.on('change', this.evaluate.bind(this, this.registrar.graphView.selection))
   }
 
   _execute () {
-    const keys = this.registrar.ui.graphView.selection.getAll()
-    this.registrar.removeItem(keys)
+    const keys = this.registrar.graphView.selection.getAll()
+    this.registrar.itemman.removeItem(keys)
   }
 
   evaluate (selection) {

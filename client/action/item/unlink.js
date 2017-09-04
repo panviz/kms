@@ -8,14 +8,14 @@ export default class Unlink extends Action {
     this._icon = 'mdi mdi-link-variant-off'
     this.group = 'item'
 
-    this.registrar.ui.graphView.selection.on('change', this.evaluate.bind(this, this.registrar.ui.graphView.selection))
+    this.registrar.graphView.selection.on('change', this.evaluate.bind(this, this.registrar.graphView.selection))
   }
 
   _execute () {
-    const keys = this.registrar.ui.graphView.selection.getAll()
+    const keys = this.registrar.graphView.selection.getAll()
     const key1 = keys.shift()
 
-    this.registrar.unlinkItems(key1, keys)
+    this.registrar.itemman.unlinkItems(key1, keys)
   }
 
   evaluate (selection) {

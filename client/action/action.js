@@ -9,6 +9,7 @@ export default class Action extends EventEmitter {
   constructor (p = {}) {
     super()
     this.registrar = p.registrar
+    this.itemman = p.itemman
     this._id = p.id
     this._label = p.label
     this._icon = p.icon || 'fa fa-check-square-o'

@@ -9,16 +9,16 @@ export default class Save extends Action {
     this._icon = 'mdi mdi-content-save'
     this.group = 'item'
 
-    this.registrar.ui.editor.on('change', this.evaluate.bind(this))
+    this.registrar.editor.on('change', this.evaluate.bind(this))
   }
 
   _execute () {
-    const key = this.registrar.ui.editor.getKey()
-    const value = this.registrar.ui.editor.get()
-    this.registrar.saveItem(value, key)
+    const key = this.registrar.editor.getKey()
+    const value = this.registrar.editor.get()
+    this.registrar.itemman.saveItem(value, key)
   }
 
   evaluate () {
-    super._evaluate(this.registrar.ui.editor && this.registrar.ui.editor.isChanged())
+    super._evaluate(this.registrar.editor && this.registrar.editor.isChanged())
   }
 }

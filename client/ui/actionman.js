@@ -21,8 +21,8 @@ export default class Actionman extends EventEmitter {
     return _.filter(this._instances, action => action.isEnabled())
   }
 
-  set (Action, registrar) {
-    const action = new Action({ registrar })
+  set (Action, registrar, itemman) {
+    const action = new Action({ registrar, itemman })
     this._instances[action.id] = action
     this.trigger('add', action)
   }

@@ -23,6 +23,6 @@ export default class Create extends Action {
   }
 
   _execute (p) {
-    this.registrar.createItem(p.sub)
+    this.registrar.itemman.createItem(p.sub)
   }
 }

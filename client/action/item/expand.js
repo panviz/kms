@@ -8,13 +8,13 @@ export default class Expand extends Action {
     this._icon = 'mdi mdi-sitemap'
     this.group = 'item'
 
-    this.registrar.ui.graphView.selection.on('change', this.evaluate.bind(this, this.registrar.ui.graphView.selection))
+    this.registrar.graphView.selection.on('change', this.evaluate.bind(this, this.registrar.graphView.selection))
   }
 
   _execute (...args) {
-    const keys = this.registrar.ui.graphView.selection.getAll()
+    const keys = this.registrar.graphView.selection.getAll()
     if (args[0].type === 'dblclick') this.registrar.showChildren(keys, true)
-    else this.registrar.showChildren(keys, false)
+    else this.registrar.itemman.showChildren(keys, false)
   }
 
   evaluate (selection) {
