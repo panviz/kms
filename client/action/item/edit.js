@@ -14,8 +14,9 @@ export default class Edit extends Action {
   }
 
   _execute () {
-    const keys = this.registrar.graphView.selection.getAll()
-    this.registrar.itemman.editItem(keys[0])
+    const key = this.registrar.graphView.selection.getAll()[0]
+    const value = this.registrar.itemman.graph.get(key)
+    this.registrar.itemman.editItem(key, value)
   }
 
   evaluate (selection) {

@@ -14,7 +14,7 @@ export default class SelectChildren extends Action {
   _execute () {
     const selected = this.registrar.graphView.selection.clear()
     _.each(selected, (item) => {
-      this.registrar.graphView.selection.add(this.registrar.itemman.visibleLinked(item))
+      this.registrar.graphView.selection.add(this.registrar.itemman.graph.getLinked(item))
     })
   }
 
@@ -22,7 +22,7 @@ export default class SelectChildren extends Action {
     const keyS = selection.getAll()
     let links = []
     _.find(keyS, (key) => {
-      links = this.itemman.graph.getLinks(key)
+      links = this.registrar.itemman.graph.getLinks(key)
       if (links.length > 0) return true
     })
     links.length ? super._evaluate(true) : super._evaluate(false)

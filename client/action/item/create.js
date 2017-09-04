@@ -23,6 +23,7 @@ export default class Create extends Action {
   }
 
   _execute (p) {
-    this.registrar.itemman.createItem(p.sub)
+    const selected = this.registrar.graphView.selection.clear()
+    this.registrar.itemman.createItem(p.sub, selected)
   }
 }

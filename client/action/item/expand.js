@@ -13,7 +13,7 @@ export default class Expand extends Action {
 
   _execute (...args) {
     const keys = this.registrar.graphView.selection.getAll()
-    if (args[0].type === 'dblclick') this.registrar.showChildren(keys, true)
+    if (args[0].type === 'dblclick') this.registrar.itemman.showChildren(keys, true)
     else this.registrar.itemman.showChildren(keys, false)
   }
 

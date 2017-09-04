@@ -1,14 +1,15 @@
 /**
  * Item manager
  */
+import EventEmitter from 'eventemitter3'
 import Util from '../../core/util'
 import ClientUtil from '../util' //eslint-disable-line
 import Graph from '../../provider/graph/index'
 
 
-export default class Itemman {
+export default class Itemman extends EventEmitter {
   constructor (p = {}) {
-    this.app = p.app
+    super()
     this.rootKey = '000000001vGeH72LxVtxKg'
     this._itemtypes = ['tag', 'note']
     this._serviceItems = ['root', 'visibleItem', 'itemtype']
@@ -28,9 +29,7 @@ export default class Itemman {
       this._filter(graph)
       const context = graph.get(rootKey)
       graph.remove(rootKey)
-      this.ui.linkedList.setTitle(`Show children for ${context} context`)
-      this.ui.linkedList.show()
-      this.ui.linkedList.render(graph.getItemsMap())
+      this.trigger('showList', { values: graph.getItemsMap(), title: `Show children for ${context} context` })
     } else {
       await this._reloadGraph(rootKey)
       this.graph.remove(rootKey)
@@ -38,25 +37,20 @@ export default class Itemman {
     }
   }
 
-  async createItem (p = {}) {
-    // const selected = this.selection.clear()
-    const selected = this.app.graphView.selection.clear()
+  async createItem (p = {}, selected) {
     const key = await Itemman._request('createAndLinkItem', _.concat(this.serviceItem.visibleItem, this.serviceItem[p], selected))
-    this.app.graphView.selection.add(key)
+    this.trigger('addSelection', key)
     await this._reloadGraph(this.serviceItem.visibleItem)
     this._updateGraphView({ tags: [], notes: [] })
   }
 
-  editItem (key) {
-    const value = this.graph.get(key)
-    this.app.editor.set(value, key)
-    this.app.editor.setTitle('Edit item')
-    this.app.editor.show()
+  editItem (key, value) {
+    this.trigger('showEditor', { key: key, value: value, title: 'Edit item' })
   }
 
   async saveItem (value, key) {
     await Itemman._request('set', value, key)
-    this.app.editor.saved()
+    this.trigger('saveEditor')
     await this._reloadGraph(this.serviceItem.visibleItem)
     this._updateGraphView({ tags: [], notes: [] })
   }
@@ -77,10 +71,6 @@ export default class Itemman {
     await Itemman._request('setDisassociate', source, targets)
     await this._reloadGraph(this.serviceItem.visibleItem)
     this._updateGraphView({ tags: [], notes: [] })
-  }
-
-  visibleLinked (parent) {
-    return this.graph.getLinked(parent)
   }
   /**
    * Populate view with user data from previous time
@@ -123,7 +113,7 @@ export default class Itemman {
   }
 
   _updateGraphView (itemsKeys) {
-    this.app.graphView.render(this.graph, itemsKeys)
+    this.trigger('updateView', this.graph, itemsKeys)
   }
 
   _filter (data) {

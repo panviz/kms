@@ -31,6 +31,11 @@ export default class App {
   constructor () {
     this.actionman = new Actionman()
     this.itemman = new Itemman({ app: this })
+    this.itemman.on('addSelection', this._addSelection.bind(this))
+    this.itemman.on('showEditor', this._showEditor.bind(this))
+    this.itemman.on('updateView', this._updateView.bind(this))
+    this.itemman.on('saveEditor', this._saveEditor.bind(this))
+    this.itemman.on('showList', this._showList.bind(this))
 
     this.elements = Util.findElements('body', this.selectors)
 
@@ -74,7 +79,7 @@ export default class App {
 
     this.actions = _actions
     setTimeout(() => {
-      _.each(this.actions, action => this.actionman.set(action, this, this.itemman))
+      _.each(this.actions, action => this.actionman.set(action, this))
     })
   }
 
@@ -100,6 +105,30 @@ export default class App {
 
   _toogleViewsSize (target) {
     $(target).closest('.view').toggleClass('max min')
+  }
+
+  _addSelection (key) {
+    this.graphView.selection.add(key)
+  }
+
+  _showEditor (args) {
+    this.editor.set(args.value, args.key)
+    this.editor.setTitle(args.title)
+    this.editor.show()
+  }
+
+  _updateView (graph, itemsKeys) {
+    this.graphView.render(graph, itemsKeys)
+  }
+
+  _saveEditor () {
+    this.editor.saved()
+  }
+
+  _showList (args) {
+    this.linkedList.setTitle(args.title)
+    this.linkedList.show()
+    this.linkedList.render(args.values)
   }
 }
 

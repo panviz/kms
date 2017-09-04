@@ -14,12 +14,12 @@ export default class Invert extends Action {
   _execute () {
     const selection = this.registrar.graphView.selection
     const unselect = selection.clear()
-    const all = this.itemman.graph.getItemKeys()
+    const all = this.registrar.itemman.graph.getItemKeys()
     selection.add(_.difference(all, unselect))
   }
 
   evaluate (selection) {
-    const itemsCount = this.itemman.graph.getCount()
+    const itemsCount = this.registrar.itemman.graph.getCount()
     const selectionCount = selection.getCount()
     if (selectionCount > 0) {
       itemsCount - selectionCount > 0 ? super._evaluate(true) : super._evaluate(false)
