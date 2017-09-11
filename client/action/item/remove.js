@@ -8,12 +8,10 @@ export default class Remove extends Action {
     this._icon = 'fa fa-remove'
     this._type = 'attention'
     this.group = 'item'
-
-    this.registrar.graphView.selection.on('change', this.evaluate.bind(this, this.registrar.graphView.selection))
   }
 
   _execute () {
-    const keys = this.registrar.graphView.selection.getAll()
+    const keys = this.registrar.currentView.selection.getAll()
     this.registrar.itemman.removeItem(keys)
   }
 

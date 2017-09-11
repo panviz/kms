@@ -23,18 +23,22 @@ import './graph.scss'
  * @inner Array _edges d3 selection of DOM edges
  */
 export default class Graph extends View {
-  constructor (p) {
+  constructor (p, name) {
     super(p)
     this.graph = {}
+    this.name = name
 
     this.autoLayout = true
-    this.app = p.app
     this.actionman = p.actionman
     this.itemman = p.itemman
+    this.itemman.on('repo:load', this._reload.bind(this))
+    this.itemman.on('item:create', this._addToSelection.bind(this))
+    this.itemman.on('item:associate', this._reload.bind(this))
+    this.itemman.on('item:disassociate', this._reload.bind(this))
+    this.itemman.on('item:remove', this._reload.bind(this))
+    this.itemman.on('item:showChildren', this._reload.bind(this))
 
-    this._loadRepo()
-
-    const $html = $(template())
+    const $html = $(template({ name: name }))
     this.setElement($html)
 
     this.p.node = {
@@ -48,16 +52,16 @@ export default class Graph extends View {
         maxLength: 15,
       },
     }
-    this._graph = undefined
 
-    this.canvas = d3.select(this.selectors.canvas)
+    this.canvas = d3.select(`.${this.name} ${this.selectors.canvas}`)
     this.resize()
     this._initLayouts()
     this._initViewActions()
 
-    this.selection.on('change', this._onSelectChange.bind(this))
     this.selection.on('add', this._onSelect.bind(this))
     this.selection.on('remove', this._onDeselect.bind(this))
+
+    this.elements.svg.on('click', this._onClick.bind(this))
     $(window).on('resize', this.resize.bind(this))
   }
 
@@ -144,12 +148,12 @@ export default class Graph extends View {
       container: this.elements.svg,
       nodeSelector: this.selectors.node,
     })
-    this.rectSelectioning = new RectSelectioning({
+    /* this.rectSelectioning = new RectSelectioning({
       selection: this.selection,
       nodes: this._nodes,
       container: this.elements.root,
       eventTarget: this.elements.svg,
-    })
+    }) */
   }
 
   /**
@@ -205,7 +209,7 @@ export default class Graph extends View {
    * run current view layout for
    */
   updateLayout (p) {
-    if (this.autoLayout) this.layout.run(p, this._graph)
+    if (this.autoLayout) this.layout.run(p, this.graph)
   }
 
   /**
@@ -310,7 +314,7 @@ export default class Graph extends View {
   }
 
   _getLabel (key) {
-    let value = this._graph.get(key)
+    let value = this.graph.get(key)
     value = value.substr(0, value.indexOf('\n')) || value
     if (value.length > this.p.node.label.maxLength) value = `${value.slice(0, 15)}...`
     return value
@@ -364,18 +368,19 @@ export default class Graph extends View {
     this.actionman.get('itemShowChildren').apply(e)
   }
 
-  _onSelectChange () {
-    const keys = this.selection.getAll()
-    if (keys.length === 1) {
-      const key = keys[0]
-      if (this.app.editor.isVisible()) {
-        const value = this.graph.get(key)
-        this.app.editor.set(value, key)
-      }
-    } else if (keys.length === 0) this.app.hideSecondaryViews()
+  _addToSelection (key) {
+    this.selection.add(key)
+    this._reload()
   }
 
-  async _loadRepo () {
-    this.graph = await this.itemman._loadRepo()
+  _onClick () {
+    this.trigger('focus', this.name)
+  }
+
+  async _reload (context = this.graph.context) {
+    this.graph = await this.itemman._reloadGraph(context, 1)
+    this.itemman._filter(this.graph)
+    this.graph.remove(context)
+    this.render(this.graph, {})
   }
 }

@@ -15,6 +15,7 @@ export default class Force extends Layout {
     this.p.untangleIterations = this.p.iterations[0] + this.p.iterations[1]
     this.p.animationDuration = 750
     this._transitionStarted = undefined
+    this._force = d3adaptor(d3)
 
     this._items = []
     this._shapes = []
@@ -33,8 +34,7 @@ export default class Force extends Layout {
    */
   update (graph, enteredNodes) {
     // recreate new adaptor due to https://github.com/tgdwyer/WebCola/wiki/Troubleshooting
-    this._force = d3adaptor(d3)
-      .linkDistance(100)
+    this._force.linkDistance(100)
       .avoidOverlaps(true)
       .size([this.width, this.height])
 

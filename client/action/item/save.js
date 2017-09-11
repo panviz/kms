@@ -8,8 +8,6 @@ export default class Save extends Action {
     this._deny = true
     this._icon = 'mdi mdi-content-save'
     this.group = 'item'
-
-    this.registrar.editor.on('change', this.evaluate.bind(this))
   }
 
   _execute () {

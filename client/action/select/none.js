@@ -7,12 +7,10 @@ export default class SelectNone extends Action {
     this._label = 'none'
     this._icon = 'fa fa-ban'
     this.group = 'select'
-
-    this.registrar.graphView.selection.on('change', this.evaluate.bind(this, this.registrar.graphView.selection))
   }
 
   _execute () {
-    this.registrar.graphView.selection.clear()
+    this.registrar.currentView.selection.clear()
   }
 
   evaluate (selection) {
