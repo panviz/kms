@@ -80,7 +80,7 @@ export default class Itemman extends EventEmitter {
   /**
    * Sync graph with server
    */
-  async _reloadGraph (context, depth = 1) {
+  async reloadGraph (context, depth = 1) {
     const graph = await Itemman._request('getGraph', context, depth)
     this._filter(graph)
     return graph

@@ -378,8 +378,7 @@ export default class Graph extends View {
   }
 
   async _reload (context = this.graph.context) {
-    this.graph = await this.itemman._reloadGraph(context, 1)
-    this.itemman._filter(this.graph)
+    this.graph = await this.itemman.reloadGraph(context, 1)
     this.graph.remove(context)
     this.render(this.graph, {})
   }
