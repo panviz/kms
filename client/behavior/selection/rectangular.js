@@ -3,8 +3,9 @@
  */
 import Behavior from '../behavior'
 import Util from '../../../core/util'
+import './rectangular.scss'
 
-export default class Self extends Behavior {
+export default class Rectangular extends Behavior {
   constructor (p) {
     super(p)
 
@@ -81,7 +82,7 @@ export default class Self extends Behavior {
     this._element.hide()
 
     // TODO replace global object usage
-    const toSelect = _.map(G.graphView._nodes[0], (node) => {
+    const toSelect = _.map(G.graphView._nodes.nodes(), (node) => {
       if (this._isNodeSelected(node)) return node.__data__
       return undefined
     })

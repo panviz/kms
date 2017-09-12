@@ -1,6 +1,6 @@
-import Action from '../../../action'
+import Action from '../../../action/action'
 
-export default class Self extends Action {
+export default class FixPosition extends Action {
   constructor (p) {
     super(p)
     this._id = 'graphFixItemPosition'

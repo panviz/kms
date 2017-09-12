@@ -1,18 +1,16 @@
-import Action from '../../action'
+import Action from '../action'
 
-export default class Self extends Action {
+export default class SelectNone extends Action {
   constructor (p) {
     super(p)
     this._id = 'selectNone'
     this._label = 'none'
     this._icon = 'fa fa-ban'
     this.group = 'select'
-
-    this.registrar.selection.on('change', this.evaluate.bind(this, this.registrar.selection))
   }
 
   _execute () {
-    this.registrar.selection.clear()
+    this.registrar.currentView.selection.clear()
   }
 
   evaluate (selection) {

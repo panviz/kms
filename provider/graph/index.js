@@ -7,8 +7,10 @@
  * Binary Items are only referenced by path
  */
 import _ from 'lodash'
+import uuidBase62 from 'uuid-base62'
 import dijkstra from '../../core/dijkstra'
 import Util from '../../core/util'
+
 
 function filterKeys (obj, filter) {
   const filtered = {}
@@ -28,16 +30,17 @@ function compareWeight (link1, link2) {
 /**
  * generate random UUID
  */
-function generateID (a) {
-  if (a) return (a ^ Math.random() * 16 >> a / 4).toString(16)
-  return ([1e7] + -1e3 + -4e3 + -8e3 + -1e11).replace(/[018]/g, generateID)
+
+function generateID () {
+  return uuidBase62.v4()
 }
 
 const idPattern = /[a-z0-9]{8}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{12}/g
 
-export default class Self {
+export default class Graph {
   constructor (p = {}) {
     this.providerID = 'graph'
+    this._context = _.cloneDeep(p.context) || {}
     this._items = _.cloneDeep(p.items) || {}
     this._links = _.cloneDeep(p.links) || {}
   }
@@ -50,7 +53,7 @@ export default class Self {
   set (_data, _key) {
     let key = _key
     let data = _data
-    if (_.isArray(data)) return _.map(data, (datum) => this.set(datum))
+    if (_.isArray(data)) return _.map(data, datum => this.set(datum))
 
     if (data === '' || _.isNil(data)) {
       if (key && _.isEmpty(this.getLinks(key))) return this.remove(key)
@@ -99,7 +102,7 @@ export default class Self {
    */
   merge (_graph, p = { overwrite: true }) {
     if (!_graph) return []
-    const graph = _graph.items ? new Self(_graph) : _graph
+    const graph = _graph.items ? new Graph(_graph) : _graph
     const newItems = graph.getItemsMap()
     const changed = []
 
@@ -208,7 +211,7 @@ export default class Self {
    */
   setDisassociate (key1, keyS) {
     const keys = Util.pluralize(keyS)
-    const changed = _.map(keys, (key2) => this._disassociate(key1, key2))
+    const changed = _.map(keys, key2 => this._disassociate(key1, key2))
     return _.uniq(_.flatten(changed))
   }
   /**
@@ -216,7 +219,7 @@ export default class Self {
    */
   associate (key1, keyS, weight, p) {
     const keys = Util.pluralize(keyS)
-    const changed = _.map(keys, (key2) => this._associate(key1, key2, weight, p))
+    const changed = _.map(keys, key2 => this._associate(key1, key2, weight, p))
     return _.uniq(_.flatten(changed))
   }
   /**
@@ -276,7 +279,7 @@ export default class Self {
    * @return Array of distinct Items linked with specified Item(s)
    */
   getLinked (key) {
-    return _.map(this.getLinks(key), (link) => link[0])
+    return _.map(this.getLinks(key), link => link[0])
   }
   /**
    * TODO works only for depth 0/1
@@ -307,7 +310,7 @@ export default class Self {
       sgLinks[sgItemKey] = filteredSgItemLinks
     })
 
-    return new Self({ items: sgItems, links: sgLinks })
+    return new Graph({ context: rootKeys, items: sgItems, links: sgLinks })
   }
   /**
    * Find items linked with each one of specified
@@ -347,7 +350,7 @@ export default class Self {
    * @return Object.Provider new
    */
   filter (filterer) {
-    const filteredStorage = new Self()
+    const filteredStorage = new Graph()
     const items = filteredStorage._items = filterKeys(this._items, filterer)
     const fLinks = filteredStorage._links
     _.each(this._links, (links, key) => {
@@ -371,7 +374,7 @@ export default class Self {
   }
 
   toJSON () {
-    return { items: this._items, links: this._links }
+    return { context: this._context, items: this._items, links: this._links }
   }
 
   _replaceIds (_str) {
@@ -391,5 +394,17 @@ export default class Self {
    */
   validateKeys (key1, key2) {
     return key1 && key2 && key1 !== key2
+  }
+
+  set context (keys) {
+    const contextKeys = Util.pluralize(keys)
+    this._context = contextKeys
+  }
+  get context () {
+    return this._context
+  }
+
+  getCount () {
+    return Object.keys(this._items).length
   }
 }

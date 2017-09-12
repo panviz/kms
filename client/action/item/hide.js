@@ -1,19 +1,17 @@
-import Action from '../../action'
+import Action from '../action'
 
-export default class Self extends Action {
+export default class Hide extends Action {
   constructor (p) {
     super(p)
     this._id = 'itemHide'
     this._label = 'Hide'
     this._icon = 'mdi mdi-eye-off'
     this.group = 'item'
-
-    this.registrar.selection.on('change', this.evaluate.bind(this, this.registrar.selection))
   }
 
   _execute () {
-    const keys = this.registrar.selection.getAll()
-    this.registrar.visibleItems.remove(keys)
+    const keys = this.registrar.currentView.selection.getAll()
+    this.registrar.itemman.unlinkItems(this.registrar.itemman.serviceItem.visibleItem, keys)
   }
 
   evaluate (selection) {

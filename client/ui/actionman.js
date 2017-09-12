@@ -1,7 +1,9 @@
 /**
  * Action Manager
  */
-export default class Self extends EventEmitter {
+import EventEmitter from 'eventemitter3'
+
+export default class Actionman extends EventEmitter {
   constructor (p = {}) {
     super()
     this._instances = {}
@@ -19,8 +21,8 @@ export default class Self extends EventEmitter {
     return _.filter(this._instances, action => action.isEnabled())
   }
 
-  set (Action, registrar) {
-    const action = new Action({ registrar })
+  set (Action, registrar, itemman) {
+    const action = new Action({ registrar, itemman })
     this._instances[action.id] = action
     this.trigger('add', action)
   }

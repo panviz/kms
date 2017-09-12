@@ -4,8 +4,9 @@
  * @event end fires on finishing move
  */
 import Behavior from '../behavior'
+import './pan.scss'
 
-export default class Self extends Behavior {
+export default class Pan extends Behavior {
   /**
    * _startPoint - coordinates of pointing device relative to the canvas
    * @param Number p.wheelStep pixels to move on mouse wheel

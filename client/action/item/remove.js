@@ -1,6 +1,6 @@
-import Action from '../../action'
+import Action from '../action'
 
-export default class Self extends Action {
+export default class Remove extends Action {
   constructor (p) {
     super(p)
     this._id = 'itemRemove'
@@ -8,13 +8,11 @@ export default class Self extends Action {
     this._icon = 'fa fa-remove'
     this._type = 'attention'
     this.group = 'item'
-
-    this.registrar.selection.on('change', this.evaluate.bind(this, this.registrar.selection))
   }
 
   _execute () {
-    const keys = this.registrar.selection.getAll()
-    this.registrar.removeItem(keys)
+    const keys = this.registrar.currentView.selection.getAll()
+    this.registrar.itemman.removeItem(keys)
   }
 
   evaluate (selection) {

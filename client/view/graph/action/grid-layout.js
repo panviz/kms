@@ -1,6 +1,6 @@
-import Action from '../../../action'
+import Action from '../../../action/action'
 
-export default class Self extends Action {
+export default class Grid extends Action {
   constructor (p) {
     super(p)
     this._id = 'grid'

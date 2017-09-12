@@ -1,6 +1,9 @@
 .main-menu {
   flex: 0 0 36px;
   padding: 14px;
+  float: right;
+  margin-right: 10px;
+  position: relative;
 
   button {
     min-width: 36px;
@@ -14,7 +17,7 @@
     &:before {
       position: absolute;
       content: "";
-      background: url($image-path + 'ui/main-menu/menu.svg');
+      background: url('menu.svg');
       background-size: cover;
       width: 32px;
       height: 32px;
@@ -23,3 +26,5 @@
     }
   }
 }
+
+

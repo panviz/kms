@@ -1,6 +1,6 @@
 import Action from '../action'
 
-export default class Self extends Action {
+export default class LinkedList extends Action {
   constructor (p) {
     super(p)
     this._id = 'showLinkedList'
@@ -9,6 +9,6 @@ export default class Self extends Action {
   }
 
   _execute () {
-    this.registrar.ui.linkedList.toggle()
+    this.registrar.linkedList.toggle()
   }
 }

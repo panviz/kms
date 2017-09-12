@@ -1,5 +1,7 @@
 .view.graph {
   flex: 3 1 320px;
+  overflow: hidden;
+  border: 1px solid black;
 
   svg {
     background-color: #F1F2F7;
@@ -20,7 +22,7 @@
     }
     
     circle {
-      /*fill: rgb(215, 236, 251);*/
+      fill: rgb(215, 236, 251);
       stroke: #498AE6;
     }
 
@@ -37,4 +39,10 @@
   }
   text {
   }
+}
+.view.graph.min {
+  flex: 0.000000001 0.00000001 0%;
+}
+.view.graph.max {
+  flex: 3 1 320px;
 }

@@ -1,6 +1,6 @@
-import Action from '../../action'
+import Action from '../action'
 
-export default class Self extends Action {
+export default class Create extends Action {
   constructor (p) {
     super(p)
     this._id = 'itemCreate'
@@ -23,6 +23,7 @@ export default class Self extends Action {
   }
 
   _execute (p) {
-    this.registrar.createItem(p.sub)
+    const selected = this.registrar.currentView.selection.clear()
+    this.registrar.itemman.createItem(p.sub, selected)
   }
 }

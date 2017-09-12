@@ -1,7 +1,9 @@
 /**
  * Behavior interface
  */
-export default class Self extends EventEmitter {
+import EventEmitter from 'eventemitter3'
+
+export default class Behavior extends EventEmitter {
   constructor (p = {}) {
     super()
     this.p = p

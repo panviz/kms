@@ -2,10 +2,9 @@
   <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <link rel="shortcut icon" href="/client/ui/favicon.ico">
-  <link href="/client/bundle.css" rel="stylesheet" type="text/css">
-  <script>G = {}</script>
-  <script src="/client/libs.js"></script>
-  <script src="/client/templates.js"></script>
+
+  <link href="/build/libcss.css" rel="stylesheet" type="text/css">
+  <link href="/build/client.css" rel="stylesheet" type="text/css">
 
   <title>Graphiy</title>
 
@@ -20,10 +19,17 @@
         <a class="logo small" href="/">G</a>
       </div>
       <div class="footer">
-        <a href="http://graphiy.com">© 2016 Graphiy</a>
+        <a href="http://graphiy.com">© 2017 Graphiy</a>
       </div>
     </div>
+    <div class="view-container"></div>
   </div>
+  <div class="footer">This is a prototype. It is not yet a multi-user environment. So, data will be reset by 12AM GMT</div>
 
-  <script type="text/javascript" src="/client/bundle.js"></script>
+  <script src="/node_modules/jquery/dist/jquery.js"></script>
+  <script src="/node_modules/lodash/lodash.js"></script>
+  <script src="/node_modules/d3/build/d3.js"></script>
+
+  <script src="/build/libs.js"></script>
+  <script type="text/javascript" src="/build/client.js"></script>
 </body></html>

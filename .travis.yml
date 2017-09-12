@@ -1,10 +1,10 @@
 sudo: false
 language: node_js
+git:
+  submodules: false
 node_js:
-  - 6
+  - 8
 install:
-  - npm install
-before_script:
-  - npm install -g gulp
+  - yarn install
 script:
-  - NODE_ENV=TEST gulp test
+  - NODE_ENV=TEST yarn run test

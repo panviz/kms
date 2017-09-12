@@ -1,36 +1,25 @@
 /**
  * Server Instance
  */
-import _ from 'lodash'
+
 import express from 'express'
+import request from 'request'
 import Path from 'path'
-import App from './app'
-import Raw from '../provider/raw/index'
-import APIServer from '../provider/api.server/index'
 import bodyParser from 'body-parser'
 import multer from 'multer'
 import chalk from 'chalk'
+import App from './app'
+
+
 const upload = multer() // for parsing multipart/form-data
 const config = require('./config.json')
 const packageConf = require('../package.json')
 
-class Self {
+class Server {
   constructor () {
     this.p = config
     this.p.version = packageConf.version
-    this.provider = Raw
-    this.provider.read(this.p.repository.path)
-      .then((graph) => {
-        this.graph = graph
-        console.info(`Serving items total: ${graph.getItemKeys().length} from ${this.p.repository.path}`)
-        this.apiServerProvider = new APIServer({
-           source: this.p.repository.path,
-           target: this.p.repository.path,
-           graph: this.graph,
-           provider: this.provider
-        })
-        this.app = new App(this.graph)
-      })
+    this.app = new App(this.p)
 
     this.server = express()
     this.server.use(bodyParser.json())
@@ -46,12 +35,12 @@ class Self {
     })
   }
 
-  initRoutes (req, res) {
+  initRoutes () {
+    this.server.get(/^\/build*/, this._onResourceRequest.bind(this))
+
     this.server.get('/', this._onRootRequest.bind(this))
-    this.server.get(/client*/, this._onResourceRequest.bind(this))
     this.server.post(/item/, upload.array(), this._onAPIRequest.bind(this))
-    this.server.post(/find/, upload.array(), this._onAppRequest.bind(this))
-    this.server.get(/tags/, this._onAppSelectInit.bind(this))
+    this.server.post(/graph/, upload.array(), this._onAPPRequest.bind(this))
     this.server.get(/^(.+)$/, this._onOtherRequest.bind(this))
   }
 
@@ -60,31 +49,21 @@ class Self {
   }
 
   _onResourceRequest (req, res) {
-    res.sendFile(Path.join(this.p.app.path, req.path))
+    if (process.env.NODE_ENV === 'DEV') {
+      // send request to webpack-dev-server and return response to browser
+      const url = req.url.substr(6)
+      req.pipe(request.get(`http://localhost:8080${url}`)).pipe(res)
+    } else {
+      res.sendFile(Path.join(this.p.app.path, req.path))
+    }
   }
 
   _on3dpartyRequest (req, res) {
     res.sendFile(Path.join(this.p.app.path, '..', req.path))
   }
 
-  _onAppRequest (req, res) {
-    console.log('send', req.body.args)
-    this.app[req.body.method](req.body.args)
-      .then((data) => {
-        res.send(data)
-      })
-  }
-
-  _onAppSelectInit(req, res){
-    let query = req.query.q
-    this.app.initAutocomplite(query)
-      .then(data => {
-        res.send(JSON.stringify(data))
-      })
-  }
-
   _onAPIRequest (req, res) {
-    this.apiServerProvider.request(req.body)
+    this.app.apiServer.request(req.body)
       .then((data) => {
         res.send(data)
       })
@@ -94,5 +73,14 @@ class Self {
     console.info(`other static request: ${req.params[0]}`)
     res.sendFile(Path.join(this.p.static + req.params[0]))
   }
+
+  _onAPPRequest (req, res) {
+    console.info(`App request params: ${JSON.stringify(req.body)}`)
+    const args = JSON.parse(req.body.args)
+    this.app[req.body.method](...args)
+      .then((data) => {
+        res.send(data)
+      })
+  }
 }
-export default new Self
+export default new Server

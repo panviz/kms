@@ -3,17 +3,17 @@
  * endpoint for api.client module
  */
 import _ from 'lodash'
-import Raw from '../raw/index'
 
-export default class Self {
-  constructor (p = {}) {
+
+export default class APIServer {
+  constructor (p) {
     this.p = p
     this.graph = p.graph
     this.provider = p.provider
   }
 
   request (params) {
-    console.info(`Request params: ${JSON.stringify(params)}`)
+    console.info(`Api request params : ${JSON.stringify(params)}`)
     const args = JSON.parse(params.args)
     const result = this.graph[params.method](...args)
 
