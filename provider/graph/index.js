@@ -398,10 +398,10 @@ export default class Graph {
 
   set context (keys) {
     const contextKeys = Util.pluralize(keys)
-    this.context = contextKeys
+    this._context = contextKeys
   }
-  get Context () {
-    return this.context
+  get context () {
+    return this._context
   }
 
   getCount () {

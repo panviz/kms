@@ -12,6 +12,7 @@ export default class ActionsPanel extends EventEmitter {
   constructor (p = {}) {
     super()
     this.p = p
+    this._selection = p.selection
     this.actions = this.p.actions
 
     const $html = $(template())
@@ -41,7 +42,7 @@ export default class ActionsPanel extends EventEmitter {
 
     const actionHTML = actionTemplate(action)
     const $actionHTML = $(actionHTML).toggleClass('enabled', action.isEnabled())
-    if(!_.isEmpty(action.submenu)){
+    if (!_.isEmpty(action.submenu)) {
       $actionHTML.find('.sub-button').toggleClass('enabled', action.isEnabled())
     }
     const group = action.group || 'main'
@@ -74,12 +75,18 @@ export default class ActionsPanel extends EventEmitter {
     e.stopPropagation()
     const data = $(e.currentTarget).data()
     const action = this.actions[data.id]
-    action.apply(data)
+    action.apply(data, this._selection)
   }
 
   _onGroupClick (e) {
     const $group = $(e.currentTarget)
     $group.find('ul').slideToggle()
     $group.find('span').toggleClass('collapsed')
+  }
+
+  update (selection) {
+    _.each(this.actions, (action) => {
+      action.evaluate(selection)
+    })
   }
 }
