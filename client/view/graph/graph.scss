@@ -4,9 +4,9 @@
   flex: 3 1 320px;
   overflow: hidden;
   border: 1px solid black;
+  background-color: #F1F2F7;
 
   svg {
-    background-color: #F1F2F7;
     pointer-events: none;
   }
   .nodeGroup {
@@ -34,9 +34,17 @@
       border: solid #498AE6;
       border-radius: 50%;
       border-width: 1px;
+      position: relative;
+      top: -16px;
+      left: -16px;
     }
     .text {
       transform: matrix(1,0,0,1,40,-40);
+    }
+    img {
+      position: relative;
+      top: -53px;
+      left: 8px;
     }
   }
 

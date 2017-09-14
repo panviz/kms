@@ -53,11 +53,8 @@ export default class Graph extends View {
       },
     }
 
-
-    //this.canvas = d3.select(`.${this.name} ${this.selectors.canvas}`)
-
     this.canvas = d3.select(`.${this.name} ${this.selectors.canvas}`)
-    this.svg = d3.select(this.selectors.svg)
+    this.svg = d3.select(`.${this.name} ${this.selectors.svg}`)
 
     this.resize()
     this._initLayouts()
@@ -66,7 +63,7 @@ export default class Graph extends View {
     this.selection.on('add', this._onSelect.bind(this))
     this.selection.on('remove', this._onDeselect.bind(this))
 
-    this.elements.svg.on('click', this._onClick.bind(this))
+    this.elements.canvas.on('click', this._onClick.bind(this))
     $(window).on('resize', this.resize.bind(this))
   }
 
@@ -137,6 +134,7 @@ export default class Graph extends View {
     this.elements.container.addClass('behavior')
     this.drag = new Drag({
       container: this.elements.container,
+      nodeGroup: this.elements.nodeGroup,
       node: this.p.node,
     })
     this.drag.enable()
@@ -146,6 +144,7 @@ export default class Graph extends View {
     this.pan = new Pan({
       container: this.elements.container,
       panElement: this.elements.canvas,
+      nodeSelector: this.selectors.node,
     })
     this.pan.enable()
 
@@ -331,6 +330,7 @@ export default class Graph extends View {
 
   _onDrop (targetNode) {
     if (!targetNode) return
+    this.actionman.get('itemLink').enable()
     this.actionman.get('itemLink').apply(targetNode[0].__data__)
   }
 
@@ -339,18 +339,20 @@ export default class Graph extends View {
     _.each(keys, (key) => {
       const node = _.find(this._nodes.merge(this._enteredNodes).nodes(),
         _node => _node.__data__ === key)
-
       const item = node.__data__
-      d3.select(node).append('image')
-        .attr('x', 0)
-        .attr('y', -this.p.node.size.width * 0.68)
-        .attr('width', this.p.node.size.width / 2)
-        .attr('height', this.p.node.size.width / 2)
-        .attr('xlink:href', '/client/view/graph/pin.svg')
 
-      // Fix item to dropped position
-      this.layout.move(item, delta)
-      this.layout.fix(item)
+      if (!node.classList.contains('pin')) {
+        d3.select(node)
+          .classed('pin', true)
+          .append('img')
+          .attr('width', this.p.node.size.width / 2)
+          .attr('height', this.p.node.size.width / 2)
+          .attr('src', '/client/view/graph/pin.svg')
+
+        // Fix item to dropped position
+        this.layout.move(item, delta)
+        this.layout.fix(item)
+      }
     })
     this.updateLayout({ duration: 200 })
   }

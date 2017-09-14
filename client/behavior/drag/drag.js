@@ -13,6 +13,7 @@ export default class Drag extends Behavior {
   constructor (p) {
     super(p)
     this.container = p.container
+    this.nodeGroup = p.nodeGroup
   }
 
   enable () {
@@ -42,7 +43,7 @@ export default class Drag extends Behavior {
   _start (e) {
     this._dragged = $(e.currentTarget)
     this._draggedClone = this._dragged.clone().addClass('dragging')
-    this._startPoint = { x: e.offsetX, y: e.offsetY }
+    this._startPoint = { x: e.pageX, y: e.pageY }
 
     this.container.append(this._draggedClone)
     this.container.addClass('in-progress')
@@ -51,13 +52,14 @@ export default class Drag extends Behavior {
 
   _run (e) {
     if (!this._inProgress) return
-    if (Math.abs(e.offsetX - this._startPoint.x) < 2 &&
-         Math.abs(e.offsetY - this._startPoint.y) < 2) return
+    if (Math.abs(e.pageX - this._startPoint.x) < 2 &&
+        Math.abs(e.pageY - this._startPoint.y) < 2) return
 
     if (!this._draggedClone.is(':visible')) {
       this._draggedClone.show()
     }
-    this._draggedClone.translate(e.offsetX, e.offsetY)
+    // todo remove magic numbers
+    this._draggedClone.translate(e.pageX - 50, e.pageY - 6)
   }
 
   _prepareDrop (e) {
@@ -82,8 +84,8 @@ export default class Drag extends Behavior {
       this.trigger('drop', this._target)
     } else {
       const delta = {}
-      delta.x = e.offsetX - this._startPoint.x
-      delta.y = e.offsetY - this._startPoint.y
+      delta.x = e.pageX - this._startPoint.x
+      delta.y = e.pageY - this._startPoint.y
 
       const nodeHalfWidth = this.p.node.size.width / 2
       if (Math.abs(delta.x) > nodeHalfWidth || Math.abs(delta.y) > nodeHalfWidth) {
