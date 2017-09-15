@@ -6,40 +6,36 @@ function absolute (...args) {
   return path.join(__dirname, ...args)
 }
 
-let fileName = 'bundle'
-let externalFileName = 'exBundle'
-const defaultEnv = {dev: true}
+const defaultEnv = { dev: true }
 const plugins = []
 const rules = [{
   test: /\.(scss|css)$/,
   loader: ExtractTextPlugin.extract({
     fallback: 'style-loader',
-    use: ['css-loader', 'sass-loader']
+    use: ['css-loader', 'sass-loader'],
   }),
-},
-
-  {
+}, {
   test: /\.html/,
   loader: 'handlebars-loader',
 }, {
   test: /\.(svg|png|jpe?g|gif)(\?\S*)?$/,
-  loader: 'url-loader?limit=8192'
+  loader: 'url-loader?limit=8192',
 }, {
   test: /\.(eot|woff|woff2|ttf)(\?\S*)?$/,
-  loader: 'url-loader?&name=asset/font/[name].[ext]'
+  loader: 'url-loader?&name=asset/font/[name].[ext]',
 }]
 
 const externals = {
-  'lodash': '_', //{root: '_'},
-  'jquery': 'jQuery',//{root: ['$', 'jquery', 'jQuery']},
-  'd3': {root: 'd3'},
+  lodash: '_', // {root: '_'},
+  jquery: 'jQuery', // {root: ['$', 'jquery', 'jQuery']},
+  d3: { root: 'd3' },
 }
 
 export default (env = defaultEnv) => {
   if (env.prod) {
     plugins.push(new UglifyJSPlugin({
       compress: {
-        warnings: false
+        warnings: false,
       },
       mangle: {
         keep_fnames: true,
@@ -47,7 +43,7 @@ export default (env = defaultEnv) => {
     }))
   }
 
-  plugins.push(new ExtractTextPlugin(`[name].css`))
+  plugins.push(new ExtractTextPlugin('[name].css'))
 
   return {
     entry: {
@@ -62,13 +58,13 @@ export default (env = defaultEnv) => {
     },
     output: {
       path: absolute('build'),
-      filename: "[name].js",
+      filename: '[name].js',
     },
     resolve: {
-      extensions: ['.js']
+      extensions: ['.js'],
     },
     devtool: 'source-map',
-    module: {rules},
+    module: { rules },
     plugins,
     externals,
   }

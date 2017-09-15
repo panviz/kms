@@ -76,6 +76,7 @@
     "node-sass": "^4.5.3",
     "plusjs": "Dmitra/plusjs",
     "raw-loader": "^0.5.1",
+    "request": "^2.81.0",
     "sass-loader": "^6.0.6",
     "select2": "^4.0.3",
     "style-loader": "^0.18.2",
@@ -95,7 +96,6 @@
     "eslint-plugin-react": "^7.1.0",
     "jsdoc": "^3.5.3",
     "mocha": "^3.5.0",
-    "request": "^2.81.0",
     "webpack-dev-middleware": "^1.12.0",
     "webpack-dev-server": "^2.6.1",
     "webpack-hot-middleware": "^2.18.2"

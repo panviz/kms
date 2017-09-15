@@ -1,7 +1,6 @@
 /**
  * Server Instance
  */
-
 import express from 'express'
 import request from 'request'
 import Path from 'path'
@@ -9,7 +8,6 @@ import bodyParser from 'body-parser'
 import multer from 'multer'
 import chalk from 'chalk'
 import App from './app'
-
 
 const upload = multer() // for parsing multipart/form-data
 const config = require('./config.json')

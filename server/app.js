@@ -147,5 +147,4 @@ export default class Self {
 
     return Promise.resolve()
   }
-
 }

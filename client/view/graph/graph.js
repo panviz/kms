@@ -38,7 +38,7 @@ export default class Graph extends View {
     this.itemman.on('item:remove', this._reload.bind(this))
     this.itemman.on('item:showChildren', this._reload.bind(this))
 
-    const $html = $(template({ name: name }))
+    const $html = $(template({ name }))
     this.setElement($html)
 
     this.p.node = {
