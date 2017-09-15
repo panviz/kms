@@ -38,6 +38,11 @@
       top: -16px;
       left: -16px;
     }
+    &.dragging {
+      .circle {
+        background: rgba(0, 0, 0, 0.5) !important;
+      }
+    }
     .text {
       transform: matrix(1,0,0,1,40,-40);
     }
@@ -55,6 +60,15 @@
 
     &.hide {
       opacity: 0;
+    }
+  }
+  .behavior.drag {
+    &.in-progress, &.in-progress .node {
+      &.dropTarget {
+        circle {
+          stroke: #222;
+        }
+      }
     }
   }
 }

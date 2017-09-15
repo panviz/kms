@@ -130,6 +130,29 @@ Util.simplifyPolygon = function (points) {
   return [left, top, right, bottom]
 }
 
+Util.getRelativeOffset = function (e, ancestor) {
+  const target = e.target
+  let x = e.offsetX
+  let y = e.offsetY
+// TODO element
+  function getOffset (elem) {
+    if (elem === ancestor) return
+
+    if (elem.style.transform) {
+      let transform = elem.style.transform.slice(7, -1).split(',')
+      x += parseInt(transform[4])
+      y += parseInt(transform[5])
+    } else {
+      x += elem.offsetLeft
+      y += elem.offsetTop
+    }
+
+    getOffset(elem.parentNode)
+  }
+  getOffset(target)
+  return { x: x, y: y }
+}
+
 RegExp.prototype.toJSON = function () { return this.toString() } // eslint-disable-line
 
 export default Util

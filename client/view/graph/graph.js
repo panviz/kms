@@ -144,7 +144,6 @@ export default class Graph extends View {
     this.pan = new Pan({
       container: this.elements.container,
       panElement: this.elements.canvas,
-      nodeSelector: this.selectors.node,
     })
     this.pan.enable()
 

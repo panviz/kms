@@ -24,7 +24,6 @@ export default class Pan extends Behavior {
 
     this.container = p.container
     this._element = p.panElement
-    this.nodeSelector = p.nodeSelector
     $(document).on('keydown', this._onKeyDown.bind(this))
   }
 
@@ -120,8 +119,7 @@ export default class Pan extends Behavior {
   }
 
   _onMouseDown (e) {
-    // todo .circle ???
-    if (_.includes($(`${this.nodeSelector} .circle`), e.target)) return
+    if (e.target !== this.container[0] && e.target !== this._element[0]) return
     this._start(e.pageX, e.pageY)
   }
 
