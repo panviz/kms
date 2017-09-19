@@ -64,7 +64,7 @@ export default class Graph extends View {
     this.selection.on('remove', this._onDeselect.bind(this))
 
     this.elements.canvas.on('click', this._onClick.bind(this))
-    $(window).on('resize', this.resize.bind(this))
+    // $(window).on('resize', this.resize.bind(this))
   }
 
   get selectors () {
@@ -134,7 +134,6 @@ export default class Graph extends View {
     this.elements.container.addClass('behavior')
     this.drag = new Drag({
       container: this.elements.container,
-      nodeGroup: this.elements.nodeGroup,
       node: this.p.node,
     })
     this.drag.enable()

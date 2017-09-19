@@ -14,7 +14,6 @@ export default class Drag extends Behavior {
   constructor (p) {
     super(p)
     this.container = p.container
-    this.nodeGroup = p.nodeGroup
   }
 
   enable () {
