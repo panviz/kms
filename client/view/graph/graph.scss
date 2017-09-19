@@ -1,31 +1,56 @@
 .view.graph {
+  position: relative;
+  box-sizing: border-box;
   flex: 3 1 320px;
   overflow: hidden;
   border: 1px solid black;
+  background-color: #F1F2F7;
 
   svg {
-    background-color: #F1F2F7;
+    pointer-events: none;
+  }
+  .nodeGroup {
+    position: absolute;
+    top: 0;
   }
   .node {
+    position: absolute;
     font-size: 12px;
     cursor: auto;
     transition: opacity 750ms ease-in;
     &:hover {
       text-decoration: underline;
 
-      circle {
-        stroke-width: 2px;
+      .circle {
+        border-width: 2px;
       }
     }
     &.hide {
       opacity: 0;
     }
     
-    circle {
-      fill: rgb(215, 236, 251);
-      stroke: #498AE6;
+    .circle {
+      background: rgb(215, 236, 251);
+      border: solid #498AE6;
+      border-radius: 50%;
+      border-width: 1px;
+      position: relative;
+      top: -16px;
+      left: -16px;
     }
-
+    &.dragging {
+      .circle {
+        background: rgba(0, 0, 0, 0.5) !important;
+      }
+    }
+    .text {
+      transform: matrix(1,0,0,1,40,-40);
+    }
+    img {
+      position: relative;
+      top: -53px;
+      left: 8px;
+    }
   }
 
   .link {
@@ -37,7 +62,14 @@
       opacity: 0;
     }
   }
-  text {
+  .behavior.drag {
+    &.in-progress, &.in-progress .node {
+      &.dropTarget {
+        circle {
+          stroke: #222;
+        }
+      }
+    }
   }
 }
 .view.graph.min {

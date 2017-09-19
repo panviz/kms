@@ -91,6 +91,7 @@ export default class App {
   _changeCurrentView (viewName) {
     if (this.views[viewName] && this.views[viewName] !== this.currentView) {
       this.currentView = this.views[viewName]
+      this.actionsPanel.update.call(this.actionsPanel, this.currentView.selection)
     }
   }
 }

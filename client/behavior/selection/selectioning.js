@@ -19,7 +19,6 @@ export default class Selectioning extends Behavior {
   }
 
   _onMouseDownBase (e) {
-    if (e.target !== e.currentTarget) return
     if (e[this.modeKey] === false) this.selection.clear()
   }
 
@@ -28,13 +27,13 @@ export default class Selectioning extends Behavior {
 
     if (e[this.modeKey] === false) {
       this.selection.add(key)
+    } else if (this.selection.get(key)) {
+      this.selection.remove(key)
     } else {
-      if (this.selection.get(key)) {
-        this.selection.remove(key)
-      } else {
-        this.selection.add(key)
-      }
+      this.selection.add(key)
     }
+
+    e.stopPropagation()
   }
 
   _onMouseUpNode (e) {

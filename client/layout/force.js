@@ -50,7 +50,7 @@ export default class Force extends Layout {
         newShapes[index] = this._shapes[existIndex]
       } else {
         const node = _.find(enteredNodes, { __data__: newItem })
-        const size = node.getBBox()
+        const size = node.getBoundingClientRect()
         const point = this._initPosition(newItem, graph)
         newShapes[index] = {
           index,

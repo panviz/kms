@@ -2,6 +2,7 @@
  * Drag behavior
  */
 import Behavior from '../behavior'
+import Util from '../../../core/util'
 import './drag.scss'
 
 /**
@@ -42,7 +43,8 @@ export default class Drag extends Behavior {
   _start (e) {
     this._dragged = $(e.currentTarget)
     this._draggedClone = this._dragged.clone().addClass('dragging')
-    this._startPoint = { x: e.offsetX, y: e.offsetY }
+    const offset = Util.getRelativeOffset(e, this.container[0])
+    this._startPoint = { x: offset.x, y: offset.y }
 
     this.container.append(this._draggedClone)
     this.container.addClass('in-progress')
@@ -51,13 +53,14 @@ export default class Drag extends Behavior {
 
   _run (e) {
     if (!this._inProgress) return
-    if (Math.abs(e.offsetX - this._startPoint.x) < 2 &&
-         Math.abs(e.offsetY - this._startPoint.y) < 2) return
+    const offset = Util.getRelativeOffset(e, this.container[0])
+    if (Math.abs(offset.x - this._startPoint.x) < 2 &&
+        Math.abs(offset.y - this._startPoint.y) < 2) return
 
     if (!this._draggedClone.is(':visible')) {
       this._draggedClone.show()
     }
-    this._draggedClone.translate(e.offsetX, e.offsetY)
+    this._draggedClone.translate(offset.x, offset.y)
   }
 
   _prepareDrop (e) {
@@ -77,14 +80,13 @@ export default class Drag extends Behavior {
 
   _end (e) {
     if (!this._inProgress) return
-
+    const offset = Util.getRelativeOffset(e, this.container[0])
     if (this._target) {
       this.trigger('drop', this._target)
     } else {
       const delta = {}
-      delta.x = e.offsetX - this._startPoint.x
-      delta.y = e.offsetY - this._startPoint.y
-
+      delta.x = offset.x - this._startPoint.x
+      delta.y = offset.y - this._startPoint.y
       const nodeHalfWidth = this.p.node.size.width / 2
       if (Math.abs(delta.x) > nodeHalfWidth || Math.abs(delta.y) > nodeHalfWidth) {
         this.trigger('move', delta)

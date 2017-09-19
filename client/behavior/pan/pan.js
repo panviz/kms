@@ -119,7 +119,7 @@ export default class Pan extends Behavior {
   }
 
   _onMouseDown (e) {
-    if (e.target !== e.currentTarget) return
+    if (e.target !== this.container[0] && e.target !== this._element[0]) return
     this._start(e.pageX, e.pageY)
   }
 

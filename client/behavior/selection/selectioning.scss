@@ -1,15 +1,15 @@
 .behavior.drag {
   .node.selected {
-    circle {
-      stroke: #006AFF;
-      stroke-width: 2px;
-      fill: rgb(188, 228, 255);
+    .circle {
+      border-color: #006AFF;
+      border-width: 2px;
+      background: rgb(188, 228, 255);
     }
 
     &:hover {
-      circle {
-        stroke-width: 3px;
-        fill: #A5D9FD;
+      .circle {
+        border-width: 3px;
+        background: #A5D9FD;
       }
     }
   }

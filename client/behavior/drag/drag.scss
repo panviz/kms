@@ -10,9 +10,7 @@
       z-index: 3;
       pointer-events: none;
 
-      circle {
-        fill: rgba(188, 228, 255, 0.5);
-      }
+
     }
   }
   &.in-progress, &.in-progress .node {
@@ -22,10 +20,6 @@
 
     &.dropTarget {
       cursor: alias;
-
-      circle {
-        stroke: #222;
-      }
     }
   }
 }
