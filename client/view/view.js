@@ -3,8 +3,8 @@
  * @event focus fires on view gain focus
  */
 import EventEmitter from 'eventemitter3'
+import Collection from 'collection'
 import Util from '../../core/util'
-import Collection from '../../core/collection'
 
 export default class View extends EventEmitter {
   constructor (p = {}) {

@@ -383,7 +383,7 @@ export default class Graph extends View {
   }
 
   _onClick () {
-    this.trigger('focus', this.name)
+    this.emit('focus', this.name)
   }
 
   async _reload (context = this.graph.context) {

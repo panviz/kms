@@ -82,14 +82,14 @@ export default class Drag extends Behavior {
     if (!this._inProgress) return
     const offset = Util.getRelativeOffset(e, this.container[0])
     if (this._target) {
-      this.trigger('drop', this._target)
+      this.emit('drop', this._target)
     } else {
       const delta = {}
       delta.x = offset.x - this._startPoint.x
       delta.y = offset.y - this._startPoint.y
       const nodeHalfWidth = this.p.node.size.width / 2
       if (Math.abs(delta.x) > nodeHalfWidth || Math.abs(delta.y) > nodeHalfWidth) {
-        this.trigger('move', delta)
+        this.emit('move', delta)
       }
     }
 

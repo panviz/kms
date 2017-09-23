@@ -21,6 +21,7 @@ module.exports = {
     'no-underscore-dangle': 0,
     // non-critical errors can be just catched
     'no-empty': ['error', { 'allowEmptyCatch': true }],
+    'no-plus-plus': 0,
   },
   env: {
     mocha: true,
@@ -30,6 +31,8 @@ module.exports = {
     $: true,
     d3: true,
     G: true,
+    window: true,
+    document: true,
     DEBUG: true,
   },
 }

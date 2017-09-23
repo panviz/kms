@@ -62,7 +62,7 @@ export default class Pan extends Behavior {
     } else {
       this._moveTo(x, y, silent)
     }
-    if (!silent) this.trigger('end')
+    if (!silent) this.emit('end')
   }
   /**
    * shift canvas on specified distance {deltaX, deltaY}
@@ -77,7 +77,7 @@ export default class Pan extends Behavior {
   _moveTo (x, y, silent) {
     if (y !== undefined) this._element.translateY(y)
     if (x !== undefined) this._element.translateX(x)
-    if (!silent) this.trigger('change')
+    if (!silent) this.emit('change')
   }
   /**
    * Sets this._startPoint
@@ -112,7 +112,7 @@ export default class Pan extends Behavior {
 
   _end () {
     if (this._inProgress && this._changed) {
-      this.trigger('end')
+      this.emit('end')
     }
     this._inProgress = false
     this._changed = false

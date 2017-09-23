@@ -141,7 +141,7 @@ export default class Force extends Layout {
     // untangle layout silently
     if (this._doUntangle && ++this._forceCounter < this.p.untangleIterations) return
     if (!this._transitionEnabled) {
-      this.trigger('tick')
+      this.emit('tick')
     } else {
       if (!this._transitionStarted) this._startTransition()
     }
@@ -219,7 +219,7 @@ export default class Force extends Layout {
       /* eslint-enable */
     })
     Util.log('T TICK')
-    this.trigger('tick')
+    this.emit('tick')
   }
   /**
    * lead to nodes overlap near boundaries

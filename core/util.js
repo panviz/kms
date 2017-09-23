@@ -1,4 +1,5 @@
 import _ from 'lodash'
+
 const Util = {}
 
 Util.findElements = function (root, selectors) {
@@ -19,19 +20,19 @@ Util.updateElements = function (control) {
 }
 
 Util.animate = function (duration, draw) {
-  let start = undefined
+  let start
   let id
   const tick = (timestamp) => {
     if (!start) start = timestamp
     const progress = timestamp - start
     if (progress < duration) {
-      id = requestAnimationFrame(tick)
+      id = window.requestAnimationFrame(tick)
       draw(progress, duration)
     } else {
-      cancelAnimationFrame(id)
+      window.cancelAnimationFrame(id)
     }
   }
-  id = requestAnimationFrame(tick)
+  id = window.requestAnimationFrame(tick)
 }
 
 Util.pluralize = function (arg) {
@@ -151,7 +152,7 @@ Util.getRelativeOffset = function (e, ancestor) {
     getOffset(element.parentNode)
   }
   getOffset(target)
-  return { x: x, y: y }
+  return { x, y }
 }
 
 RegExp.prototype.toJSON = function () { return this.toString() } // eslint-disable-line

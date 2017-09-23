@@ -66,10 +66,10 @@ export default class Editor extends View {
    */
   saved () {
     this._item.value = this.get()
-    this.trigger('change')
+    this.emit('change')
   }
 
   _onChange () {
-    this.trigger('change', this.get())
+    this.emit('change', this.get())
   }
 }

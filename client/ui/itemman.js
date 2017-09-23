@@ -3,9 +3,7 @@
  */
 import EventEmitter from 'eventemitter3'
 import Util from '../../core/util'
-import ClientUtil from '../util' //eslint-disable-line
 import Graph from '../../provider/graph/index'
-
 
 export default class Itemman extends EventEmitter {
   constructor (p = {}) {
@@ -20,32 +18,32 @@ export default class Itemman extends EventEmitter {
     const keys = Util.pluralize(keyS)
     const rootKey = keys[0]
 
-    this.trigger('item:showChildren', rootKey)
+    this.emit('item:showChildren', rootKey)
   }
 
   async createItem (p = {}, selected) {
     const key = await Itemman._request('createAndLinkItem', _.concat(this.serviceItem.visibleItem, this.serviceItem[p], selected))
-    this.trigger('item:create', key)
+    this.emit('item:create', key)
   }
 
   async saveItem (value, key) {
     await Itemman._request('set', value, key)
-    this.trigger('item:saved', key)
+    this.emit('item:saved', key)
   }
 
   async removeItem (keys) {
     await Itemman._request('remove', keys)
-    this.trigger('item:remove')
+    this.emit('item:remove')
   }
 
   async linkItems (source, targets) {
     await Itemman._request('associate', source, targets)
-    this.trigger('item:associate')
+    this.emit('item:associate')
   }
 
   async unlinkItems (source, targets) {
     await Itemman._request('setDisassociate', source, targets)
-    this.trigger('item:disassociate')
+    this.emit('item:disassociate')
   }
   /**
    * Populate view with user data from previous time
@@ -61,7 +59,7 @@ export default class Itemman extends EventEmitter {
       this.serviceItem.root = this.rootKey
     }
 
-    this.trigger('repo:load', this.serviceItem.visibleItem)
+    this.emit('repo:load', this.serviceItem.visibleItem)
   }
 
   _initRepo () {

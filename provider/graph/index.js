@@ -8,7 +8,6 @@
  */
 import _ from 'lodash'
 import uuidBase62 from 'uuid-base62'
-import dijkstra from '../../core/dijkstra'
 import Util from '../../core/util'
 
 
@@ -343,7 +342,7 @@ export default class Graph {
    */
   findShortestPath (key1, key2) {
     const map = this.getLinksWeightMap()
-    return dijkstra.findShortestPath(map, key1, key2)
+    // return dijkstra.findShortestPath(map, key1, key2)
   }
   /**
    * @param Function filterer

@@ -80,7 +80,7 @@ export default class Action extends EventEmitter {
   disable () {
     if (this._deny) return
     this._deny = true
-    this.trigger('disable')
+    this.emit('disable')
   }
   /**
    * Changes enable/disable state
@@ -89,7 +89,7 @@ export default class Action extends EventEmitter {
   enable () {
     if (!this._deny) return
     this._deny = false
-    this.trigger('enable')
+    this.emit('enable')
   }
   /**
    * @returns Boolean whether Action has undo method
