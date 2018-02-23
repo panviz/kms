@@ -2,10 +2,9 @@
  * Server Application
  * perform complex actions delegated from client application
  */
-
 import _ from 'lodash'
+import Raw from '@graphiy/provider-raw'
 import Util from '../core/util'
-import Raw from '../provider/raw/index'
 
 export default class Self {
   constructor (p) {

@@ -82,7 +82,8 @@ export default class App {
       _.each(this.views, (view, key) => {
         if (name !== key) {
           view.resize()
-          view.layout.size(view.p.width, view.p.height)
+          // TODO view should manage its layout on its own
+          // view.layout.size(view.p.width, view.p.height)
         }
       })
     }

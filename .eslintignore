@@ -1,11 +1,4 @@
 docs/
 cli/
 server/runner.js
-provider/contact/
-provider/fs/
-provider/mybase/
-provider/semantic.fs/
-provider/json.keyvalue/
-provider/website.publication/
-provider/website.source/
 test/e2e/

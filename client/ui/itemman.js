@@ -3,7 +3,7 @@
  */
 import EventEmitter from 'eventemitter3'
 import Util from '../../core/util'
-import Graph from '../../provider/graph/index'
+import Graph from '@graphiy/graph'
 
 export default class Itemman extends EventEmitter {
   constructor (p = {}) {
@@ -28,7 +28,7 @@ export default class Itemman extends EventEmitter {
 
   async saveItem (value, key) {
     await Itemman._request('set', value, key)
-    this.emit('item:saved', key)
+    this.emit('item:save', key)
   }
 
   async removeItem (keys) {

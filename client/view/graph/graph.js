@@ -4,15 +4,15 @@
  * Here comes logic for handling visual "GUI-level" user input
  * like: click, hover, collapse/expand, right click, etc
  */
+import { Force } from '@graphiy/layout'
+// import { Grid } from '@graphiy/layout'
+// import { Radial } from '@graphiy/layout'
+import { Selectioning } from '@graphiy/behavior'
+import { RectSelectioning } from '@graphiy/behavior'
+import { Pan } from '@graphiy/behavior'
+import { Drag } from '@graphiy/behavior'
+
 import View from '../view'
-import ForceLayout from '../../layout/force'
-// import GridLayout from '../../layout/grid'
-// import RadialLayout from '../../layout/radial'
-import Selectioning from '../../behavior/selection/selectioning'
-import RectSelectioning from '../../behavior/selection/rectangular'
-import Pan from '../../behavior/pan/pan'
-import Drag from '../../behavior/drag/drag'
-import Util from '../../../core/util'
 import template from './graph.html'
 import './graph.scss'
 /**
@@ -92,41 +92,31 @@ export default class Graph extends View {
    * initialize all available layouts in view
    */
   _initLayouts () {
-    const forceLayout = new ForceLayout({
+    const force = new Force({
       width: this.p.width,
       height: this.p.height,
       node: this.p.node,
     })
-    // const gridLayout = new GridLayout({
+    // const gridLayout = new Grid({
     // width: this.p.width,
     // height: this.p.height,
     // node: this.p.node.size,
     // offset: { x: this.p.node.size.width, y: this.p.node.size.height },
     // spacing: 100,
     // })
-    // const radialLayout = new RadialLayout({
+    // const radialLayout = new Radial({
     // width: this.p.width,
     // height: this.p.height,
     // })
     this.layouts = {
-      force: forceLayout,
-      // grid: gridLayout,
-      // radial: radialLayout,
+      force,
+      // grid,
+      // radial,
     }
 
-    // TODO change Grid and Radial layouts firing
-    // this.actions = [
-    // require('./action/forceLayout'),
-    // require('./action/gridLayout'),
-    // require('./action/radialLayout')
-    // ]
-    // _.each(this.actions, (action) => {
-    // this.actionman.set(action, this)
-    // })
     this.layout = this.layouts.force
-    this.layout.on('tick', this._updatePosition, this)
+    this.layout.on('end', this._updatePosition, this)
   }
-
   /**
    * initialize View actions and their functions
    */
@@ -149,7 +139,7 @@ export default class Graph extends View {
     this.selectioning = new Selectioning({
       selection: this.selection,
       container: this.elements.container,
-      nodeSelector: this.selectors.node,
+      node: { selector: this.selectors.node },
     })
     /* this.rectSelectioning = new RectSelectioning({
       selection: this.selection,
@@ -159,7 +149,6 @@ export default class Graph extends View {
       eventTarget: this.elements.container,
     }) */
   }
-
   /**
    * render new graph in the view using current layout
    */
@@ -196,7 +185,6 @@ export default class Graph extends View {
 
     this.updateLayout({ duration: 1000 })
   }
-
   /**
    * take all available space
    */
@@ -209,21 +197,18 @@ export default class Graph extends View {
       .width(this.p.width)
       .height(this.p.height)
   }
-
   /**
    * run current view layout for
    */
   updateLayout (p) {
     if (this.autoLayout) this.layout.run(p, this.graph)
   }
-
   /**
    * TODO make action for it
    */
   toggleAutoLayout () {
     this.autoLayout = !this.autoLayout
   }
-
   /**
    * append new Edges to DOM
    */
@@ -232,7 +217,6 @@ export default class Graph extends View {
     this._enteredEdges
       .classed(`${this.selectors.link.slice(1)} ${this.selectors.hidden.slice(1)}`, true)
   }
-
   /**
    * remove dropped off Edges from DOM
    */
@@ -244,7 +228,6 @@ export default class Graph extends View {
       this._exitedEdges.remove()
     }, 750)
   }
-
   /**
    * append new nodes to DOM
    */
@@ -263,7 +246,6 @@ export default class Graph extends View {
       .attr('class', 'text')
       .html(this._getLabel.bind(this))
   }
-
   /**
    * update DOM nodes
    */
@@ -280,7 +262,6 @@ export default class Graph extends View {
         return 'rgb(215, 236, 251)'
       })
   }
-
   /**
    * remove DOM nodes
    */
@@ -292,13 +273,12 @@ export default class Graph extends View {
       this._exitedNodes.remove()
     }, 750)
   }
-
   /**
    * update nodes and edges positions in DOM
    */
   _updatePosition () {
     const items = this._items
-    const coords = this.layout.getCoords()
+    const coords = this.layout.coords
     _.each(this._nodes.merge(this._enteredNodes).nodes(), (node) => {
       const $node = $(node)
       const item = node.__data__

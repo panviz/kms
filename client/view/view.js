@@ -3,7 +3,7 @@
  * @event focus fires on view gain focus
  */
 import EventEmitter from 'eventemitter3'
-import Collection from 'collection'
+import Collection from '@graphiy/collection'
 import Util from '../../core/util'
 
 export default class View extends EventEmitter {
@@ -33,14 +33,14 @@ export default class View extends EventEmitter {
   show () {
     if (this.isVisible()) return false
     this.elements.root.show()
-    this.trigger('show')
+    this.emit('show')
     return true
   }
 
   hide () {
     if (!this.isVisible()) return
     this.elements.root.hide()
-    this.trigger('hide')
+    this.emit('hide')
   }
 
   toggle () {
@@ -49,7 +49,7 @@ export default class View extends EventEmitter {
 
   toggleSize (e) {
     this.elements.size.toggleClass('max min mdi-window-maximize mdi-window-minimize')
-    this.trigger('toogleSize', e.target)
+    this.emit('toogleSize', e.target)
   }
 
   isVisible () {
@@ -67,7 +67,7 @@ export default class View extends EventEmitter {
   }
 
   _delegate (eventName, selector, listener) {
-    this.$el.on(eventName + '.delegateEvents', selector, listener)
+    this.$el.on(`${eventName}.delegateEvents`, selector, listener)
     return this
   }
 
@@ -94,12 +94,11 @@ export default class View extends EventEmitter {
   delegateEvents (events = this.events) {
     if (!events) return this
     this.undelegateEvents()
-    for(let key in events) {
+    for (const key in events) {
       let method = events[key]
       if (!_.isFunction(method)) method = this[method]
       if (!method) continue
       const [, eventName, selectorName] = key.match(this._delegateEventSplitter)
-
 
       this._delegate(eventName, this.selectors[selectorName], _.bind(method, this))
     }
@@ -108,7 +107,6 @@ export default class View extends EventEmitter {
   /**
    * Clears all callbacks previously bound to the view by `delegateEvents`
    */
-
   undelegateEvents () {
     if (this.$el) this.$el.off('.delegateEvents')
     return this

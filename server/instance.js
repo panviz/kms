@@ -38,7 +38,7 @@ class Server {
 
     this.server.get('/', this._onRootRequest.bind(this))
     this.server.post(/item/, upload.array(), this._onAPIRequest.bind(this))
-    this.server.post(/graph/, upload.array(), this._onAPPRequest.bind(this))
+    this.server.post(/graph/, upload.array(), this._onAppRequest.bind(this))
     this.server.get(/^(.+)$/, this._onOtherRequest.bind(this))
   }
 
@@ -72,7 +72,7 @@ class Server {
     res.sendFile(Path.join(this.p.static + req.params[0]))
   }
 
-  _onAPPRequest (req, res) {
+  _onAppRequest (req, res) {
     console.info(`App request params: ${JSON.stringify(req.body)}`)
     const args = JSON.parse(req.body.args)
     this.app[req.body.method](...args)
