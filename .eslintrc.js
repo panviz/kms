@@ -1,5 +1,5 @@
 module.exports = {
-  extends: 'graphiy',
+  extends: '@graphiy/graphiy',
   env: {
     browser: true,
     mocha: true,

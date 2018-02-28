@@ -1,9 +1,9 @@
 /**
  * Item manager
  */
+import Graph from '@graphiy/graph'
 import EventEmitter from 'eventemitter3'
 import Util from '../../core/util'
-import Graph from '@graphiy/graph'
 
 export default class Itemman extends EventEmitter {
   constructor (p = {}) {
@@ -84,18 +84,10 @@ export default class Itemman extends EventEmitter {
     return graph
   }
 
-  _filter (data) {
-    let graph
-    let keys
+  _filter (graph) {
     const serviceKeys = _.toArray(this.serviceItem)
-    if (data.providerID) graph = data
-    if (_.isArray(data)) keys = data
-    if (graph) {
-      graph.remove(serviceKeys)
-      return graph
-    }
-    _.pullAll(keys, serviceKeys)
-    return keys
+    graph.remove(serviceKeys)
+    return graph
   }
   /**
    * Translate graph function calls to server

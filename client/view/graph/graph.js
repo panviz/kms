@@ -56,8 +56,8 @@ export default class Graph extends View {
     this.canvas = d3.select(`.${this.name} ${this.selectors.canvas}`)
     this.svg = d3.select(`.${this.name} ${this.selectors.svg}`)
 
-    this.resize()
     this._initLayouts()
+    this.resize()
     this._initViewActions()
 
     this.selection.on('add', this._onSelect.bind(this))
@@ -92,29 +92,9 @@ export default class Graph extends View {
    * initialize all available layouts in view
    */
   _initLayouts () {
-    const force = new Force({
-      width: this.p.width,
-      height: this.p.height,
-      node: this.p.node,
-    })
-    // const gridLayout = new Grid({
-    // width: this.p.width,
-    // height: this.p.height,
-    // node: this.p.node.size,
-    // offset: { x: this.p.node.size.width, y: this.p.node.size.height },
-    // spacing: 100,
-    // })
-    // const radialLayout = new Radial({
-    // width: this.p.width,
-    // height: this.p.height,
-    // })
-    this.layouts = {
-      force,
-      // grid,
-      // radial,
-    }
+    const force = new Force({ distance: 100 })
 
-    this.layout = this.layouts.force
+    this.layout = force
     this.layout.on('end', this._updatePosition, this)
   }
   /**
@@ -165,7 +145,20 @@ export default class Graph extends View {
     this._updateNodes(items)
     this._exitNodes()
 
-    this.layout.update(graph, this._enteredNodes.nodes())
+    const nodes = this._graph.getItemKeys()
+    const linksArr = this._graph.getLinksArray()
+    const links = []
+    _.each(linksArr, (link) => {
+      const source = nodes.indexOf(link[0])
+      const target = nodes.indexOf(link[1])
+      links.push({ source, target })
+    })
+    const data = []
+    _.each(nodes, (node) => {
+      data.push({ id: node, x: 0, y: 0 })
+    })
+
+    this.layout.update(data, links)
 
     // init edges only after its coord are ready
     this._edges = this.svg.select(this.selectors.edgeGroup)
@@ -176,14 +169,13 @@ export default class Graph extends View {
     this._exitEdges()
 
     this._updatePosition()
-    this.layout.once('tick', () => {
+    this.layout.once('end', () => {
       this._enteredNodes.classed(this.selectors.hidden.slice(1), false)
       this._enteredEdges.classed(this.selectors.hidden.slice(1), false)
       this._exitedNodes.classed(this.selectors.hidden.slice(1), true)
       this._exitedEdges.classed(this.selectors.hidden.slice(1), true)
     })
-
-    this.updateLayout({ duration: 1000 })
+    this.updateLayout()
   }
   /**
    * take all available space
@@ -196,12 +188,22 @@ export default class Graph extends View {
     this.elements.svg
       .width(this.p.width)
       .height(this.p.height)
+
+    this.updateLayoutConfig()
   }
   /**
    * run current view layout for
    */
-  updateLayout (p) {
-    if (this.autoLayout) this.layout.run(p, this.graph)
+  updateLayout () {
+    if (this.autoLayout) this.layout.run()
+  }
+
+  updateLayoutConfig () {
+    const options = {
+      width: this.elements.root.width(),
+      height: this.elements.root.height(),
+    }
+    _.assign(this.layout.p, options)
   }
   /**
    * TODO make action for it
@@ -282,20 +284,17 @@ export default class Graph extends View {
     _.each(this._nodes.merge(this._enteredNodes).nodes(), (node) => {
       const $node = $(node)
       const item = node.__data__
-      const coord = coords[items.indexOf(item)]
+      const coord = coords[items.indexOf(item)] || { x: 0, y: 0 }
       $node.translateX(coord.x)
       $node.translateY(coord.y)
-
-      // if (item == 'job') console.log(coord.x + ', ' + coord.y);
     })
-    _.each(this._edges.merge(this._enteredEdges).nodes(), (edge) => {
-      const [source, target] = edge.__data__
-      const sCoord = coords[items.indexOf(source)]
-      const tCoord = coords[items.indexOf(target)]
-      edge.setAttribute('x1', sCoord.x)
-      edge.setAttribute('y1', sCoord.y)
-      edge.setAttribute('x2', tCoord.x)
-      edge.setAttribute('y2', tCoord.y)
+    const edgesCoords = this.layout.edgesCoords
+    _.each(this._edges.merge(this._enteredEdges).nodes(), (edge, i) => {
+      const coord = edgesCoords[i] || { x1: 0, y1: 0, x2: 0, y2: 0 }  // eslint-disable-line
+      edge.setAttribute('x1', coord.x1)
+      edge.setAttribute('y1', coord.y1)
+      edge.setAttribute('x2', coord.x2)
+      edge.setAttribute('y2', coord.y2)
     })
   }
 
@@ -315,8 +314,10 @@ export default class Graph extends View {
   _onNodeMove (delta) {
     const keys = this.selection.getAll()
     _.each(keys, (key) => {
-      const node = _.find(this._nodes.merge(this._enteredNodes).nodes(),
-        _node => _node.__data__ === key)
+      const node = _.find(
+        this._nodes.merge(this._enteredNodes).nodes(),
+        _node => _node.__data__ === key
+      )
       const item = node.__data__
 
       if (!node.classList.contains('pin')) {
@@ -337,8 +338,10 @@ export default class Graph extends View {
 
   _onSelect (keys) {
     _.each(keys, (key) => {
-      const node = _.find(this._nodes.merge(this._enteredNodes).nodes(),
-        _node => _node.__data__ === key)
+      const node = _.find(
+        this._nodes.merge(this._enteredNodes).nodes(),
+        _node => _node.__data__ === key
+      )
 
       if (node) node.classList.add(this.selectors.selected.slice(1))
     })
@@ -346,8 +349,10 @@ export default class Graph extends View {
 
   _onDeselect (keys) {
     _.each(keys, (key) => {
-      const node = _.find(this._nodes.merge(this._enteredNodes).nodes(),
-        _node => _node.__data__ === key)
+      const node = _.find(
+        this._nodes.merge(this._enteredNodes).nodes(),
+        _node => _node.__data__ === key
+      )
 
       if (node) node.classList.remove(this.selectors.selected.slice(1))
     })
