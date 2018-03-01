@@ -1,9 +1,8 @@
-import Action from '../action'
+import { Action } from '@graphiy/actionman'
 
 export default class Create extends Action {
   constructor (p) {
     super(p)
-    this._id = 'itemCreate'
     this._label = 'Create'
     this._icon = 'mdi mdi-plus'
     this._type = 'multi'
@@ -22,8 +21,12 @@ export default class Create extends Action {
     ]
   }
 
-  _execute (p) {
-    const selected = this.registrar.currentView.selection.clear()
-    this.registrar.itemman.createItem(p.sub, selected)
+  _execute (registrar, args) {
+    const selected = registrar.currentView.selection.clear()
+    registrar.itemman.createItem(args.sub, selected)
+  }
+
+  get icon () {
+    return this._icon
   }
 }

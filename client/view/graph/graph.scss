@@ -71,6 +71,22 @@
       }
     }
   }
+
+  .behavior.selectioning {
+    .node.selected{
+      .circle{
+        border-color: #006AFF;
+        border-width: 2px;
+        background-color: rgb(188, 228, 255);
+      }
+    }
+    &:hover {
+      circle {
+        border-width: 3px;
+        background-color: #A5D9FD;
+      }
+    }
+  }
 }
 .view.graph.min {
   flex: 0.000000001 0.00000001 0%;
@@ -78,3 +94,4 @@
 .view.graph.max {
   flex: 3 1 320px;
 }
+

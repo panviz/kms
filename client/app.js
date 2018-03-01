@@ -1,8 +1,8 @@
 /**
  * Client application is run in browser
  */
+import { Actionman } from '@graphiy/actionman'
 import Util from '../core/util'
-import Actionman from './ui/actionman'
 import Itemman from './ui/itemman'
 import GraphView from './view/graph/graph'
 import Menu from './ui/main-menu/menu'
@@ -27,6 +27,7 @@ const _actions = [
 
 export default class App {
   constructor () {
+    this.id = 'app'
     this.views = {}
     this.actionman = new Actionman()
     this.itemman = new Itemman({ app: this })
@@ -44,7 +45,7 @@ export default class App {
 
     this.actionsPanel = new ActionsPanel({
       container: this.elements.sidebar,
-      actions: this.actionman.getAll(),
+      actionman: this.actionman,
     })
 
     this._createView('view1', graphViewSet)
@@ -55,7 +56,7 @@ export default class App {
 
     this.actions = _actions
     setTimeout(() => {
-      _.each(this.actions, action => this.actionman.set(action, this))
+      _.each(this.actions, action => this.actionman.set(action, this, this.id))
     })
   }
 

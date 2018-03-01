@@ -7,10 +7,7 @@
 import { Force } from '@graphiy/layout'
 // import { Grid } from '@graphiy/layout'
 // import { Radial } from '@graphiy/layout'
-import { Selectioning } from '@graphiy/behavior'
-import { RectSelectioning } from '@graphiy/behavior'
-import { Pan } from '@graphiy/behavior'
-import { Drag } from '@graphiy/behavior'
+import { Selectioning, Pan, Drag } from '@graphiy/behavior'
 
 import View from '../view'
 import template from './graph.html'
@@ -53,7 +50,7 @@ export default class Graph extends View {
       },
     }
 
-    this.canvas = d3.select(`.${this.name} ${this.selectors.canvas}`)
+    this.container = d3.select(`.${this.name} ${this.selectors.container}`)
     this.svg = d3.select(`.${this.name} ${this.selectors.svg}`)
 
     this._initLayouts()
@@ -63,7 +60,7 @@ export default class Graph extends View {
     this.selection.on('add', this._onSelect.bind(this))
     this.selection.on('remove', this._onDeselect.bind(this))
 
-    this.elements.canvas.on('click', this._onClick.bind(this))
+    this.elements.container.on('click', this._onClick.bind(this))
     // $(window).on('resize', this.resize.bind(this))
   }
 
@@ -102,7 +99,7 @@ export default class Graph extends View {
    */
   _initViewActions () {
     this.elements.container.addClass('behavior')
-    this.drag = new Drag({
+    /*this.drag = new Drag({
       container: this.elements.container,
       node: this.p.node,
     })
@@ -114,12 +111,13 @@ export default class Graph extends View {
       container: this.elements.container,
       panElement: this.elements.canvas,
     })
-    this.pan.enable()
+    this.pan.enable()*/
 
     this.selectioning = new Selectioning({
       selection: this.selection,
       container: this.elements.container,
       node: { selector: this.selectors.node },
+      enabled: true,
     })
     /* this.rectSelectioning = new RectSelectioning({
       selection: this.selection,
@@ -137,7 +135,7 @@ export default class Graph extends View {
     this._items = graph.getItemKeys()
 
     // bind DOM nodes to items
-    this._nodes = this.canvas.select(this.selectors.nodeGroup)
+    this._nodes = this.container.select(this.selectors.nodeGroup)
       .selectAll(this.selectors.node)
       .data(this._items, d => d)
 
@@ -184,7 +182,7 @@ export default class Graph extends View {
     this.elements.svg.detach()
     this.p.height = this.elements.root.height()
     this.p.width = this.elements.root.width()
-    this.elements.canvas.prepend(this.elements.svg)
+    this.elements.container.prepend(this.elements.svg)
     this.elements.svg
       .width(this.p.width)
       .height(this.p.height)

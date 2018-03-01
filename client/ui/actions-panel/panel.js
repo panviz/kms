@@ -13,7 +13,7 @@ export default class ActionsPanel extends EventEmitter {
     super()
     this.p = p
     this._selection = p.selection
-    this.actions = this.p.actions
+    this.actionman = p.actionman
 
     const $html = $(template())
     this.p.container.append($html)
@@ -41,9 +41,9 @@ export default class ActionsPanel extends EventEmitter {
     action.on('hide', this.removeMenuItem.bind(this, action))
 
     const actionHTML = actionTemplate(action)
-    const $actionHTML = $(actionHTML).toggleClass('enabled', action.isEnabled())
+    const $actionHTML = $(actionHTML).toggleClass('enabled', action.isEnabled)
     if (!_.isEmpty(action.submenu)) {
-      $actionHTML.find('.sub-button').toggleClass('enabled', action.isEnabled())
+      $actionHTML.find('.sub-button').toggleClass('enabled', action.isEnabled)
     }
     const group = action.group || 'main'
     let $group = this.elements.root.find(`.${group}`)
@@ -74,8 +74,8 @@ export default class ActionsPanel extends EventEmitter {
   _onMenuItemClick (e) {
     e.stopPropagation()
     const data = $(e.currentTarget).data()
-    const action = this.actions[data.id]
-    action.apply(data, this._selection)
+    const { id } = data
+    this.actionman.fire(id, 'all', data)
   }
 
   _onGroupClick (e) {
