@@ -1,19 +1,17 @@
-import Action from '../action'
+import { Action } from '@graphiy/actionman'
 
 export default class SelectNone extends Action {
   constructor (p) {
     super(p)
-    this._id = 'selectNone'
-    this._label = 'none'
-    this._icon = 'fa fa-ban'
-    this.group = 'select'
+    this._id = 'SelectNone'
+    this._deny = true
   }
 
-  _execute () {
-    this.registrar.currentView.selection.clear()
+  _execute (registrar, args) {
+    registrar.currentView.selection.clear()
   }
 
-  evaluate (selection) {
-    super._evaluate(selection.getCount())
+  evaluate (registrar, selection) {
+    super.evaluate(selection.getCount())
   }
 }

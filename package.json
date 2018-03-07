@@ -47,7 +47,7 @@
     "@graphiy/behavior": "graphiy/behavior#development",
     "@graphiy/collection": "graphiy/collection",
     "@graphiy/graph": "graphiy/graph",
-    "@graphiy/layout": "graphiy/layout",
+    "@graphiy/layout": "graphiy/layout#dev",
     "@graphiy/provider-raw": "graphiy/provider-raw",
     "@graphiy/transform": "graphiy/transform",
     "body-parser": "^1.17.2",

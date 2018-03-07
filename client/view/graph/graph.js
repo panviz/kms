@@ -99,15 +99,16 @@ export default class Graph extends View {
    */
   _initViewActions () {
     this.elements.container.addClass('behavior')
-    /*this.drag = new Drag({
+    this.drag = new Drag({
       container: this.elements.container,
       node: this.p.node,
+      moveThreshold: 16,
     })
     this.drag.enable()
     this.drag.on('drop', this._onDrop.bind(this))
     this.drag.on('move', this._onNodeMove.bind(this))
 
-    this.pan = new Pan({
+    /*this.pan = new Pan({
       container: this.elements.container,
       panElement: this.elements.canvas,
     })
@@ -316,8 +317,6 @@ export default class Graph extends View {
         this._nodes.merge(this._enteredNodes).nodes(),
         _node => _node.__data__ === key
       )
-      const item = node.__data__
-
       if (!node.classList.contains('pin')) {
         d3.select(node)
           .classed('pin', true)
@@ -327,11 +326,9 @@ export default class Graph extends View {
           .attr('src', '/client/view/graph/pin.svg')
 
         // Fix item to dropped position
-        this.layout.move(item, delta)
-        this.layout.fix(item)
+        this._nodeMove(node, delta)
       }
     })
-    this.updateLayout({ duration: 200 })
   }
 
   _onSelect (keys) {
@@ -357,7 +354,7 @@ export default class Graph extends View {
   }
 
   _onNodeDblClick (e) {
-    this.actionman.get('itemShowChildren').apply(e)
+    this.actionman.fire('Expand', 'all')
   }
 
   _addToSelection (key) {
@@ -367,6 +364,16 @@ export default class Graph extends View {
 
   _onClick () {
     this.emit('focus', this.name)
+  }
+
+  /**
+   * @param id
+   */
+  _nodeMove (node, delta) {
+    const transform = node.style.transform
+    const matrix = transform.slice(transform.indexOf('(') + 1, transform.indexOf(')')).split(',')
+    node.style.transform = `matrix(${matrix[0]},${matrix[1]},${matrix[2]},${matrix[3]},${+matrix[4] + delta.x}, ${+matrix[5] + delta.y})`
+
   }
 
   async _reload (context = this.graph.context) {

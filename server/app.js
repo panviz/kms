@@ -134,7 +134,7 @@ export default class Self {
   }
 
   setDisassociate (source, target) {
-    const result = this.graph.setDisassociate(source, target)
+    const result = this.graph.disassociate(source, target)
     this._changeItemsInStoradge(result)
 
     return Promise.resolve()

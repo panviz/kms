@@ -1,22 +1,19 @@
-import Action from '../action'
+import { Action } from '@graphiy/actionman'
 
 export default class Unlink extends Action {
   constructor (p) {
     super(p)
-    this._id = 'itemUnlink'
-    this._label = 'Unlink'
-    this._icon = 'mdi mdi-link-variant-off'
-    this.group = 'item'
+    this._id = 'Unlink'
+    this._deny = true
   }
 
-  _execute () {
-    const keys = this.registrar.currentView.selection.getAll()
+  _execute (registrar, args) {
+    const keys = registrar.currentView.selection.getAll()
     const key1 = keys.shift()
-
-    this.registrar.itemman.unlinkItems(key1, keys)
+    registrar.itemman.unlinkItems(key1, keys)
   }
 
-  evaluate (selection) {
-    super._evaluate(selection.getCount() > 1)
+  evaluate (registrar, selection) {
+    super.evaluate(selection.getCount() > 1)
   }
 }

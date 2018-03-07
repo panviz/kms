@@ -1,14 +1,11 @@
-<li class="action mdl-button {{ class }}" title="{{ label }}" data-id="{{ constructor.name }}">
+{{#if subaction}}
+  {{#each subaction}}
+  <li class="action mdl-button {{ class }}" title="{{ label }}" data-id="{{ ../id }}" data-sub="{{ sub }}">
+    <i class="{{ icon }}"></i>
+  </li>
+  {{/each}}
+{{else}}
+<li class="action mdl-button {{ class }}" title="{{ label }}" data-id="{{ id }}">
   <i class="{{ icon }}"></i>
-  <span class="label">{{ label }}</span>
-    {{#if submenu}}
-    <ul class="submenu action">
-      {{#each submenu}}
-        <li class="action sub-button {{ class }}" title="{{ this.sub }}" data-id="{{ this.id }}" data-sub="{{ this.sub }}">
-          <i class="{{ this.icon }}"></i>
-          <span class="label">{{ this.sub }}</span>
-        </li>
-      {{/each}}
-    </ul>
-    {{/if}}
 </li>
+{{/if}}

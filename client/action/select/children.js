@@ -1,28 +1,26 @@
-import Action from '../action'
+import { Action } from '@graphiy/actionman'
 
 export default class SelectChildren extends Action {
   constructor (p) {
     super(p)
-    this._id = 'selectChildren'
-    this._label = 'Children'
-    this._icon = 'mdi mdi-chemical-weapon'
-    this.group = 'select'
+    this._id = 'SelectChildren'
+    this._deny = true
   }
 
-  _execute () {
-    const selected = this.registrar.currentView.selection.clear()
+  _execute (registrar, args) {
+    const selected = registrar.currentView.selection.clear()
     _.each(selected, (item) => {
-      this.registrar.currentView.selection.add(this.registrar.currentView.graph.getLinked(item))
+      registrar.currentView.selection.add(registrar.currentView.graph.getLinked(item))
     })
   }
 
-  evaluate (selection) {
+  evaluate (registrar, selection) {
     const keyS = selection.getAll()
     let links = []
     _.find(keyS, (key) => {
-      links = this.registrar.currentView.graph.getLinks(key)
+      links = registrar.currentView.graph.getLinks(key)
       if (links.length > 0) return true
     })
-    links.length ? super._evaluate(true) : super._evaluate(false)
+    links.length ? super.evaluate(true) : super.evaluate(false)
   }
 }
