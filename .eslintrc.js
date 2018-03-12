@@ -1,5 +1,5 @@
 module.exports = {
-  extends: '@graphiy/graphiy',
+  extends: '@graphiy/eslint-config',
   env: {
     browser: true,
     mocha: true,

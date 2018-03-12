@@ -39,6 +39,9 @@
       left: -16px;
     }
     &.dragging {
+      top: 16px;
+      left: 16px;
+      display: none;
       .circle {
         background: rgba(0, 0, 0, 0.5) !important;
       }

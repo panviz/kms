@@ -50,7 +50,7 @@ export default class Graph extends View {
       },
     }
 
-    this.container = d3.select(`.${this.name} ${this.selectors.container}`)
+    this.canvas = d3.select(`.${this.name} ${this.selectors.canvas}`)
     this.svg = d3.select(`.${this.name} ${this.selectors.svg}`)
 
     this._initLayouts()
@@ -108,25 +108,18 @@ export default class Graph extends View {
     this.drag.on('drop', this._onDrop.bind(this))
     this.drag.on('move', this._onNodeMove.bind(this))
 
-    /*this.pan = new Pan({
+    this.pan = new Pan({
       container: this.elements.container,
-      panElement: this.elements.canvas,
+      element: this.elements.canvas,
     })
-    this.pan.enable()*/
+    this.pan.enable()
 
     this.selectioning = new Selectioning({
       selection: this.selection,
-      container: this.elements.container,
+      container: this.elements.canvas,
       node: { selector: this.selectors.node },
-      enabled: true,
     })
-    /* this.rectSelectioning = new RectSelectioning({
-      selection: this.selection,
-      nodes: this._nodes,
-      container: this.elements.root,
-      // eventTarget: this.elements.svg,
-      eventTarget: this.elements.container,
-    }) */
+    this.selectioning.enable()
   }
   /**
    * render new graph in the view using current layout
@@ -136,7 +129,7 @@ export default class Graph extends View {
     this._items = graph.getItemKeys()
 
     // bind DOM nodes to items
-    this._nodes = this.container.select(this.selectors.nodeGroup)
+    this._nodes = this.canvas.select(this.selectors.nodeGroup)
       .selectAll(this.selectors.node)
       .data(this._items, d => d)
 
@@ -183,7 +176,7 @@ export default class Graph extends View {
     this.elements.svg.detach()
     this.p.height = this.elements.root.height()
     this.p.width = this.elements.root.width()
-    this.elements.container.prepend(this.elements.svg)
+    this.elements.canvas.prepend(this.elements.svg)
     this.elements.svg
       .width(this.p.width)
       .height(this.p.height)
@@ -325,8 +318,14 @@ export default class Graph extends View {
           .attr('height', this.p.node.size.width / 2)
           .attr('src', '/client/view/graph/pin.svg')
 
-        // Fix item to dropped position
-        this._nodeMove(node, delta)
+        _(this.layout.nodes)
+          .filter(['id', key])
+          .each((n) => {
+            n.x = n.fx = n.x + delta.x // eslint-disable-line
+            n.y = n.fy = n.y + delta.y // eslint-disable-line
+          })
+
+        this.layout.run()
       }
     })
   }
@@ -365,16 +364,9 @@ export default class Graph extends View {
   _onClick () {
     this.emit('focus', this.name)
   }
-
   /**
    * @param id
    */
-  _nodeMove (node, delta) {
-    const transform = node.style.transform
-    const matrix = transform.slice(transform.indexOf('(') + 1, transform.indexOf(')')).split(',')
-    node.style.transform = `matrix(${matrix[0]},${matrix[1]},${matrix[2]},${matrix[3]},${+matrix[4] + delta.x}, ${+matrix[5] + delta.y})`
-
-  }
 
   async _reload (context = this.graph.context) {
     this.graph = await this.itemman.reloadGraph(context, 1)

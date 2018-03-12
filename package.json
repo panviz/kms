@@ -44,7 +44,7 @@
   },
   "dependencies": {
     "@graphiy/actionman": "graphiy/actionman#dev",
-    "@graphiy/behavior": "graphiy/behavior#development",
+    "@graphiy/behavior": "graphiy/behavior#dev",
     "@graphiy/collection": "graphiy/collection",
     "@graphiy/graph": "graphiy/graph",
     "@graphiy/layout": "graphiy/layout#dev",
