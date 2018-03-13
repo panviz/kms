@@ -283,25 +283,20 @@ export default class Graph {
     return _.map(this.getLinks(key), link => link[0])
   }
   /**
-   * TODO works only for depth 0/1
    * @param rootKey Key of item to traverse graph from
    * @param depth
    * @return Graph starting from the item(s) provided
    */
   getGraph (rootKeyS, depth = 0) {
+    let rootKeys = _.castArray(rootKeyS)
+    if (depth > 0) {
+      rootKeys = this._getKeysOnDepth(rootKeys, depth)
+    }
+
     const sgItems = {} // sub graph items
     const sgLinks = {}
-    const rootKeys = _.castArray(rootKeyS)
     _.each(rootKeys, (rootKey) => {
       sgItems[rootKey] = this.get(rootKey)
-
-      if (depth === 1) {
-        sgLinks[rootKey] = this._links[rootKey]
-        // get values of first-level linked items
-        _.each(sgLinks[rootKey], (link) => {
-          sgItems[link[0]] = this.get(link[0])
-        })
-      }
     })
 
     // add links in between those retrieved
@@ -312,6 +307,25 @@ export default class Graph {
     })
 
     return new Graph({ context: rootKeys, items: sgItems, links: sgLinks })
+  }
+  /**
+   * @param rootKeys Key of item to traverse graph from
+   * @param depth
+   * @return Array of keys on depth
+   */
+  _getKeysOnDepth (rootKeys, depth) {
+    const keys = rootKeys
+    for (let i = depth; i > 0; i--) {
+      const links = {}
+      _.each(keys, (rootKey) => {
+        keys.push(rootKey)
+        links[rootKey] = this._links[rootKey]
+        _.each(links[rootKey], (link) => {
+          keys.push(link[0])
+        })
+      })
+    }
+    return _.uniq(keys)
   }
   /**
    * Find items linked with each one of specified
