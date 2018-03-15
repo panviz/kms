@@ -48,7 +48,7 @@ export default class Graph {
   /**
    * Doesn't allow override except if key is specified exactly
    * @param {String|Array} data values of items to be set
-   * @param Key key of the item to set data to
+   * @param Key (optional) key of the item to set data to
    * @return Key ID for existing item if any
    */
   set (_data, _key) {
@@ -417,5 +417,45 @@ export default class Graph {
 
   getCount () {
     return Object.keys(this._items).length
+  }
+
+  _getShotesPath(rootKeyS, key) {
+    const path = []
+    const coordinatKeys = this._links[key]
+    const rootKeys = _.castArray(rootKeyS)
+    _.each(rootKeys, (rootKey) => {
+      const linkedKeys = this._links[rootKey]
+      let intersection = ''
+      _.each(linkedKeys, (linkedKey) => {
+        _.each(coordinatKeys, (coordinatKey) => {
+          if (linkedKey[0] === coordinatKey[0]) {
+            intersection = coordinatKey[0]
+            return false
+          }
+        })
+        if (intersection !== '') return false
+      })
+      if(intersection !== '') {
+        path.push([rootKey, intersection])
+      }
+    })
+    return path
+  }
+
+  getGraphWithIntersection(context, depth, key) {
+    const keyVal = this.get(key)
+    const graph = this.getGraph(context, depth)
+    const paths = this._getShotesPath(Object.keys(graph.getItemsMap()), key)
+    _.each(paths, (path) => {
+      const data = this.get(path[1])
+      graph.set (data, path[1])
+      graph.associate(path[1], path[0])
+    })
+
+    graph.set (keyVal, key)
+    _.each(paths, (path) => {
+      graph.associate(path[1], key)
+    })
+    return graph
   }
 }
