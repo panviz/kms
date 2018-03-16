@@ -22,6 +22,7 @@ const _actions = [
   require('./action/item/expand').default,
   // require('./action/item/hide').default,
   require('./action/item/remove').default,
+  require('./action/item/savePosition').default,
   /* eslint-enable */
 ]
 
@@ -41,7 +42,7 @@ export default class App {
       container: this.elements.viewContainer,
     }
 
-    this.itemman._loadRepo()
+    this.itemman.loadRepo()
 
     this.actionsPanel = new ActionsPanel({
       container: this.elements.sidebar,
@@ -79,6 +80,7 @@ export default class App {
     this.currentView = view
     this.currentView.on('focus', this._changeCurrentView.bind(this))
     this.currentView.selection.on('change', this.actionsPanel.update.bind(this.actionsPanel))
+    this.currentView.fixedNodes.on('change', this.actionsPanel.update.bind(this.actionsPanel))
     if (_.keys(this.views).length > 1) {
       _.each(this.views, (view, key) => {
         if (name !== key) {

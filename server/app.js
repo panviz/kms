@@ -108,6 +108,11 @@ export default class Self {
     return Promise.resolve(this.graph.getGraph(contextS, depth))
   }
 
+  getGraphWithIntersection (context, depth, key) {
+    const contextS = Util.pluralize(context)
+    return Promise.resolve(this.graph.getGraphWithIntersection(contextS, depth, key))
+  }
+
   remove (keys) {
     const result = this.graph.remove(keys)
     this._changeItemsInStoradge(result)

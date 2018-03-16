@@ -10,7 +10,7 @@ export default class Itemman extends EventEmitter {
     super()
     this.rootKey = '000000001vGeH72LxVtxKg'
     this._itemtypes = ['tag', 'note']
-    this._serviceItems = ['root', 'visibleItem', 'itemtype']
+    this._serviceItems = ['root', 'visibleItem', 'itemtype', 'coordinates']
     this.serviceItem = {}
   }
 
@@ -48,7 +48,7 @@ export default class Itemman extends EventEmitter {
   /**
    * Populate view with user data from previous time
    */
-  async _loadRepo () {
+  async loadRepo () {
     const graph = await Itemman._request('getGraph', this.rootKey, 1)
     if (_.isEmpty(graph.getItemsMap())) {
       await this._initRepo()
@@ -82,6 +82,25 @@ export default class Itemman extends EventEmitter {
     const graph = await Itemman._request('getGraph', context, depth)
     this._filter(graph)
     return graph
+  }
+
+  async getGraphWithCoords (context, depth = 1) {
+    const coords = {}
+    const coordinates = this.serviceItem.coordinates
+    const graph = await Itemman._request('getGraphWithIntersection', context, depth, coordinates)
+
+    // division of graph and coordinates
+    let coordKeys = graph.getLinked(coordinates)
+    graph.remove(coordinates)
+    coordKeys = coordKeys.slice(coordKeys.indexOf(this.serviceItem.root) + 1)
+    _.each(coordKeys, (key) => {
+      const linkedNode = graph.getLinks(key)
+      coords[linkedNode[0][0]] = graph.get(key)
+      graph.remove(key)
+    })
+
+    this._filter(graph)
+    return { graph, coords }
   }
 
   _filter (graph) {

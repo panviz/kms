@@ -147,7 +147,23 @@ export default class Graph extends View {
     })
     const data = []
     _.each(nodes, (node) => {
-      data.push({ id: node, x: 0, y: 0 })
+      let coords = {}
+      if (this.coords && this.coords[node]) {
+        try {
+          coords = JSON.parse(this.coords[node])
+          data.push({
+            id: node,
+            x: 0,
+            y: 0,
+            fx: coords.x,
+            fy: coords.y,
+          })
+        } catch (e) {
+          console.log('Wrong coords format')
+        }
+      } else {
+        data.push({ id: node, x: 0, y: 0 })
+      }
     })
 
     this.layout.update(data, links)
@@ -317,17 +333,19 @@ export default class Graph extends View {
           .attr('width', this.p.node.size.width / 2)
           .attr('height', this.p.node.size.width / 2)
           .attr('src', '/client/view/graph/pin.svg')
-
-        _(this.layout.nodes)
-          .filter(['id', key])
-          .each((n) => {
-            n.x = n.fx = n.x + delta.x // eslint-disable-line
-            n.y = n.fy = n.y + delta.y // eslint-disable-line
-          })
-
-        this.layout.run()
       }
+      _(this.layout.nodes)
+        .filter(['id', key])
+        .each((n) => {
+          n.x += delta.x
+          n.y += delta.y
+          n.fx = n.x
+          n.fy = n.y
+        })
+      this.fixedNodes.add(key)
+      this.layout.run()
     })
+    this.selection.clear()
   }
 
   _onSelect (keys) {
@@ -353,7 +371,9 @@ export default class Graph extends View {
   }
 
   _onNodeDblClick (e) {
-    this.actionman.fire('Expand', 'all')
+    //this.actionman.fire('Expand', 'all')
+    const keys = this.selection.getAll()
+    this._reload(keys[0], 1)
   }
 
   _addToSelection (key) {
@@ -368,8 +388,10 @@ export default class Graph extends View {
    * @param id
    */
 
-  async _reload (context = this.graph.context) {
-    this.graph = await this.itemman.reloadGraph(context, 1)
+  async _reload (context = this.graph.context, depth = 1) {
+    const response = await this.itemman.getGraphWithCoords(context, depth)
+    this.coords = response.coords
+    this.graph = response.graph
     this.graph.remove(context)
     this.render(this.graph, {})
   }

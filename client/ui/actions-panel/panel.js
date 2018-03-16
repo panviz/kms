@@ -17,18 +17,18 @@ export default class ActionsPanel extends EventEmitter {
     this.menuConfig = {
       SelectNone: {
         label: 'none',
-          icon: 'fa fa-ban',
-          group: 'select',
+        icon: 'fa fa-ban',
+        group: 'select',
       },
       Invert: {
         label: 'Invert',
-          icon: 'mdi mdi-invert-colors',
-          group: 'select',
+        icon: 'mdi mdi-invert-colors',
+        group: 'select',
       },
       SelectChildren: {
         label: 'Children',
-          icon: 'mdi mdi-chemical-weapon',
-          group: 'select',
+        icon: 'mdi mdi-chemical-weapon',
+        group: 'select',
       },
       Create: {
         group: 'item',
@@ -52,18 +52,23 @@ export default class ActionsPanel extends EventEmitter {
       },
       Unlink: {
         label: 'Unlink',
-          icon: 'mdi mdi-link-variant-off',
-          group: 'item',
+        icon: 'mdi mdi-link-variant-off',
+        group: 'item',
       },
       Expand: {
         label: 'Show Children',
-          icon: 'mdi mdi-sitemap',
-          group: 'item',
+        icon: 'mdi mdi-sitemap',
+        group: 'item',
       },
       Remove: {
         label: 'Delete',
-          icon: 'fa fa-remove',
-          group: 'item',
+        icon: 'fa fa-remove',
+        group: 'item',
+      },
+      SavePosition: {
+        label: 'Save position',
+        icon: 'fa fa-save',
+        group: 'item',
       },
     }
 

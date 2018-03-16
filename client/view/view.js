@@ -11,6 +11,7 @@ export default class View extends EventEmitter {
     super()
     this.p = p
     this.selection = new Collection()
+    this.fixedNodes = new Collection()
   }
 
   get selectors () {
