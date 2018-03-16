@@ -10,9 +10,13 @@ export default class Link extends Action {
   _execute (registrar, args) {
     const keys = registrar.currentView.selection.getAll()
     if (keys.length === 2) registrar.itemman.linkItems(keys[0], keys[1])
+    else if (keys.length > 2) {
+      const [target, ...linkKeys] = keys
+      registrar.itemman.linkItems(target, linkKeys)
+    }
   }
 
-  evaluate (registrar, selection) {
-    super.evaluate(selection.getCount() === 2)
+  evaluate (registrar) {
+    super.evaluate(registrar.currentView.selection.getCount() > 1)
   }
 }

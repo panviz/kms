@@ -78,7 +78,7 @@ export default class App {
     this.views[name] = view
     this.currentView = view
     this.currentView.on('focus', this._changeCurrentView.bind(this))
-    this.currentView.selection.on('change', this.actionsPanel.update.bind(this.actionsPanel, this.currentView.selection))
+    this.currentView.selection.on('change', this.actionsPanel.update.bind(this.actionsPanel))
     if (_.keys(this.views).length > 1) {
       _.each(this.views, (view, key) => {
         if (name !== key) {
@@ -93,7 +93,7 @@ export default class App {
   _changeCurrentView (viewName) {
     if (this.views[viewName] && this.views[viewName] !== this.currentView) {
       this.currentView = this.views[viewName]
-      this.actionsPanel.update.call(this.actionsPanel, this.currentView.selection)
+      this.actionsPanel.update.call(this.actionsPanel)
     }
   }
 }

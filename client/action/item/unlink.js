@@ -13,7 +13,25 @@ export default class Unlink extends Action {
     registrar.itemman.unlinkItems(key1, keys)
   }
 
-  evaluate (registrar, selection) {
-    super.evaluate(selection.getCount() > 1)
+  evaluate (registrar) {
+    const count = registrar.currentView.selection.getCount()
+    let active = false
+    if (count > 1) {
+      const keys = registrar.currentView.selection.getAll()
+      const key1 = keys.shift()
+      _.each(keys, (key) => {
+        const linkeds = registrar.currentView.graph.getLinked(key)
+        _.each(linkeds, (linked) => {
+          if (linked === key1) {
+            active = true
+            return false
+          }
+        })
+        if (active) return false
+      })
+      super.evaluate(active)
+    }
+
+
   }
 }

@@ -13,7 +13,7 @@ export default class Remove extends Action {
     registrar.itemman.removeItem(keys)
   }
 
-  evaluate (registrar, selection) {
-    super.evaluate(selection.getCount())
+  evaluate (registrar) {
+    super.evaluate(registrar.currentView.selection.getCount())
   }
 }

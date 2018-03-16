@@ -14,9 +14,9 @@ export default class Invert extends Action {
     selection.add(_.difference(all, unselect))
   }
 
-  evaluate (registrar, selection) {
+  evaluate (registrar) {
     const itemsCount = registrar.currentView.graph.getCount()
-    const selectionCount = selection.getCount()
+    const selectionCount = registrar.currentView.selection.getCount()
     if (selectionCount > 0) {
       itemsCount - selectionCount > 0 ? super.evaluate(true) : super.evaluate(false)
     } else super.evaluate(false)

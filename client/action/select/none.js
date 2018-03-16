@@ -11,7 +11,7 @@ export default class SelectNone extends Action {
     registrar.currentView.selection.clear()
   }
 
-  evaluate (registrar, selection) {
-    super.evaluate(selection.getCount())
+  evaluate (registrar) {
+    super.evaluate(registrar.currentView.selection.getCount())
   }
 }

@@ -142,10 +142,10 @@ export default class ActionsPanel extends EventEmitter {
     $group.find('span').toggleClass('collapsed')
   }
 
-  update (selection) {
+  update () {
     _.forIn(this.actionman.getAll(), (instance) => {
       const registrars = this.actionman.getRegistrars(instance.id)
-      instance.evaluate(registrars.app, selection)
+      instance.evaluate(registrars.app)
     })
   }
 }

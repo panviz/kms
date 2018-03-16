@@ -14,8 +14,8 @@ export default class SelectChildren extends Action {
     })
   }
 
-  evaluate (registrar, selection) {
-    const keyS = selection.getAll()
+  evaluate (registrar) {
+    const keyS = registrar.currentView.selection.getAll()
     let links = []
     _.find(keyS, (key) => {
       links = registrar.currentView.graph.getLinks(key)

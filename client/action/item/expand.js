@@ -12,7 +12,7 @@ export default class Expand extends Action {
     registrar.itemman.showChildren(keys)
   }
 
-  evaluate (registrar, selection) {
-    super.evaluate(selection.getCount())
+  evaluate (registrar) {
+    super.evaluate(registrar.currentView.selection.getCount())
   }
 }
