@@ -154,6 +154,10 @@ Util.getRelativeOffset = function (e, ancestor) {
   getOffset(target)
   return { x, y }
 }
+Util.getPosition = function (transform) {
+  const matrix = transform.slice(transform.indexOf('(') + 1, transform.indexOf(')')).split(',')
+  return { x: +matrix[matrix.length - 2], y: +matrix[matrix.length - 1] }
+}
 
 RegExp.prototype.toJSON = function () { return this.toString() } // eslint-disable-line
 

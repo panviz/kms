@@ -8,6 +8,7 @@ import { Force } from '@graphiy/layout'
 // import { Grid } from '@graphiy/layout'
 // import { Radial } from '@graphiy/layout'
 import { Selectioning, Pan, Drag } from '@graphiy/behavior'
+import Util from '../../../core/util'
 
 import View from '../view'
 import template from './graph.html'
@@ -219,6 +220,20 @@ export default class Graph extends View {
   toggleAutoLayout () {
     this.autoLayout = !this.autoLayout
   }
+
+  getFixedNodeCoords () {
+    const coords = {}
+    const fixedKeys = this.fixedNodes.getAll()
+    const nodeSelection = this.canvas.selectAll(this.selectors.node)
+      .filter(d => fixedKeys.indexOf(d) !== -1)
+    const nodes = nodeSelection.nodes()
+    _.each(nodes, (node) => {
+      const transform = node.style.transform
+      const coord = Util.getPosition(transform)
+      coords[node.__data__] = coord
+    })
+    return coords
+  }
   /**
    * append new Edges to DOM
    */
@@ -348,6 +363,14 @@ export default class Graph extends View {
     this.selection.clear()
   }
 
+  clearFixed () {
+    this.fixedNodes.clear()
+    d3.select('.pin')
+      .classed('pin', false)
+      .select('img')
+      .remove()
+  }
+
   _onSelect (keys) {
     _.each(keys, (key) => {
       const node = _.find(
@@ -371,9 +394,8 @@ export default class Graph extends View {
   }
 
   _onNodeDblClick (e) {
-    //this.actionman.fire('Expand', 'all')
-    const keys = this.selection.getAll()
-    this._reload(keys[0], 1)
+    const key = this.selection.getAll()
+    this._reload(key, 1)
   }
 
   _addToSelection (key) {

@@ -103,6 +103,31 @@ export default class Self {
     return Promise.resolve(newKey)
   }
 
+  saveCoords (args) {
+    const result = []
+    const update = []
+    const [serviseItem, coords] = args
+    const paths = this.graph._getShotesPath(Object.keys(coords), serviseItem)
+    // update coords
+    if (paths.length > 0) {
+      _.each(paths, (path) => {
+        const amended = this.graph.set(JSON.stringify(coords[path[0]]), path[1])
+        result.push(amended)
+        delete coords[path[0]]
+        update.push(path[0])
+      })
+    }
+    // new coords
+    _.each(coords, (value, key) => {
+      const newKey = this.graph.set(JSON.stringify(value))
+      const amended = this.graph.associate(newKey, [serviseItem, key])
+      result.push(amended)
+      update.push(key)
+    })
+    this._changeItemsInStoradge(_.flatten(result))
+    return Promise.resolve(Object.keys(update))
+  }
+
   getGraph (context, depth = 1) {
     const contextS = Util.pluralize(context)
     return Promise.resolve(this.graph.getGraph(contextS, depth))

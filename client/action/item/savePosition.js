@@ -8,8 +8,9 @@ export default class SavePosition extends Action {
   }
 
   _execute (registrar, args) {
-    // const selected = registrar.currentView.selection.clear()
-    // registrar.itemman.createItem(args.sub, selected)
+    const coords = registrar.currentView.getFixedNodeCoords()
+    registrar.itemman.saveCoords(coords)
+    registrar.currentView.clearFixed()
   }
 
   evaluate (registrar, selection) {

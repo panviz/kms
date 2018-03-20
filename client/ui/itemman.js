@@ -26,6 +26,11 @@ export default class Itemman extends EventEmitter {
     this.emit('item:create', key)
   }
 
+  async saveCoords (coords) {
+    const keys = await Itemman._request('saveCoords', _.concat(this.serviceItem.coordinates, coords))
+    this.emit('item:savePosition', keys)
+  }
+
   async saveItem (value, key) {
     await Itemman._request('set', value, key)
     this.emit('item:save', key)
@@ -90,9 +95,9 @@ export default class Itemman extends EventEmitter {
     const graph = await Itemman._request('getGraphWithIntersection', context, depth, coordinates)
 
     // division of graph and coordinates
-    let coordKeys = graph.getLinked(coordinates)
+    const coordKeys = graph.getLinked(coordinates)
     graph.remove(coordinates)
-    coordKeys = coordKeys.slice(coordKeys.indexOf(this.serviceItem.root) + 1)
+    coordKeys.splice(coordKeys.indexOf(this.serviceItem.root), 1)
     _.each(coordKeys, (key) => {
       const linkedNode = graph.getLinks(key)
       coords[linkedNode[0][0]] = graph.get(key)
