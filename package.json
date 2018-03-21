@@ -43,7 +43,7 @@
     ]
   },
   "dependencies": {
-    "@graphiy/actionman": "graphiy/actionman#dev",
+    "@graphiy/actionman": "graphiy/actionman",
     "@graphiy/behavior": "graphiy/behavior#dev",
     "@graphiy/collection": "graphiy/collection",
     "@graphiy/graph": "graphiy/graph",

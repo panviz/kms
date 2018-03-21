@@ -23,6 +23,7 @@ const _actions = [
   // require('./action/item/hide').default,
   require('./action/item/remove').default,
   require('./action/item/savePosition').default,
+  require('./action/item/deletePosition').default,
   /* eslint-enable */
 ]
 

@@ -103,34 +103,52 @@ export default class Self {
     return Promise.resolve(newKey)
   }
 
+  getGraph (context, depth = 1) {
+    const contextS = Util.pluralize(context)
+    return Promise.resolve(this.graph.getGraph(contextS, depth))
+  }
+
   saveCoords (args) {
     const result = []
     const update = []
     const [serviseItem, coords] = args
     const paths = this.graph._getShotesPath(Object.keys(coords), serviseItem)
-    // update coords
-    if (paths.length > 0) {
-      _.each(paths, (path) => {
-        const amended = this.graph.set(JSON.stringify(coords[path[0]]), path[1])
-        result.push(amended)
-        delete coords[path[0]]
-        update.push(path[0])
-      })
-    }
-    // new coords
+
     _.each(coords, (value, key) => {
-      const newKey = this.graph.set(JSON.stringify(value))
-      const amended = this.graph.associate(newKey, [serviseItem, key])
-      result.push(amended)
+      let done = false
+      _.each(paths, (path) => {
+        // update coords
+        if (path[0] === key) {
+          const amended = this.graph.set(JSON.stringify(value), path[1])
+          result.push(amended)
+          done = true
+          return false
+        }
+      })
+      // new coords
+      if (!done) {
+        const newKey = this.graph.set(JSON.stringify(value))
+        const amended = this.graph.associate(newKey, [serviseItem, key])
+        result.push(amended)
+      }
       update.push(key)
     })
+
     this._changeItemsInStoradge(_.flatten(result))
     return Promise.resolve(Object.keys(update))
   }
 
-  getGraph (context, depth = 1) {
-    const contextS = Util.pluralize(context)
-    return Promise.resolve(this.graph.getGraph(contextS, depth))
+  deleteCoords (args) {
+    const result = []
+    const [serviceItem, ...keys] = args
+    const paths = this.graph._getShotesPath(keys, serviceItem)
+    _.each(paths, (path) => {
+      this.setDisassociate(path[0], path[1])
+      this.remove(path[1])
+      result.push(path[0], path[1])
+    })
+    this._changeItemsInStoradge(_.flatten(result))
+    return Promise.resolve()
   }
 
   getGraphWithIntersection (context, depth, key) {
@@ -138,10 +156,13 @@ export default class Self {
     return Promise.resolve(this.graph.getGraphWithIntersection(contextS, depth, key))
   }
 
-  remove (keys) {
+  remove (keys, serviceItem) {
+    if (serviceItem) {
+      const paths = this.graph._getShotesPath(keys, serviceItem)
+      keys = _.flatten(paths)
+    }
     const result = this.graph.remove(keys)
     this._changeItemsInStoradge(result)
-
     return Promise.resolve()
   }
 

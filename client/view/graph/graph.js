@@ -35,6 +35,7 @@ export default class Graph extends View {
     this.itemman.on('item:disassociate', this._reload.bind(this))
     this.itemman.on('item:remove', this._reload.bind(this))
     this.itemman.on('item:showChildren', this._reload.bind(this))
+    this.itemman.on('item:deleteCoords', this._reload.bind(this))
 
     const $html = $(template({ name }))
     this.setElement($html)
@@ -160,7 +161,7 @@ export default class Graph extends View {
             fy: coords.y,
           })
         } catch (e) {
-          console.log('Wrong coords format')
+          console.log('Wrong coords format') // eslint-disable-line
         }
       } else {
         data.push({ id: node, x: 0, y: 0 })
@@ -365,7 +366,7 @@ export default class Graph extends View {
 
   clearFixed () {
     this.fixedNodes.clear()
-    d3.select('.pin')
+    d3.selectAll('.pin')
       .classed('pin', false)
       .select('img')
       .remove()

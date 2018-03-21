@@ -26,18 +26,13 @@ export default class Itemman extends EventEmitter {
     this.emit('item:create', key)
   }
 
-  async saveCoords (coords) {
-    const keys = await Itemman._request('saveCoords', _.concat(this.serviceItem.coordinates, coords))
-    this.emit('item:savePosition', keys)
-  }
-
   async saveItem (value, key) {
     await Itemman._request('set', value, key)
     this.emit('item:save', key)
   }
 
   async removeItem (keys) {
-    await Itemman._request('remove', keys)
+    await Itemman._request('remove', keys, this.serviceItem.coordinates)
     this.emit('item:remove')
   }
 
@@ -87,6 +82,16 @@ export default class Itemman extends EventEmitter {
     const graph = await Itemman._request('getGraph', context, depth)
     this._filter(graph)
     return graph
+  }
+
+  async saveCoords (coords) {
+    const keys = await Itemman._request('saveCoords', _.concat(this.serviceItem.coordinates, coords))
+    this.emit('item:savePosition', keys)
+  }
+
+  async deleteCoords (selection) {
+    await Itemman._request('deleteCoords', _.concat(this.serviceItem.coordinates, selection))
+    this.emit('repo:load', this.serviceItem.visibleItem)
   }
 
   async getGraphWithCoords (context, depth = 1) {

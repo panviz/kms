@@ -70,6 +70,11 @@ export default class ActionsPanel extends EventEmitter {
         icon: 'fa fa-save',
         group: 'item',
       },
+      DeletePosition: {
+        label: 'Delete position',
+        icon: 'fa fa-trash',
+        group: 'item',
+      },
     }
 
     const $html = $(template())
