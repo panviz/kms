@@ -46,7 +46,7 @@
     "@graphiy/actionman": "graphiy/actionman",
     "@graphiy/behavior": "graphiy/behavior#dev",
     "@graphiy/collection": "graphiy/collection",
-    "@graphiy/graph": "graphiy/graph",
+    "@graphiy/graph": "graphiy/graph#dev",
     "@graphiy/layout": "graphiy/layout#dev",
     "@graphiy/provider-raw": "graphiy/provider-raw",
     "@graphiy/transform": "graphiy/transform",
