@@ -10,7 +10,7 @@ export default class Itemman extends EventEmitter {
     super()
     this.rootKey = '000000001vGeH72LxVtxKg'
     this._itemtypes = ['tag', 'note']
-    this._serviceItems = ['root', 'visibleItem', 'itemtype', 'coordinates']
+    this._serviceItems = ['root', 'visibleItem', 'itemtype', 'coordinates', 'views']
     this.serviceItem = {}
   }
 
@@ -75,6 +75,19 @@ export default class Itemman extends EventEmitter {
     })
     return Itemman._request('merge', graph)
   }
+
+  async initView (name) {
+    let key = ''
+    const result = await Itemman._request('search', this.serviceItem.views, name, 1)
+    if (result.length === 0) {
+      key = await Itemman._request('createAndLinkItem', this.serviceItem.views)
+      await Itemman._request('set', name, key)
+    } else {
+      key = result[0]
+    }
+    return key
+  }
+
   /**
    * Sync graph with server
    */
@@ -84,25 +97,24 @@ export default class Itemman extends EventEmitter {
     return graph
   }
 
-  async saveCoords (coords) {
-    const keys = await Itemman._request('saveCoords', _.concat(this.serviceItem.coordinates, coords))
+  async saveCoords (coords, viewKey) {
+    const keys = await Itemman._request('saveCoords', _.concat(this.serviceItem.coordinates, coords, viewKey))
     this.emit('item:savePosition', keys)
   }
 
-  async deleteCoords (selection) {
-    await Itemman._request('deleteCoords', _.concat(this.serviceItem.coordinates, selection))
-    this.emit('repo:load', this.serviceItem.visibleItem)
+  async deleteCoords (selection, viewKey) {
+    await Itemman._request('deleteCoords', _.concat(this.serviceItem.coordinates, [selection], viewKey))
+    this.emit('repo:update', this.serviceItem.visibleItem)
   }
 
-  async getGraphWithCoords (context, depth = 1) {
+  async getGraphWithCoords (context = this.serviceItem.visibleItem, viewKey, depth = 1) {
     const coords = {}
     const coordinates = this.serviceItem.coordinates
-    const graph = await Itemman._request('getGraphWithIntersection', context, depth, coordinates)
+    const graph = await Itemman._request('getGraphWithIntersection', context, depth, [coordinates, viewKey])
 
     // division of graph and coordinates
     const coordKeys = graph.getLinked(coordinates)
     graph.remove(coordinates)
-    coordKeys.splice(coordKeys.indexOf(this.serviceItem.root), 1)
     _.each(coordKeys, (key) => {
       const linkedNode = graph.getLinks(key)
       coords[linkedNode[0][0]] = graph.get(key)

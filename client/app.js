@@ -33,15 +33,8 @@ export default class App {
     this.views = {}
     this.actionman = new Actionman()
     this.itemman = new Itemman({ app: this })
-    this.itemman.on('updateView', this._updateView.bind(this))
-
+    this.itemman.on('repo:load', this._createViews.bind(this))
     this.elements = Util.findElements('body', this.selectors)
-
-    const graphViewSet = {
-      actionman: this.actionman,
-      itemman: this.itemman,
-      container: this.elements.viewContainer,
-    }
 
     this.itemman.loadRepo()
 
@@ -49,9 +42,6 @@ export default class App {
       container: this.elements.sidebar,
       actionman: this.actionman,
     })
-
-    this._createView('view1', graphViewSet)
-    this._createView('view2', graphViewSet)
 
     this.actionman.on('add', this.actionsPanel.addMenuItem.bind(this.actionsPanel))
     this.menu = new Menu({ container: this.elements.header })
@@ -71,14 +61,21 @@ export default class App {
     }
   }
 
-  _updateView (graph, itemsKeys) {
-    this.graphView.render(graph, itemsKeys)
+  _createViews () {
+    const graphViewSet = {
+      actionman: this.actionman,
+      itemman: this.itemman,
+      container: this.elements.viewContainer,
+    }
+
+    this._createView(graphViewSet, 'view1')
+    this._createView(graphViewSet, 'view2')
   }
 
-  _createView (name, graphViewSet) {
-    const view = new GraphView(graphViewSet, name)
-    this.views[name] = view
-    this.currentView = view
+  _createView (graphViewSet, name) {
+    const newView = new GraphView(graphViewSet, name)
+    this.views[name] = newView
+    this.currentView = newView
     this.currentView.on('focus', this._changeCurrentView.bind(this))
     this.currentView.selection.on('change', this.actionsPanel.update.bind(this.actionsPanel))
     this.currentView.fixedNodes.on('change', this.actionsPanel.update.bind(this.actionsPanel))

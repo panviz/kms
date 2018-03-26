@@ -111,14 +111,15 @@ export default class Self {
   saveCoords (args) {
     const result = []
     const update = []
-    const [serviseItem, coords] = args
-    const paths = this.graph._getShotesPath(Object.keys(coords), serviseItem)
+    const [serviceItem, coords, viewKey] = args
+    const paths = this.graph._getShotesPath(Object.keys(coords), serviceItem)
 
     _.each(coords, (value, key) => {
       let done = false
       _.each(paths, (path) => {
+        const linkWithView = this.graph.getLink(path[1], viewKey)
         // update coords
-        if (path[0] === key) {
+        if (linkWithView !== undefined && path[0] === key) {
           const amended = this.graph.set(JSON.stringify(value), path[1])
           result.push(amended)
           done = true
@@ -128,7 +129,7 @@ export default class Self {
       // new coords
       if (!done) {
         const newKey = this.graph.set(JSON.stringify(value))
-        const amended = this.graph.associate(newKey, [serviseItem, key])
+        const amended = this.graph.associate(newKey, [serviceItem, key, viewKey])
         result.push(amended)
       }
       update.push(key)
@@ -140,20 +141,28 @@ export default class Self {
 
   deleteCoords (args) {
     const result = []
-    const [serviceItem, ...keys] = args
+    const [serviceItem, keys, viewKey] = args
     const paths = this.graph._getShotesPath(keys, serviceItem)
     _.each(paths, (path) => {
-      this.setDisassociate(path[0], path[1])
-      this.remove(path[1])
-      result.push(path[0], path[1])
+      const linkWithView = this.graph.getLink(path[1], viewKey)
+      if (linkWithView !== undefined) {
+        this.setDisassociate(path[0], path[1])
+        this.setDisassociate(path[1], viewKey)
+        this.remove(path[1])
+        result.push(path[0], path[1])
+      }
     })
-    this._changeItemsInStoradge(_.flatten(result))
+
+    if (result.length > 0) {
+      result.push(viewKey)
+      this._changeItemsInStoradge(result)
+    }
     return Promise.resolve()
   }
 
-  getGraphWithIntersection (context, depth, key) {
+  getGraphWithIntersection (context, depth, keys) {
     const contextS = Util.pluralize(context)
-    return Promise.resolve(this.graph.getGraphWithIntersection(contextS, depth, key))
+    return Promise.resolve(this.graph.getGraphWithIntersection(contextS, depth, keys))
   }
 
   remove (keys, serviceItem) {
@@ -196,5 +205,10 @@ export default class Self {
     this._changeItemsInStoradge(result)
 
     return Promise.resolve()
+  }
+
+  search (key, value) {
+    const result = this.graph.search(key, value)
+    return Promise.resolve(result)
   }
 }

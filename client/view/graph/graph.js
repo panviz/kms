@@ -29,13 +29,16 @@ export default class Graph extends View {
     this.autoLayout = true
     this.actionman = p.actionman
     this.itemman = p.itemman
-    this.itemman.on('repo:load', this._reload.bind(this))
+    this.itemman.on('repo:update', this._reload.bind(this))
     this.itemman.on('item:create', this._addToSelection.bind(this))
     this.itemman.on('item:associate', this._reload.bind(this))
     this.itemman.on('item:disassociate', this._reload.bind(this))
     this.itemman.on('item:remove', this._reload.bind(this))
     this.itemman.on('item:showChildren', this._reload.bind(this))
-    this.itemman.on('item:deleteCoords', this._reload.bind(this))
+
+    if (!this.key) {
+      this.initNode()
+    }
 
     const $html = $(template({ name }))
     this.setElement($html)
@@ -410,9 +413,13 @@ export default class Graph extends View {
   /**
    * @param id
    */
+  async initNode () {
+    this.key = await this.itemman.initView(this.name)
+    this._reload()
+  }
 
-  async _reload (context = this.graph.context, depth = 1) {
-    const response = await this.itemman.getGraphWithCoords(context, depth)
+  async _reload (context, viewKey = this.key, depth = 1) {
+    const response = await this.itemman.getGraphWithCoords(context, viewKey, depth)
     this.coords = response.coords
     this.graph = response.graph
     this.graph.remove(context)
