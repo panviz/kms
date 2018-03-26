@@ -354,6 +354,7 @@ export default class Graph {
     return resultKeys
   }
   /**
+   * ToDo: dijkstra is not defined
    * Utilize dijkstra algorythm
    */
   /* eslint-disable */
@@ -425,36 +426,43 @@ export default class Graph {
     const rootKeys = _.castArray(rootKeyS)
     _.each(rootKeys, (rootKey) => {
       const linkedKeys = this._links[rootKey]
-      let intersection = ''
+      let intersections = []
       _.each(linkedKeys, (linkedKey) => {
         _.each(coordinatKeys, (coordinatKey) => {
-          if (linkedKey[0] === coordinatKey[0]) {
-            intersection = coordinatKey[0]
+          if(linkedKey[0] === coordinatKey[0]) {
+            intersections.push(coordinatKey[0])
             return false
           }
         })
-        if (intersection !== '') return false
       })
-      if(intersection !== '') {
-        path.push([rootKey, intersection])
+
+      if(intersections.length !== 0) {
+        _.each(intersections, (intersection) => {
+          path.push([rootKey, intersection])
+        })
       }
     })
     return path
   }
 
-  getGraphWithIntersection(context, depth, key) {
-    const keyVal = this.get(key)
+  getGraphWithIntersection(context, depth, keys) {
+    const [coordsKey, viewKey] = keys
+    const keyVal = this.get(coordsKey)
     const graph = this.getGraph(context, depth)
-    const paths = this._getShotesPath(Object.keys(graph.getItemsMap()), key)
+    let paths = this._getShotesPath(Object.keys(graph.getItemsMap()), coordsKey)
+    paths = _.filter(paths, (path) => {
+      if(this.getLink(path[1], viewKey) !== undefined) return true
+    })
+
     _.each(paths, (path) => {
       const data = this.get(path[1])
       graph.set (data, path[1])
       graph.associate(path[1], path[0])
     })
 
-    graph.set (keyVal, key)
+    graph.set (keyVal, coordsKey)
     _.each(paths, (path) => {
-      graph.associate(path[1], key)
+      graph.associate(path[1], coordsKey)
     })
     return graph
   }
