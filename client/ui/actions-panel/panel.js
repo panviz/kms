@@ -68,12 +68,12 @@ export default class ActionsPanel extends EventEmitter {
       SavePosition: {
         label: 'Save position',
         icon: 'fa fa-save',
-        group: 'item',
+        group: 'position',
       },
       DeletePosition: {
         label: 'Delete position',
         icon: 'fa fa-trash',
-        group: 'item',
+        group: 'position',
       },
     }
 

@@ -8,10 +8,16 @@ import Util from '../../core/util'
 export default class Itemman extends EventEmitter {
   constructor (p = {}) {
     super()
-    this.rootKey = '000000001vGeH72LxVtxKg'
+    this.rootKey = '000000001vGeH72LxvRoot'
     this._itemtypes = ['tag', 'note']
-    this._serviceItems = ['root', 'visibleItem', 'itemtype', 'coordinates', 'views']
-    this.serviceItem = {}
+    this.serviceItems = {
+      itemtype: '00W3WxfzJQCtmSeInhITyp',
+      visibleItem: '00xVUNkOdwLlHwgwmhVIte',
+      coordinates: '00BLRXR6lYBuppxFfuCoor',
+      views: '00bLkMBFmOenAhJAUqView',
+      tag: '00IxataPXfqi2OSQ4GrTag',
+      note: '001AaffVwnMf9irEeoNote',
+    }
   }
 
   async showChildren (keyS, dbclick) {
@@ -22,7 +28,7 @@ export default class Itemman extends EventEmitter {
   }
 
   async createItem (p = {}, selected) {
-    const key = await Itemman._request('createAndLinkItem', _.concat(this.serviceItem.visibleItem, this.serviceItem[p], selected))
+    const key = await Itemman._request('createAndLinkItem', _.concat(this.serviceItems.visibleItem, this.serviceItems[p], selected))
     this.emit('item:create', key)
   }
 
@@ -32,7 +38,7 @@ export default class Itemman extends EventEmitter {
   }
 
   async removeItem (keys) {
-    await Itemman._request('remove', keys, this.serviceItem.coordinates)
+    await Itemman._request('remove', keys, this.serviceItems.coordinates)
     this.emit('item:remove')
   }
 
@@ -52,25 +58,18 @@ export default class Itemman extends EventEmitter {
     const graph = await Itemman._request('getGraph', this.rootKey, 1)
     if (_.isEmpty(graph.getItemsMap())) {
       await this._initRepo()
-    } else {
-      _.each(this._serviceItems.concat(this._itemtypes), (item) => {
-        this.serviceItem[item] = graph.search(this.rootKey, item)[0]
-      })
-      this.serviceItem.root = this.rootKey
     }
-
-    this.emit('repo:load', this.serviceItem.visibleItem)
+    this.emit('repo:load', this.serviceItems.visibleItem)
   }
 
   _initRepo () {
     const graph = new Graph
     graph.set('root', this.rootKey)
-    _.each(this._serviceItems.concat(this._itemtypes), (item) => {
-      if (item === 'root') return
-      this.serviceItem[item] = graph.set(item)
-      graph.associate(this.rootKey, this.serviceItem[item])
-      if (this._itemtypes.includes(item)) {
-        graph.associate(this.serviceItem.itemtype, this.serviceItem[item])
+    _.each(this.serviceItems, (key, value) => {
+      graph.set(value, key)
+      graph.associate(this.rootKey, key)
+      if (this._itemtypes.includes(value)) {
+        graph.associate(this.serviceItems.itemtype, key)
       }
     })
     return Itemman._request('merge', graph)
@@ -78,9 +77,9 @@ export default class Itemman extends EventEmitter {
 
   async initView (name) {
     let key = ''
-    const result = await Itemman._request('search', this.serviceItem.views, name, 1)
+    const result = await Itemman._request('search', this.serviceItems.views, name, 1)
     if (result.length === 0) {
-      key = await Itemman._request('createAndLinkItem', this.serviceItem.views)
+      key = await Itemman._request('createAndLinkItem', this.serviceItems.views)
       await Itemman._request('set', name, key)
     } else {
       key = result[0]
@@ -98,18 +97,18 @@ export default class Itemman extends EventEmitter {
   }
 
   async saveCoords (coords, viewKey) {
-    const keys = await Itemman._request('saveCoords', _.concat(this.serviceItem.coordinates, coords, viewKey))
+    const keys = await Itemman._request('saveCoords', _.concat(this.serviceItems.coordinates, coords, viewKey))
     this.emit('item:savePosition', keys)
   }
 
   async deleteCoords (selection, viewKey) {
-    await Itemman._request('deleteCoords', _.concat(this.serviceItem.coordinates, [selection], viewKey))
-    this.emit('repo:update', this.serviceItem.visibleItem)
+    await Itemman._request('deleteCoords', _.concat(this.serviceItems.coordinates, [selection], viewKey))
+    this.emit('repo:update', this.serviceItems.visibleItem)
   }
 
-  async getGraphWithCoords (context = this.serviceItem.visibleItem, viewKey, depth = 1) {
+  async getGraphWithCoords (context = this.serviceItems.visibleItem, viewKey, depth = 1) {
     const coords = {}
-    const coordinates = this.serviceItem.coordinates
+    const coordinates = this.serviceItems.coordinates
     const graph = await Itemman._request('getGraphWithIntersection', context, depth, [coordinates, viewKey])
 
     // division of graph and coordinates
@@ -126,8 +125,9 @@ export default class Itemman extends EventEmitter {
   }
 
   _filter (graph) {
-    const serviceKeys = _.toArray(this.serviceItem)
+    const serviceKeys = _.toArray(this.serviceItems)
     graph.remove(serviceKeys)
+    graph.remove(this.rootKey)
     return graph
   }
   /**
