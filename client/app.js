@@ -29,6 +29,11 @@ const _actions = [
 
 export default class App {
   constructor () {
+    this.defaultViews = [
+      { name: 'view1', type: 'graph' },
+      { name: 'view2', type: 'graph' },
+      { name: 'view3', type: 'graph' },
+    ]
     this.id = 'app'
     this.views = {}
     this.actionman = new Actionman()
@@ -61,27 +66,39 @@ export default class App {
     }
   }
 
-  _createViews () {
+  async _createViews () {
     const graphViewSet = {
       actionman: this.actionman,
       itemman: this.itemman,
       container: this.elements.viewContainer,
     }
+    let views = {}
+    const graph = await this.itemman.reloadGraph(this.itemman.serviceItems.views)
 
-    this._createView(graphViewSet, 'view1')
-    this._createView(graphViewSet, 'view2')
+    if (_.isEmpty(graph.getItemsMap())) {
+      await Promise.all(this.defaultViews.map(async (view) => {
+        const key = await this.itemman.initViewNode(view)
+        views[key] = view
+      }))
+    } else {
+      views = graph.getItemsMap()
+    }
+
+    _.each(views, (view, key) => {
+      this._createView(_.assign({ key }, JSON.parse(view), graphViewSet))
+    })
   }
 
-  _createView (graphViewSet, name) {
-    const newView = new GraphView(graphViewSet, name)
-    this.views[name] = newView
+  _createView (graphViewSet) {
+    const newView = new GraphView(graphViewSet)
+    this.views[graphViewSet.name] = newView
     this.currentView = newView
     this.currentView.on('focus', this._changeCurrentView.bind(this))
     this.currentView.selection.on('change', this.actionsPanel.update.bind(this.actionsPanel))
     this.currentView.fixedNodes.on('change', this.actionsPanel.update.bind(this.actionsPanel))
     if (_.keys(this.views).length > 1) {
       _.each(this.views, (view, key) => {
-        if (name !== key) {
+        if (graphViewSet.name !== key) {
           view.resize()
           // TODO view should manage its layout on its own
           // view.layout.size(view.p.width, view.p.height)

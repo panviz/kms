@@ -75,15 +75,9 @@ export default class Itemman extends EventEmitter {
     return Itemman._request('merge', graph)
   }
 
-  async initView (name) {
-    let key = ''
-    const result = await Itemman._request('search', this.serviceItems.views, name, 1)
-    if (result.length === 0) {
-      key = await Itemman._request('createAndLinkItem', this.serviceItems.views)
-      await Itemman._request('set', name, key)
-    } else {
-      key = result[0]
-    }
+  async initViewNode (view) {
+    const key = await Itemman._request('createAndLinkItem', this.serviceItems.views)
+    await Itemman._request('set', JSON.stringify(view), key)
     return key
   }
 

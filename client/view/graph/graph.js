@@ -21,10 +21,11 @@ import './graph.scss'
  * @inner Array _edges d3 selection of DOM edges
  */
 export default class Graph extends View {
-  constructor (p, name) {
+  constructor (p) {
     super(p)
     this.graph = {}
-    this.name = name
+    this.name = p.name
+    this.key = p.key
 
     this.autoLayout = true
     this.actionman = p.actionman
@@ -36,10 +37,7 @@ export default class Graph extends View {
     this.itemman.on('item:remove', this._reload.bind(this))
     this.itemman.on('item:showChildren', this._reload.bind(this))
 
-    if (!this.key) {
-      this.initNode()
-    }
-
+    const name = this.name
     const $html = $(template({ name }))
     this.setElement($html)
 
@@ -67,6 +65,7 @@ export default class Graph extends View {
 
     this.elements.container.on('click', this._onClick.bind(this))
     // $(window).on('resize', this.resize.bind(this))
+    this._reload()
   }
 
   get selectors () {
@@ -409,13 +408,6 @@ export default class Graph extends View {
 
   _onClick () {
     this.emit('focus', this.name)
-  }
-  /**
-   * @param id
-   */
-  async initNode () {
-    this.key = await this.itemman.initView(this.name)
-    this._reload()
   }
 
   async _reload (context, viewKey = this.key, depth = 1) {
