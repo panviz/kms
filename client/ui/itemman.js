@@ -37,8 +37,8 @@ export default class Itemman extends EventEmitter {
     this.emit('item:save', key)
   }
 
-  async removeItem (keys) {
-    await Itemman._request('remove', keys, this.serviceItems.coordinates)
+  async removeItem (keys, viewKey) {
+    await Itemman._request('remove', keys, _.concat(this.serviceItems.coordinates, viewKey))
     this.emit('item:remove')
   }
 
@@ -84,7 +84,7 @@ export default class Itemman extends EventEmitter {
   /**
    * Sync graph with server
    */
-  async reloadGraph (context, depth = 1) {
+  async reloadGraph (context = this.serviceItems.visibleItem, depth = 1) {
     const graph = await Itemman._request('getGraph', context, depth)
     this._filter(graph)
     return graph

@@ -10,7 +10,7 @@ export default class Remove extends Action {
   _execute (registrar, args) {
     const keys = registrar.currentView.selection.getAll()
     registrar.currentView.selection.clear()
-    registrar.itemman.removeItem(keys)
+    registrar.itemman.removeItem(keys, registrar.currentView.key)
   }
 
   evaluate (registrar) {

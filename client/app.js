@@ -4,10 +4,16 @@
 import { Actionman } from '@graphiy/actionman'
 import Util from '../core/util'
 import Itemman from './ui/itemman'
-import GraphView from './view/graph/graph'
 import Menu from './ui/main-menu/menu'
 import ActionsPanel from './ui/actions-panel/panel'
 import './style/index.scss'
+
+const _views = {
+  /* eslint-disable */
+  graph: require('./view/graph/graph').default,
+  list: require('./view/list/list').default,
+  /* eslint-enable */
+}
 
 const _actions = [
   /* eslint-disable */
@@ -31,8 +37,7 @@ export default class App {
   constructor () {
     this.defaultViews = [
       { name: 'view1', type: 'graph' },
-      { name: 'view2', type: 'graph' },
-      { name: 'view3', type: 'graph' },
+      { name: 'view2', type: 'list' },
     ]
     this.id = 'app'
     this.views = {}
@@ -90,7 +95,9 @@ export default class App {
   }
 
   _createView (graphViewSet) {
-    const newView = new GraphView(graphViewSet)
+    const viewType = graphViewSet.type
+    const Klass = _views[viewType]
+    const newView = new Klass(graphViewSet)
     this.views[graphViewSet.name] = newView
     this.currentView = newView
     this.currentView.on('focus', this._changeCurrentView.bind(this))

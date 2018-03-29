@@ -5,8 +5,6 @@
  * like: click, hover, collapse/expand, right click, etc
  */
 import { Force } from '@graphiy/layout'
-// import { Grid } from '@graphiy/layout'
-// import { Radial } from '@graphiy/layout'
 import { Selectioning, Pan, Drag } from '@graphiy/behavior'
 import Util from '../../../core/util'
 
@@ -90,7 +88,7 @@ export default class Graph extends View {
     })
   }
   /**
-   * initialize all available layouts in view
+   * initialize layout in view
    */
   _initLayouts () {
     const force = new Force({ distance: 100 })

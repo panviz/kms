@@ -166,10 +166,12 @@ export default class Self {
   }
 
   remove (keys, serviceItem) {
-    if (serviceItem) {
-      const paths = this.graph._getShotesPath(keys, serviceItem)
-      keys = _.flatten(paths)
+    const paths = this.graph._getShotesPath(keys, serviceItem)
+    if (paths.length > 0) {
+      keys = _.concat(keys, _.flatten(paths))
+      keys = _.uniq(keys)
     }
+
     const result = this.graph.remove(keys)
     this._changeItemsInStoradge(result)
     return Promise.resolve()
