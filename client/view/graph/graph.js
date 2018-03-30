@@ -279,14 +279,6 @@ export default class Graph extends View {
     this._nodes
       .select('.text')
       .html(this._getLabel.bind(this))
-
-    this._nodes.merge(this._enteredNodes)
-      .select('.circle')
-      .style('background', (key) => {
-        if (_.includes(items.tags, key)) return '#ff00ff'
-        if (_.includes(items.notes, key)) return '#00ff00'
-        return 'rgb(215, 236, 251)'
-      })
   }
   /**
    * remove DOM nodes

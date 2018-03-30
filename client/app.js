@@ -87,10 +87,13 @@ export default class App {
       }))
     } else {
       views = graph.getItemsMap()
+      _.each(views, (view, key) => {
+        views[key] = JSON.parse(view)
+      })
     }
 
     _.each(views, (view, key) => {
-      this._createView(_.assign({ key }, JSON.parse(view), graphViewSet))
+      this._createView(_.assign({ key }, view, graphViewSet))
     })
   }
 

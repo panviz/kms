@@ -1,9 +1,11 @@
 /**
  * List view
  * Items are represented with rows
+ * Use Grid layout for calculate coords
  */
 import { Grid } from '@graphiy/layout'
 import View from '../view'
+import Row from '../row/row'
 import template from './list.html'
 import './list.scss'
 
@@ -11,6 +13,7 @@ export default class List extends View {
   constructor (p) {
     super(p)
     this.graph = {}
+    this.children = {}
     this.name = p.name
     this.key = p.key
     this.actionman = p.actionman
@@ -30,11 +33,8 @@ export default class List extends View {
 
   get selectors () {
     return _.extend(super.selectors, {
-      list: '.items-list',
       canvas: '.canvas',
       node: '.node',
-      hidden: '.hide',
-      selected: '.selected',
     })
   }
 
@@ -46,10 +46,8 @@ export default class List extends View {
     this.layoutConfig = {
       cell: {
         height: 20,
-        width: 20,
       },
       columns: 1,
-      rows: 1,
       name: 'List',
     }
     const list = new Grid(this.layoutConfig)
@@ -62,11 +60,11 @@ export default class List extends View {
     const items = this._items
     const coords = this.layout.coords
     _.each(this._nodes.merge(this._enteredNodes).nodes(), (node) => {
-      const $node = $(node)
       const item = node.__data__
       const coord = coords[items.indexOf(item)] || { x: 0, y: 0 }
-      $node.translateX(coord.x)
-      $node.translateY(coord.y)
+      const $childNode = $(this.children[item].el)
+      $childNode.translateX(coord.x)
+      $childNode.translateY(coord.y)
     })
   }
 
@@ -89,30 +87,36 @@ export default class List extends View {
   }
 
   _enterNodes () {
-    this._enteredNodes = this._nodes.enter().append('div')
-    this._enteredNodes
-      .classed(`${this.selectors.node.slice(1)} ${this.selectors.hidden.slice(1)}`, true)
-      .classed(this.selectors.selected.slice(1), key => _.includes(this.selection.getAll(), key))
+    const rowViewSet = {
+      actionman: this.actionman,
+      itemman: this.itemman,
+      container: this.elements.canvas,
+    }
 
-    this._enteredNodes
-      .attr('class', 'node')
-      .style('width', '100%')
-      .style('height', this.layoutConfig.cell.height)
-      .html(this._getLabel.bind(this))
+    this._enteredNodes = this._nodes.enter()
+    _.each(this._enteredNodes.nodes(), (node) => {
+      const item = node.__data__
+      const value = this.graph.get(item)
+      this.children[item] = new Row(_.assign({ value }, rowViewSet))
+    })
   }
 
   _updateNodes () {
-    this._nodes
-      .html(this._getLabel.bind(this))
+    _.each(this._nodes.nodes(), (node) => {
+      const item = node.__data__
+      const value = this.graph.get(item)
+      this.children[item].render(value)
+    })
   }
 
   _exitNodes () {
     this._exitedNodes = this._nodes.exit()
-    this._exitedNodes
-      .classed(this.selectors.hidden.slice(1), true)
-    setTimeout(() => {
-      this._exitedNodes.remove()
-    }, 750)
+    _.each(this._exitedNodes.nodes(), (node) => {
+      const item = node.__data__
+      this.children[item].remove()
+      delete this.children[item]
+    })
+    this._exitedNodes.remove()
   }
 
   _getLabel (key) {
