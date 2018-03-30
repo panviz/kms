@@ -34,7 +34,7 @@ export default class List extends View {
   get selectors () {
     return _.extend(super.selectors, {
       canvas: '.canvas',
-      node: '.node',
+      node: '.row',
     })
   }
 
@@ -62,7 +62,7 @@ export default class List extends View {
     _.each(this._nodes.merge(this._enteredNodes).nodes(), (node) => {
       const item = node.__data__
       const coord = coords[items.indexOf(item)] || { x: 0, y: 0 }
-      const $childNode = $(this.children[item].el)
+      const $childNode = $(this.children[item].$el)
       $childNode.translateX(coord.x)
       $childNode.translateY(coord.y)
     })
@@ -98,6 +98,7 @@ export default class List extends View {
       const item = node.__data__
       const value = this.graph.get(item)
       this.children[item] = new Row(_.assign({ value }, rowViewSet))
+      this.children[item].$el.get(0).__data__ = item
     })
   }
 

@@ -22,21 +22,21 @@ export default class Row extends View {
   }
 
   render (value) {
-    if (this.el) {
+    if (this.$el) {
       this._update(value)
     } else {
       const $html = $(template({ value }))
       if (this.p.hidden) $html.css('display', 'none')
       this.setElement($html)
-      this.el = $html
+      this.$el = $html
     }
   }
 
   _update (value) {
-    this.el.innerHTML = value
+    this.$el.innerHTML = value
   }
 
   remove () {
-    this.el.remove()
+    this.$el.remove()
   }
 }
