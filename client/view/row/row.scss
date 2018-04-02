@@ -1,8 +1,12 @@
 .row {
   background-color: #F1F2F7;
   position: absolute;
-  width: 100%;
   border-bottom: 1px solid black;
-  height: 19px;
+  box-sizing:border-box;
+  min-height: 20px;
+  width: 100%;
+}
 
+.selected {
+  background-color: bisque;
 }
