@@ -9,6 +9,7 @@ import { Selectioning, Pan, Drag } from '@graphiy/behavior'
 import Util from '../../../core/util'
 
 import View from '../view'
+import Node from '../node/node'
 import template from './graph.html'
 import './graph.scss'
 /**
@@ -22,6 +23,7 @@ export default class Graph extends View {
   constructor (p) {
     super(p)
     this.graph = {}
+    this.children = {}
     this.name = p.name
     this.key = p.key
 
@@ -29,7 +31,7 @@ export default class Graph extends View {
     this.actionman = p.actionman
     this.itemman = p.itemman
     this.itemman.on('repo:update', this._reload.bind(this))
-    this.itemman.on('item:create', this._addToSelection.bind(this))
+    this.itemman.on('item:create', this._updateGraph.bind(this))
     this.itemman.on('item:associate', this._reload.bind(this))
     this.itemman.on('item:disassociate', this._reload.bind(this))
     this.itemman.on('item:remove', this._reload.bind(this))
@@ -180,9 +182,11 @@ export default class Graph extends View {
 
     this._updatePosition()
     this.layout.once('end', () => {
-      this._enteredNodes.classed(this.selectors.hidden.slice(1), false)
+      _.each(this._enteredNodes.nodes(), (node) => {
+        const key = node.__data__
+        this.children[key].$el.removeClass(`${this.selectors.hidden.slice(1)}`)
+      })
       this._enteredEdges.classed(this.selectors.hidden.slice(1), false)
-      this._exitedNodes.classed(this.selectors.hidden.slice(1), true)
       this._exitedEdges.classed(this.selectors.hidden.slice(1), true)
     })
     this.updateLayout()
@@ -258,35 +262,46 @@ export default class Graph extends View {
    * append new nodes to DOM
    */
   _enterNodes () {
-    this._enteredNodes = this._nodes.enter().append('div')
-    this._enteredNodes
-      .classed(`${this.selectors.node.slice(1)} ${this.selectors.hidden.slice(1)}`, true)
-      .classed(this.selectors.selected.slice(1), key => _.includes(this.selection.getAll(), key))
-    this._enteredNodes
-      .append('div')
-      .attr('class', 'circle')
-      .style('width', this.p.node.size.width)
-      .style('height', this.p.node.size.height)
-    this._enteredNodes
-      .append('div')
-      .attr('class', 'text')
-      .html(this._getLabel.bind(this))
+    const nodeViewSet = {
+      actionman: this.actionman,
+      itemman: this.itemman,
+      container: this.elements.nodeGroup,
+      node: this.p.node,
+    }
+
+    this._enteredNodes = this._nodes.enter()
+    _.each(this._enteredNodes.nodes(), (node) => {
+      const key = node.__data__
+      const value = this._getLabel(key)
+      this.children[key] = new Node(_.assign({ value }, nodeViewSet))
+      this.children[key].$el.get(0).__data__ = key
+      this.children[key].$el.addClass(`${this.selectors.hidden.slice(1)}`)
+      this.children[key].$el.addClass(() => {
+        if (_.includes(this.selection.getAll(), key)) return 'selected'
+        return ''
+      })
+    })
   }
   /**
    * update DOM nodes
    */
   _updateNodes (items) {
-    this._nodes
-      .select('.text')
-      .html(this._getLabel.bind(this))
+    _.each(this._nodes.nodes(), (node) => {
+      const key = node.__data__
+      const value = this._getLabel(key)
+      this.children[key].render(value)
+    })
   }
   /**
    * remove DOM nodes
    */
   _exitNodes () {
     this._exitedNodes = this._nodes.exit()
-    this._exitedNodes
-      .classed(this.selectors.hidden.slice(1), true)
+    _.each(this._exitedNodes.nodes(), (node) => {
+      const key = node.__data__
+      this.children[key].remove()
+      delete this.children[key]
+    })
     setTimeout(() => {
       this._exitedNodes.remove()
     }, 750)
@@ -298,11 +313,11 @@ export default class Graph extends View {
     const items = this._items
     const coords = this.layout.coords
     _.each(this._nodes.merge(this._enteredNodes).nodes(), (node) => {
-      const $node = $(node)
-      const item = node.__data__
-      const coord = coords[items.indexOf(item)] || { x: 0, y: 0 }
-      $node.translateX(coord.x)
-      $node.translateY(coord.y)
+      const key = node.__data__
+      const coord = coords[items.indexOf(key)] || { x: 0, y: 0 }
+      const $childNode = $(this.children[key].$el)
+      $childNode.translateX(coord.x)
+      $childNode.translateY(coord.y)
     })
     const edgesCoords = this.layout.edgesCoords
     _.each(this._edges.merge(this._enteredEdges).nodes(), (edge, i) => {
@@ -334,13 +349,13 @@ export default class Graph extends View {
         this._nodes.merge(this._enteredNodes).nodes(),
         _node => _node.__data__ === key
       )
-      if (!node.classList.contains('pin')) {
-        d3.select(node)
-          .classed('pin', true)
-          .append('img')
-          .attr('width', this.p.node.size.width / 2)
-          .attr('height', this.p.node.size.width / 2)
-          .attr('src', '/client/view/graph/pin.svg')
+      if (!this.children[node.__data__].$el.hasClass('pin')) {
+        this.children[node.__data__].$el.addClass('pin')
+        const img = document.createElement('img')
+        img.style.width = this.p.node.size.width / 2
+        img.style.height = this.p.node.size.height / 2
+        img.src = '/client/view/graph/pin.svg'
+        this.children[node.__data__].$el.append(img)
       }
       _(this.layout.nodes)
         .filter(['id', key])
@@ -353,7 +368,6 @@ export default class Graph extends View {
       this.fixedNodes.add(key)
       this.layout.run()
     })
-    this.selection.clear()
   }
 
   clearFixed () {
@@ -371,7 +385,9 @@ export default class Graph extends View {
         _node => _node.__data__ === key
       )
 
-      if (node) node.classList.add(this.selectors.selected.slice(1))
+      if (node) {
+        this.children[node.__data__].$el.addClass(this.selectors.selected.slice(1))
+      }
     })
   }
 
@@ -382,7 +398,9 @@ export default class Graph extends View {
         _node => _node.__data__ === key
       )
 
-      if (node) node.classList.remove(this.selectors.selected.slice(1))
+      if (node) {
+        this.children[node.__data__].$el.removeClass(this.selectors.selected.slice(1))
+      }
     })
   }
 
@@ -391,9 +409,10 @@ export default class Graph extends View {
     this._reload(key, 1)
   }
 
-  _addToSelection (key) {
+  async _updateGraph (key) {
+    this.selection.clear()
+    await this._reload()
     this.selection.add(key)
-    this._reload()
   }
 
   _onClick () {

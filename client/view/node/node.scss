@@ -1,0 +1,42 @@
+.node {
+  position: absolute;
+  font-size: 12px;
+  cursor: auto;
+  transition: opacity 750ms ease-in;
+  &:hover {
+    text-decoration: underline;
+
+    .circle {
+      border-width: 2px;
+    }
+  }
+  &.hide {
+    opacity: 0;
+  }
+
+  .circle {
+    background: rgb(215, 236, 251);
+    border: solid #498AE6;
+    border-radius: 50%;
+    border-width: 1px;
+    position: relative;
+    top: -16px;
+    left: -16px;
+  }
+  &.dragging {
+    top: 16px;
+    left: 16px;
+    display: none;
+    .circle {
+      background: rgba(0, 0, 0, 0.5) !important;
+    }
+  }
+  .text {
+    transform: matrix(1,0,0,1,40,-40);
+  }
+  img {
+    position: relative;
+    top: -53px;
+    left: 8px;
+  }
+}
