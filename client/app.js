@@ -12,6 +12,7 @@ const _views = {
   /* eslint-disable */
   graph: require('./view/graph/graph').default,
   list: require('./view/list/list').default,
+  htmlList: require('./view/list/htmlList').default,
   /* eslint-enable */
 }
 

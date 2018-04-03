@@ -2,11 +2,11 @@
   background-color: #F1F2F7;
   position: absolute;
   border-bottom: 1px solid black;
-  box-sizing:border-box;
+  box-sizing: border-box;
   min-height: 20px;
   width: 100%;
-}
 
-.selected {
-  background-color: bisque;
+  &.selected {
+    background-color: bisque;
+  }
 }

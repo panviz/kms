@@ -1,15 +1,10 @@
-/**
- * List view
- * Items are represented with rows
- * Use Grid layout for calculate coords
- */
-import { Grid } from '@graphiy/layout'
 import View from '../view'
 import Row from '../row/row'
 import template from './list.html'
 import './list.scss'
 
-export default class List extends View {
+
+export default class HtmlList extends View {
   constructor (p) {
     super(p)
     this.graph = {}
@@ -28,7 +23,6 @@ export default class List extends View {
     this.setElement($html)
     this.canvas = d3.select(`.${this.name} ${this.selectors.canvas}`)
 
-    this._initLayouts()
     this._reload()
   }
 
@@ -46,35 +40,8 @@ export default class List extends View {
     })
   }
 
-  _initLayouts () {
-    this.layoutConfig = {
-      cell: {
-        height: 20,
-      },
-      columns: 1,
-      name: 'List',
-    }
-    const list = new Grid(this.layoutConfig)
-
-    this.layout = list
-    this.layout.on('end', this._updatePosition, this)
-  }
-
-  _updatePosition () {
-    const items = this._items
-    const coords = this.layout.coords
-    _.each(this._nodes.merge(this._enteredNodes).nodes(), (node) => {
-      const item = node.__data__
-      const coord = coords[items.indexOf(item)] || { x: 0, y: 0 }
-      const $childNode = $(this.children[item].$el)
-      $childNode.translateX(coord.x)
-      $childNode.translateY(coord.y)
-    })
-  }
-
   render (graph) {
     this._items = graph.getItemKeys()
-    const nodes = this.graph.getItemKeys()
 
     // bind DOM nodes to items
     this._nodes = this.canvas
@@ -84,9 +51,6 @@ export default class List extends View {
     this._enterNodes()
     this._updateNodes()
     this._exitNodes()
-
-    this.layout.update(nodes)
-    this.layout.run()
   }
 
   _enterNodes () {
@@ -103,6 +67,9 @@ export default class List extends View {
       this.children[item] = new Row(_.assign({ value }, rowViewSet))
       this.children[item].$el.get(0).__data__ = item
     })
+
+    this.canvas.selectAll(this.selectors.node)
+      .style('position', 'relative')
   }
 
   _updateNodes () {
@@ -136,10 +103,10 @@ export default class List extends View {
   }
 
   _onRowClick (e) {
-    e.stopPropagation()
     const key = e.target.__data__
     if (!e.ctrlKey) this.selection.clear()
     this.selection.add(key)
+    e.stopPropagation()
   }
 
   _onBackgroundClick () {
