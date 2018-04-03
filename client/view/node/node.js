@@ -40,6 +40,9 @@ export default class Node extends View {
   }
 
   remove () {
-    this.$el.remove()
+    this.$el.addClass('hide')
+    setTimeout(() => {
+      this.$el.remove()
+    }, 750)
   }
 }
