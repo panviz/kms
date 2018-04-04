@@ -1,3 +1,5 @@
+
+import { Selectioning } from '@graphiy/behavior'
 import View from '../view'
 import Row from '../row/row'
 import template from './list.html'
@@ -15,7 +17,6 @@ export default class HtmlList extends View {
     this.itemman = p.itemman
     this.itemman.on('item:create', this._updateGraph.bind(this))
     this.itemman.on('item:remove', this._reload.bind(this))
-    this.selection.on('change', this._onSelectionChange.bind(this))
 
     const name = this.name
     const $html = $(template({ name }))
@@ -23,21 +24,35 @@ export default class HtmlList extends View {
     this.setElement($html)
     this.canvas = d3.select(`.${this.name} ${this.selectors.canvas}`)
 
+    this._initViewActions()
+    this.selection.on('add', this._onSelect.bind(this))
+    this.selection.on('remove', this._onDeselect.bind(this))
+
     this._reload()
   }
 
   get selectors () {
     return _.extend(super.selectors, {
+      container: '.container',
       canvas: '.canvas',
       node: '.row',
+      hidden: '.hide',
+      selected: '.selected',
     })
   }
 
   get events () {
-    return _.extend(super.events, {
-      'click node': this._onRowClick,
-      'click canvas': this._onBackgroundClick,
+    return _.extend(super.events, {})
+  }
+
+  _initViewActions () {
+    this.elements.container.addClass('behavior')
+    this.selectioning = new Selectioning({
+      selection: this.selection,
+      container: this.elements.canvas,
+      node: { selector: this.selectors.node },
     })
+    this.selectioning.enable()
   }
 
   render (graph) {
@@ -102,25 +117,30 @@ export default class HtmlList extends View {
     this.selection.add(key)
   }
 
-  _onRowClick (e) {
-    const key = e.target.__data__
-    if (!e.ctrlKey) this.selection.clear()
-    this.selection.add(key)
-    e.stopPropagation()
+  _onSelect (keys) {
+    _.each(keys, (key) => {
+      const node = _.find(
+        this._nodes.merge(this._enteredNodes).nodes(),
+        _node => _node.__data__ === key
+      )
+
+      if (node) {
+        this.children[node.__data__].$el.addClass(this.selectors.selected.slice(1))
+      }
+    })
   }
 
-  _onBackgroundClick () {
-    this.selection.clear()
-  }
+  _onDeselect (keys) {
+    _.each(keys, (key) => {
+      const node = _.find(
+        this._nodes.merge(this._enteredNodes).nodes(),
+        _node => _node.__data__ === key
+      )
 
-  _onSelectionChange (selection) {
-    this.canvas.selectAll(this.selectors.node)
-      .each(function (d, i) {
-        if (selection.includes(d)) {
-          const node = d3.select(this)
-          node.classed('selected', !node.classed('selected'))
-        }
-      })
+      if (node) {
+        this.children[node.__data__].$el.removeClass(this.selectors.selected.slice(1))
+      }
+    })
   }
 
   async _reload (context, depth = 1) {
