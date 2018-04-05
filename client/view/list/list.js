@@ -111,13 +111,24 @@ export default class List extends View {
       container: this.elements.canvas,
     }
 
+    const coords = {}
     this._enteredNodes = this._nodes.enter()
     _.each(this._enteredNodes.nodes(), (node) => {
-      const item = node.__data__
-      const value = this.graph.get(item)
-      this.children[item] = new Row(_.assign({ value }, rowViewSet))
-      this.children[item].$el.get(0).__data__ = item
+      const key = node.__data__
+      const value = this.graph.get(key)
+      this.children[key] = new Row(_.assign({ value }, rowViewSet))
+      this.children[key].$el.get(0).__data__ = key
+
+      coords[key] = { position: Object.keys(this.children).length }
     })
+
+
+    if (Object.keys(coords).length > 0) {
+     // this.itemman.saveCoords(coords, this.key)
+    }
+
+
+
   }
 
   _updateNodes () {
