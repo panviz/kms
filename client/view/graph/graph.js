@@ -128,7 +128,7 @@ export default class Graph extends View {
   /**
    * render new graph in the view using current layout
    */
-  render (graph, items) {
+  render (graph) {
     this._graph = graph
     this._items = graph.getItemKeys()
 
@@ -138,7 +138,7 @@ export default class Graph extends View {
       .data(this._items, d => d)
 
     this._enterNodes()
-    this._updateNodes(items)
+    this._updateNodes()
     this._exitNodes()
 
     const nodes = this._graph.getItemKeys()
@@ -180,7 +180,6 @@ export default class Graph extends View {
     this._enterEdges()
     this._exitEdges()
 
-    this._updatePosition()
     this.layout.once('end', () => {
       _.each(this._enteredNodes.nodes(), (node) => {
         const key = node.__data__
@@ -285,7 +284,7 @@ export default class Graph extends View {
   /**
    * update DOM nodes
    */
-  _updateNodes (items) {
+  _updateNodes () {
     _.each(this._nodes.nodes(), (node) => {
       const key = node.__data__
       const value = this._getLabel(key)
@@ -346,9 +345,11 @@ export default class Graph extends View {
     const keys = this.selection.getAll()
     _.each(keys, (key) => {
       const node = _.find(
+        // TODO why merge
         this._nodes.merge(this._enteredNodes).nodes(),
         _node => _node.__data__ === key
       )
+      // TODO replace with fixedNodes
       if (!this.children[node.__data__].$el.hasClass('pin')) {
         this.children[node.__data__].$el.addClass('pin')
         const img = document.createElement('img')

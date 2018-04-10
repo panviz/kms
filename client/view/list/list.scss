@@ -33,4 +33,7 @@
   .canvas {
     height: 100%;
   }
+  .node {
+    -webkit-user-select: none;
+  }
 }

@@ -17,7 +17,7 @@ export default class Row extends View {
 
   get selectors () {
     return _.extend(super.selectors, {
-      row: '.row',
+      row: '.node',
     })
   }
 

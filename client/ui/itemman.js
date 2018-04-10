@@ -37,8 +37,8 @@ export default class Itemman extends EventEmitter {
     this.emit('item:save', key)
   }
 
-  async removeItem (keys, viewKey) {
-    await Itemman._request('remove', keys, _.concat(this.serviceItems.coordinates, viewKey))
+  async removeItem (keys) {
+    await Itemman._request('remove', keys, this.serviceItems.coordinates)
     this.emit('item:remove')
   }
 
