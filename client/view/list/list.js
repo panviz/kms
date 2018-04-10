@@ -33,14 +33,13 @@ export default class List extends View {
 
     this.selection.on('add', this._onSelect.bind(this))
     this.selection.on('remove', this._onDeselect.bind(this))
-    this.elements.container.on('click', this._onClick.bind(this))
+    this.canvas.on('click', this._onClick.bind(this))
 
     this._reload()
   }
 
   get selectors () {
     return _.extend(super.selectors, {
-      container: '.container',
       canvas: '.canvas',
       node: '.node',
       hidden: '.hide',
@@ -67,20 +66,21 @@ export default class List extends View {
   }
 
   _initViewActions () {
-    this.elements.container.addClass('behavior')
+    this.elements.canvas.addClass('behavior')
 
     this.drag = new Drag({
-      container: this.elements.container,
+      container: this.elements.canvas,
       node: { selector: this.selectors.node },
       moveThreshold: 16,
     })
     this.drag.enable()
     this.drag.on('drop', this._onDrop.bind(this))
+    this.drag.on('move', this._onNodeMove.bind(this))
 
 
     this.selectioning = new Selectioning({
       selection: this.selection,
-      container: this.elements.container,
+      container: this.elements.canvas,
       node: { selector: this.selectors.node },
     })
     this.selectioning.enable()
@@ -107,11 +107,7 @@ export default class List extends View {
       .data(this._items, d => d)
 
     // sorted rows by saved positions
-    this._sortedByPosition(this._items)
-    const diff = this._collapseItemsArr(this._items)
-    if (Object.keys(diff).length > 0) {
-      this.itemman.saveCoords(diff, this.key)
-    }
+    this._sortByPosition(this._items)
 
     this._enterNodes()
     this._updateNodes()
@@ -121,23 +117,24 @@ export default class List extends View {
     this.layout.run()
   }
 
-  _sortedByPosition (items) {
+  _sortByPosition (items) {
     const sortedItems = []
     const _items = _.cloneDeep(items)
     _.each(this.coords, (coord, key) => {
-      try {
-        const position = JSON.parse(coord).position
-        sortedItems[position] = key
-        const index = _items.indexOf(key)
-        if (index !== -1) {
-          _items.splice(index, 1)
-        }
-      } catch (e) {
-        console.log('Wrong coords format') // eslint-disable-line
+      // TODO store plain number
+      const position = JSON.parse(coord).position
+      sortedItems[position] = key
+      const index = _items.indexOf(key)
+      if (index !== -1) {
+        _items.splice(index, 1)
       }
     })
+
     sortedItems.push(..._items)
-    this._items = sortedItems
+    const diff = this._collapseItemsArr(sortedItems)
+    if (Object.keys(diff).length > 0) {
+      this.itemman.saveCoords(diff, this.key)
+    }
   }
 
   _collapseItemsArr (items) {
@@ -243,13 +240,32 @@ export default class List extends View {
     this.emit('focus', this.name)
   }
 
-  _onDrop (targetNode, draggedNode) {
+  _onDrop (targetNode) {
     if (!targetNode) return
     const keys = this.selection.getAll()
 
     const targetPosition = this._items.indexOf(targetNode[0].__data__)
+    this._changeItemsPosition(targetPosition, keys)
+  }
 
-    // меняем местами
+  _onNodeMove (delta, dragged) {
+    const keys = this.selection.getAll()
+
+    const draggedPosition = JSON.parse(this.coords[dragged.__data__]).position
+    const draggedCoords = this.layout.coords[draggedPosition]
+    const targetYCoord = draggedCoords.y + delta.y
+    let targetPosition
+
+    _.each(this.layout.coords, (coords, index) => {
+      if (coords.y > targetYCoord) {
+        targetPosition = index
+        return false
+      }
+    })
+    this._changeItemsPosition(targetPosition, keys)
+  }
+
+  _changeItemsPosition (targetPosition, keys) {
     let firstPart = this._items.slice(0, targetPosition)
     const lastPart = this._items.slice(targetPosition)
     firstPart = firstPart.concat(keys)
@@ -260,7 +276,7 @@ export default class List extends View {
 
     this._items = firstPart.concat(lastPart)
 
-    // обновить this.coords на основании this._items
+    // update this.coords by this._items
     const coordsForSave = {}
     _.each(this._items, (item, index) => {
       this.coords[item] = `{"position":${index}}`

@@ -33,9 +33,8 @@ export default class HtmlList extends View {
 
   get selectors () {
     return _.extend(super.selectors, {
-      container: '.container',
       canvas: '.canvas',
-      node: '.row',
+      node: '.node',
       hidden: '.hide',
       selected: '.selected',
     })
@@ -46,7 +45,7 @@ export default class HtmlList extends View {
   }
 
   _initViewActions () {
-    this.elements.container.addClass('behavior')
+    this.elements.canvas.addClass('behavior')
     this.selectioning = new Selectioning({
       selection: this.selection,
       container: this.elements.canvas,
@@ -77,10 +76,10 @@ export default class HtmlList extends View {
 
     this._enteredNodes = this._nodes.enter()
     _.each(this._enteredNodes.nodes(), (node) => {
-      const item = node.__data__
-      const value = this.graph.get(item)
-      this.children[item] = new Row(_.assign({ value }, rowViewSet))
-      this.children[item].$el.get(0).__data__ = item
+      const key = node.__data__
+      const value = this.graph.get(key)
+      this.children[key] = new Row(_.assign({ value }, rowViewSet))
+      this.children[key].$el.get(0).__data__ = key
     })
 
     this.canvas.selectAll(this.selectors.node)
