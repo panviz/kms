@@ -420,7 +420,7 @@ export default class Graph {
     return Object.keys(this._items).length
   }
 
-  _getShotesPath(rootKeyS, key) {
+  _getShortestPath(rootKeyS, key) {
     const path = []
     const coordinatKeys = this._links[key]
     const rootKeys = _.castArray(rootKeyS)
@@ -449,7 +449,7 @@ export default class Graph {
     const [coordsKey, viewKey] = keys
     const keyVal = this.get(coordsKey)
     const graph = this.getGraph(context, depth)
-    let paths = this._getShotesPath(Object.keys(graph.getItemsMap()), coordsKey)
+    let paths = this._getShortestPath(Object.keys(graph.getItemsMap()), coordsKey)
     paths = _.filter(paths, (path) => {
       if(this.getLink(path[1], viewKey) !== undefined) return true
     })
