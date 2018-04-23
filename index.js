@@ -288,6 +288,7 @@ export default class Graph {
    * @return Graph starting from the item(s) provided
    */
   getGraph (rootKeyS, depth = 0) {
+    const context = _.cloneDeep(rootKeyS)
     let rootKeys = _.castArray(rootKeyS)
     if (depth > 0) {
       rootKeys = this._getKeysOnDepth(rootKeys, depth)
@@ -306,7 +307,7 @@ export default class Graph {
       sgLinks[sgItemKey] = filteredSgItemLinks
     })
 
-    return new Graph({ context: rootKeys, items: sgItems, links: sgLinks })
+    return new Graph({ context, items: sgItems, links: sgLinks })
   }
   /**
    * @param rootKeys Key of item to traverse graph from
@@ -314,7 +315,7 @@ export default class Graph {
    * @return Array of keys on depth
    */
   _getKeysOnDepth (rootKeys, depth) {
-    const keys = rootKeys
+    const keys = _.cloneDeep(rootKeys)
     for (let i = depth; i > 0; i--) {
       const links = {}
       _.each(keys, (rootKey) => {
@@ -447,8 +448,17 @@ export default class Graph {
 
   getGraphWithIntersection(context, depth, keys) {
     const [coordsKey, viewKey] = keys
-    const keyVal = this.get(coordsKey)
     const graph = this.getGraph(context, depth)
+    const linkedCoords = this.getLink(coordsKey, viewKey)
+    const coords = this.getLinked(coordsKey)
+    _.each(coords, (coord) => {
+      if(linkedCoords == undefined) {
+        graph.remove(coord)
+      } else if(!linkedCoords.includes(coord)) {
+        graph.remove(coord)
+      }
+    })
+
     let paths = this._getShortestPath(Object.keys(graph.getItemsMap()), coordsKey)
     paths = _.filter(paths, (path) => {
       if(this.getLink(path[1], viewKey) !== undefined) return true
@@ -460,7 +470,6 @@ export default class Graph {
       graph.associate(path[1], path[0])
     })
 
-    graph.set (keyVal, coordsKey)
     _.each(paths, (path) => {
       graph.associate(path[1], coordsKey)
     })
