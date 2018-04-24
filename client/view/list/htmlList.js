@@ -11,18 +11,16 @@ export default class HtmlList extends View {
     super(p)
     this.graph = {}
     this.children = {}
-    this.name = p.name
     this.key = p.key
     this.actionman = p.actionman
     this.itemman = p.itemman
     this.itemman.on('item:create', this._updateGraph.bind(this))
     this.itemman.on('item:remove', this._reload.bind(this))
 
-    const name = this.name
-    const $html = $(template({ name }))
+    const $html = $(template({ name: this.getSelectors(), context: this.context }))
     if (this.p.hidden) $html.css('display', 'none')
     this.setElement($html)
-    this.canvas = d3.select(`.${this.name} ${this.selectors.canvas}`)
+    this.canvas = d3.select(`.${this.getSelectors()} ${this.selectors.canvas}`)
 
     this._initViewActions()
     this.selection.on('add', this._onSelect.bind(this))

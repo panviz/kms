@@ -26,7 +26,6 @@ export default class Graph extends View {
     this.coords = p.coords || {}
     this.$el = p.$el || undefined
     this.children = {}
-    this.name = p.name
     this.key = p.key
 
     this.autoLayout = true
@@ -39,15 +38,13 @@ export default class Graph extends View {
     this.itemman.on('item:disassociate', this._reload, this)
     this.itemman.on('item:remove', this._reload, this)
     this.itemman.on('item:showChildren', this._updateView, this)
-    const $html = $(template({ name: this.name, context: this.context }))
+    const $html = $(template({ name: this.getSelectors(), context: this.context }))
 
     if (!this.transform) {
       this.$el = $('<div>')
       this.$el.append($html)
-      this.$el.on('click', this._onClick.bind(this))
       this.setElement(this.$el)
     } else {
-      this.$el.on('click', this._onClick.bind(this))
       const text = this.$el.find(`${this.selectors.node}`)
       text.detach()
       this.$el.removeClass()
@@ -55,10 +52,10 @@ export default class Graph extends View {
       this.setElement($html, this.$el)
       text.appendTo(this.$el.find(`${this.selectors.nodeGroup}`))
     }
-
-    this.$el.addClass(`view graph noselect ${this.name}`)
-    this.canvas = d3.select(`.${this.name} ${this.selectors.canvas}`)
-    this.svg = d3.select(`.${this.name} ${this.selectors.svg}`)
+    this.$el.get(0).addEventListener('click', this._onClick.bind(this), true) // useCapture
+    this.$el.addClass(`view graph noselect ${this.getSelectors()}`)
+    this.canvas = d3.select(`.${this.getSelectors()} ${this.selectors.canvas}`)
+    this.svg = d3.select(`.${this.getSelectors()} ${this.selectors.svg}`)
 
     this.p.node = {
       selector: this.selectors.node,
@@ -114,7 +111,7 @@ export default class Graph extends View {
 
   get events () {
     return _.extend(super.events, {
-      'dblclick container': this._onNodeDblClick,
+      'dblclick container': this.expand,
       'click transform': this._onTransform,
       'click close': this.close,
       'click reset': this.resetContext,
@@ -442,15 +439,17 @@ export default class Graph extends View {
     })
   }
 
-  _onNodeDblClick (e) {
-    const depth = 1
+  expand (e) {
     const key = this.selection.getAll()
-    this.selection.clear()
-    this._reload(key, this.key, depth)
-    this.context = key
-    this.depth = depth
-    this.emit('context:change', this.key)
-    this.elements.context.empty().append(key)
+    if (key.length > 0) {
+      const depth = 1
+      this.selection.clear()
+      this._reload(key, this.key, depth)
+      this.context = key
+      this.depth = depth
+      this.emit('context:change', this.key)
+      this.elements.context.empty().append(key)
+    }
   }
 
   async _updateGraph (key) {

@@ -121,4 +121,8 @@ export default class View extends EventEmitter {
     if (this.$el) this.$el.off('.delegateEvents')
     return this
   }
+
+  getSelectors () {
+    return `v_${this.key}`
+  }
 }

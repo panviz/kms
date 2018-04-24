@@ -87,7 +87,6 @@ export default class App {
     if (_.isEmpty(graph.getItemsMap())) {
       await Promise.all(this.defaultViews.map(async (view) => {
         const key = uuidBase62.v4()
-        view.name = `v_${key}`
         await this.itemman.initViewNode(view, key)
         views[key] = view
       }))
@@ -124,7 +123,7 @@ export default class App {
 
     if (_.keys(this.views).length > 1) {
       _.each(this.views, (view, key) => {
-        if (viewSet.name !== key && view.resize) {
+        if (viewSet.key !== key && view.resize) {
           view.resize()
           // TODO view should manage its layout on its own
           // view.layout.size(view.p.width, view.p.height)
@@ -151,7 +150,6 @@ export default class App {
     const fixedNodes = this.views[viewKey].fixedNodes
     const context = this.views[viewKey].context
     const depth = this.views[viewKey].depth
-    const name = this.views[viewKey].name
 
     this.views[viewKey].off('focus', this._changeCurrentView, this)
     this.views[viewKey].off('transform', this._viewTransform, this)
@@ -161,7 +159,6 @@ export default class App {
 
     await this._createView(_.assign({
       key,
-      name,
       type: newType,
       $el,
       graph,
@@ -188,12 +185,10 @@ export default class App {
 
   updateView () {
     const viewKey = this.currentView.key
-    const name = this.currentView.name
     const type = this.currentView.constructor.name
     const context = this.currentView.context
     const depth = this.currentView.depth
     const value = JSON.stringify({
-      name,
       type,
       context,
       depth,
@@ -204,7 +199,6 @@ export default class App {
   async createNewView () {
     const view = _.cloneDeep(this.defaultViews[0])
     const key = uuidBase62.v4()
-    view.name = `v_${key}`
     await this.itemman.initViewNode(view, key)
     this._createView(_.assign({ key }, view, this.viewSet))
   }

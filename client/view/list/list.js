@@ -17,7 +17,6 @@ export default class List extends View {
     this.coords = p.coords || {}
     this.$el = p.$el || undefined
     this.children = {}
-    this.name = p.name
     this.key = p.key
 
     this.actionman = p.actionman
@@ -25,7 +24,7 @@ export default class List extends View {
 
     this.itemman.on('item:create', this._updateGraph, this)
     this.itemman.on('item:remove', this._reload, this)
-    const $html = $(template({ name: this.name, context: this.context }))
+    const $html = $(template({ name: this.getSelectors(), context: this.context }))
 
     if (!this.transform) {
       this.$el = $('<div>')
@@ -40,8 +39,8 @@ export default class List extends View {
       nodes.appendTo(this.$el.find(`${this.selectors.canvas}`))
     }
 
-    this.$el.addClass(`view list noselect ${this.name}`)
-    this.canvas = d3.select(`.${this.name} ${this.selectors.canvas}`)
+    this.$el.addClass(`view list noselect ${this.getSelectors()}`)
+    this.canvas = d3.select(`.${this.getSelectors()} ${this.selectors.canvas}`)
 
     this.rowViewSet = {
       actionman: this.actionman,
@@ -53,7 +52,7 @@ export default class List extends View {
 
     this.selection.on('add', this._onSelect.bind(this))
     this.selection.on('remove', this._onDeselect.bind(this))
-    this.$el.on('click', this._onClick.bind(this))
+    this.$el.get(0).addEventListener('click', this._onClick.bind(this), true) // useCapture
 
     if (!this.transform) {
       this._reload()
