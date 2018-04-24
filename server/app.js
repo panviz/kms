@@ -111,16 +111,19 @@ export default class Self {
   saveCoords (args) {
     const result = []
     const update = []
-    const [serviceItem, coords, viewKey] = args
-    const paths = this.graph._getShotesPath(Object.keys(coords), serviceItem)
+    const [serviceItem, coords, viewKey, type] = args
+    const paths = this.graph._getShortestPath(Object.keys(coords), serviceItem)
 
-    _.each(coords, (value, key) => {
+    _.each(coords, (coord, key) => {
+      const value = {}
+      value[type] = coord
       let done = false
       _.each(paths, (path) => {
         const linkWithView = this.graph.getLink(path[1], viewKey)
         // update coords
         if (linkWithView !== undefined && path[0] === key) {
-          const amended = this.graph.set(JSON.stringify(value), path[1])
+          const oldValue = JSON.parse(this.graph.get(path[1]))
+          const amended = this.graph.set(JSON.stringify(_.assign(oldValue, value)), path[1])
           result.push(amended)
           done = true
           return false
@@ -141,15 +144,22 @@ export default class Self {
 
   deleteCoords (args) {
     const result = []
-    const [serviceItem, keys, viewKey] = args
-    const paths = this.graph._getShotesPath(keys, serviceItem)
+    const [serviceItem, keys, viewKey, type] = args
+    const paths = this.graph._getShortestPath(keys, serviceItem)
     _.each(paths, (path) => {
       const linkWithView = this.graph.getLink(path[1], viewKey)
       if (linkWithView !== undefined) {
-        this.setDisassociate(path[0], path[1])
-        this.setDisassociate(path[1], viewKey)
-        this.remove(path[1])
-        result.push(path[0], path[1])
+        const coord = JSON.parse(this.graph.get(path[1]))
+        delete coord[type]
+        if (Object.keys(coord)) {
+          this.graph.set(JSON.stringify(coord), path[1])
+          result.push(path[1])
+        } else {
+          this.setDisassociate(path[0], path[1])
+          this.setDisassociate(path[1], viewKey)
+          this.remove(path[1])
+          result.push(path[0], path[1])
+        }
       }
     })
 
@@ -166,7 +176,7 @@ export default class Self {
   }
 
   remove (keys, serviceItem) {
-    const paths = this.graph._getShotesPath(keys, serviceItem)
+    const paths = this.graph._getShortestPath(keys, serviceItem)
     if (paths.length > 0) {
       keys = _.concat(keys, _.flatten(paths))
       keys = _.uniq(keys)

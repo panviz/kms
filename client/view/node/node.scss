@@ -2,7 +2,7 @@
   position: absolute;
   font-size: 12px;
   cursor: auto;
-  transition: opacity 750ms ease-in;
+  transition: opacity 750ms ease-in, transform 0.3s linear !important;
   &:hover {
     text-decoration: underline;
 
@@ -39,4 +39,6 @@
     top: -53px;
     left: 8px;
   }
+
+  /*transition: transform 750ms linear !important;*/
 }

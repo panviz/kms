@@ -75,6 +75,16 @@ export default class ActionsPanel extends EventEmitter {
         icon: 'fa fa-trash',
         group: 'position',
       },
+      SaveView: {
+        label: 'Save view',
+        icon: 'fa fa-save',
+        group: 'view',
+      },
+      CreateView: {
+        label: 'create view',
+        icon: 'fa fa-plus-square',
+        group: 'view',
+      },
     }
 
     const $html = $(template())

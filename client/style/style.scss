@@ -20,7 +20,6 @@ html {
       header {
         position: absolute;
         width: 100%;
-        z-index: 1;
       }
     }
     .noselect {
@@ -46,12 +45,18 @@ html {
       .view {
         transition: flex 0.4s linear;
       }
+      .header {
+        display: inline;
+        position: relative;
+        z-index: 10;
+      }
     }
     &> .footer {
       position: fixed;
       bottom: 16px;
       right: 16px;
       color: #fd2b31;
+      z-index: 100;
     }
   }
 }

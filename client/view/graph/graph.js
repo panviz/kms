@@ -22,7 +22,9 @@ import './graph.scss'
 export default class Graph extends View {
   constructor (p) {
     super(p)
-    this.graph = {}
+    this.graph = p.graph || {}
+    this.coords = p.coords || {}
+    this.$el = p.$el || undefined
     this.children = {}
     this.name = p.name
     this.key = p.key
@@ -30,16 +32,33 @@ export default class Graph extends View {
     this.autoLayout = true
     this.actionman = p.actionman
     this.itemman = p.itemman
-    this.itemman.on('repo:update', this._reload.bind(this))
-    this.itemman.on('item:create', this._updateGraph.bind(this))
-    this.itemman.on('item:associate', this._reload.bind(this))
-    this.itemman.on('item:disassociate', this._reload.bind(this))
-    this.itemman.on('item:remove', this._reload.bind(this))
-    this.itemman.on('item:showChildren', this._reload.bind(this))
+    this.itemman.on('repo:update', this._reload, this)
+    this.itemman.on('coords:delete', this._updateView, this)
+    this.itemman.on('item:create', this._updateGraph, this)
+    this.itemman.on('item:associate', this._reload, this)
+    this.itemman.on('item:disassociate', this._reload, this)
+    this.itemman.on('item:remove', this._reload, this)
+    this.itemman.on('item:showChildren', this._updateView, this)
+    const $html = $(template({ name: this.name, context: this.context }))
 
-    const name = this.name
-    const $html = $(template({ name }))
-    this.setElement($html)
+    if (!this.transform) {
+      this.$el = $('<div>')
+      this.$el.append($html)
+      this.$el.on('click', this._onClick.bind(this))
+      this.setElement(this.$el)
+    } else {
+      this.$el.on('click', this._onClick.bind(this))
+      const text = this.$el.find(`${this.selectors.node}`)
+      text.detach()
+      this.$el.removeClass()
+      this.$el.empty()
+      this.setElement($html, this.$el)
+      text.appendTo(this.$el.find(`${this.selectors.nodeGroup}`))
+    }
+
+    this.$el.addClass(`view graph noselect ${this.name}`)
+    this.canvas = d3.select(`.${this.name} ${this.selectors.canvas}`)
+    this.svg = d3.select(`.${this.name} ${this.selectors.svg}`)
 
     this.p.node = {
       selector: this.selectors.node,
@@ -53,9 +72,12 @@ export default class Graph extends View {
       },
     }
 
-    this.canvas = d3.select(`.${this.name} ${this.selectors.canvas}`)
-    this.svg = d3.select(`.${this.name} ${this.selectors.svg}`)
-
+    this.nodeViewSet = {
+      actionman: this.actionman,
+      itemman: this.itemman,
+      container: this.elements.nodeGroup,
+      node: this.p.node,
+    }
     this._initLayouts()
     this.resize()
     this._initViewActions()
@@ -63,9 +85,10 @@ export default class Graph extends View {
     this.selection.on('add', this._onSelect.bind(this))
     this.selection.on('remove', this._onDeselect.bind(this))
 
-    this.elements.container.on('click', this._onClick.bind(this))
+
     // $(window).on('resize', this.resize.bind(this))
-    this._reload()
+
+    this._reload(this.context, this.key, this.depth)
   }
 
   get selectors () {
@@ -76,17 +99,25 @@ export default class Graph extends View {
       edgeGroup: '.edgeGroup',
       nodeGroup: '.nodeGroup',
       link: '.link',
-      node: '.node',
+      node: '.view',
       tag: '.tag',
       note: '.note',
       hidden: '.hide',
       selected: '.selected',
+      transform: '.transform',
+      text: '.text',
+      context: '.context',
+      close: '.close',
+      reset: '.reset',
     })
   }
 
   get events () {
     return _.extend(super.events, {
-      'dblclick .container': this._onNodeDblClick,
+      'dblclick container': this._onNodeDblClick,
+      'click transform': this._onTransform,
+      'click close': this.close,
+      'click reset': this.resetContext,
     })
   }
   /**
@@ -97,6 +128,14 @@ export default class Graph extends View {
 
     this.layout = force
     this.layout.on('end', this._updatePosition, this)
+
+    if (this.transform) {
+      this.layout.once('end', () => {
+        _.each(this.children, (child) => {
+          child.endTransform()
+        })
+      })
+    }
   }
   /**
    * initialize View actions and their functions
@@ -152,21 +191,19 @@ export default class Graph extends View {
     const data = []
     _.each(nodes, (node) => {
       let coords = {}
+      const item = { id: node, x: 0, y: 0 }
       if (this.coords && this.coords[node]) {
-        try {
-          coords = JSON.parse(this.coords[node])
-          data.push({
-            id: node,
-            x: 0,
-            y: 0,
-            fx: coords.x,
-            fy: coords.y,
-          })
-        } catch (e) {
-          console.log('Wrong coords format') // eslint-disable-line
+        coords = JSON.parse(this.coords[node])
+        if (coords[this.constructor.name]) {
+          data.push(_.assign({
+            fx: coords[this.constructor.name].x,
+            fy: coords[this.constructor.name].y,
+          }, item))
+        } else {
+          data.push(item)
         }
       } else {
-        data.push({ id: node, x: 0, y: 0 })
+        data.push(item)
       }
     })
 
@@ -187,6 +224,7 @@ export default class Graph extends View {
       })
       this._enteredEdges.classed(this.selectors.hidden.slice(1), false)
       this._exitedEdges.classed(this.selectors.hidden.slice(1), true)
+      this.transform = false
     })
     this.updateLayout()
   }
@@ -261,18 +299,11 @@ export default class Graph extends View {
    * append new nodes to DOM
    */
   _enterNodes () {
-    const nodeViewSet = {
-      actionman: this.actionman,
-      itemman: this.itemman,
-      container: this.elements.nodeGroup,
-      node: this.p.node,
-    }
-
     this._enteredNodes = this._nodes.enter()
     _.each(this._enteredNodes.nodes(), (node) => {
       const key = node.__data__
       const value = this._getLabel(key)
-      this.children[key] = new Node(_.assign({ value }, nodeViewSet))
+      this.children[key] = new Node(_.assign({ value: key }, this.nodeViewSet))
       this.children[key].$el.get(0).__data__ = key
       this.children[key].$el.addClass(`${this.selectors.hidden.slice(1)}`)
       this.children[key].$el.addClass(() => {
@@ -288,7 +319,24 @@ export default class Graph extends View {
     _.each(this._nodes.nodes(), (node) => {
       const key = node.__data__
       const value = this._getLabel(key)
-      this.children[key].render(value)
+      if (!this.transform ) {
+        this.children[key].render(value)
+      } else {
+        this.children[key] = new Node(_.assign({
+          value: key,
+          $el: $(node),
+          transform: true,
+        }, this.nodeViewSet))
+
+        this.children[key].$el.addClass(() => {
+          if (_.includes(this.selection.getAll(), key)) return 'selected'
+          return ''
+        })
+
+        if (_.includes(this.fixedNodes.getAll(), key)) {
+          this.children[key].fixed = true
+        }
+      }
     })
   }
   /**
@@ -315,8 +363,7 @@ export default class Graph extends View {
       const key = node.__data__
       const coord = coords[items.indexOf(key)] || { x: 0, y: 0 }
       const $childNode = $(this.children[key].$el)
-      $childNode.translateX(coord.x)
-      $childNode.translateY(coord.y)
+      $childNode.translate(coord.x, coord.y)
     })
     const edgesCoords = this.layout.edgesCoords
     _.each(this._edges.merge(this._enteredEdges).nodes(), (edge, i) => {
@@ -335,29 +382,27 @@ export default class Graph extends View {
     return value
   }
 
-  _onDrop (targetNode) {
+  _onDrop (targetNode, draggedNode) {
     if (!targetNode) return
-    this.actionman.get('itemLink').enable()
-    this.actionman.get('itemLink').apply(targetNode[0].__data__)
+    this.actionman.get('Link').enable()
+    this.actionman.fire('Link', 'all', [targetNode[0].__data__, draggedNode[0].__data__])
   }
 
   _onNodeMove (delta) {
     const keys = this.selection.getAll()
+
     _.each(keys, (key) => {
+      const newCoords = {}
+      newCoords[this.constructor.name] = {}
       const node = _.find(
-        // TODO why merge
         this._nodes.merge(this._enteredNodes).nodes(),
         _node => _node.__data__ === key
       )
-      // TODO replace with fixedNodes
-      if (!this.children[node.__data__].$el.hasClass('pin')) {
-        this.children[node.__data__].$el.addClass('pin')
-        const img = document.createElement('img')
-        img.style.width = this.p.node.size.width / 2
-        img.style.height = this.p.node.size.height / 2
-        img.src = '/client/view/graph/pin.svg'
-        this.children[node.__data__].$el.append(img)
+
+      if (!this.fixedNodes.get(key)) {
+        this.children[key].addPin()
       }
+
       _(this.layout.nodes)
         .filter(['id', key])
         .each((n) => {
@@ -365,66 +410,93 @@ export default class Graph extends View {
           n.y += delta.y
           n.fx = n.x
           n.fy = n.y
+          newCoords[this.constructor.name].x = n.x
+          newCoords[this.constructor.name].y = n.y
         })
       this.fixedNodes.add(key)
+      this.coords[key] = JSON.stringify(newCoords)
       this.layout.run()
     })
   }
 
-  clearFixed () {
-    this.fixedNodes.clear()
-    d3.selectAll('.pin')
-      .classed('pin', false)
-      .select('img')
-      .remove()
+  clearFixed (keys) {
+    this.fixedNodes.remove(keys)
+    _.each(keys, (key) => {
+      this.children[key].fixed = false
+    })
   }
 
   _onSelect (keys) {
     _.each(keys, (key) => {
-      const node = _.find(
-        this._nodes.merge(this._enteredNodes).nodes(),
-        _node => _node.__data__ === key
-      )
-
-      if (node) {
-        this.children[node.__data__].$el.addClass(this.selectors.selected.slice(1))
+      if (this.children[key]) {
+        this.children[key].$el.addClass(this.selectors.selected.slice(1))
       }
     })
   }
 
   _onDeselect (keys) {
     _.each(keys, (key) => {
-      const node = _.find(
-        this._nodes.merge(this._enteredNodes).nodes(),
-        _node => _node.__data__ === key
-      )
-
-      if (node) {
-        this.children[node.__data__].$el.removeClass(this.selectors.selected.slice(1))
+      if (this.children[key]) {
+        this.children[key].$el.removeClass(this.selectors.selected.slice(1))
       }
     })
   }
 
   _onNodeDblClick (e) {
+    const depth = 1
     const key = this.selection.getAll()
-    this._reload(key, 1)
+    this.selection.clear()
+    this._reload(key, this.key, depth)
+    this.context = key
+    this.depth = depth
+    this.emit('context:change', this.key)
+    this.elements.context.empty().append(key)
   }
 
   async _updateGraph (key) {
     this.selection.clear()
-    await this._reload()
+    await this._reload(this.context, this.key, this.depth)
     this.selection.add(key)
   }
 
   _onClick () {
-    this.emit('focus', this.name)
+    this.emit('focus', this.key)
   }
 
-  async _reload (context, viewKey = this.key, depth = 1) {
+  _updateView (viewKey) {
+    if (viewKey === this.key) this._reload(this.context, this.key, this.depth)
+  }
+
+  _onTransform () {
+    this.emit('transform', this.key, 'List')
+  }
+
+  removeListeners () {
+    this.undelegateEvents()
+    this.itemman.off('repo:update', this._reload, this)
+    this.itemman.off('coords:delete', this._updateView, this)
+    this.itemman.off('item:create', this._updateGraph, this)
+    this.itemman.off('item:associate', this._reload, this)
+    this.itemman.off('item:disassociate', this._reload, this)
+    this.itemman.off('item:remove', this._reload, this)
+    this.itemman.off('item:showChildren', this._reload, this)
+  }
+
+  close () {
+    this.emit('closeView', this.key)
+  }
+
+  resetContext () {
+    this.context = [this.itemman.serviceItems.visibleItem]
+    this.emit('context:change', this.key)
+    this.elements.context.empty().append(this.context)
+    this._reload()
+  }
+
+  async _reload (context = this.context, viewKey = this.key, depth = this.depth) {
     const response = await this.itemman.getGraphWithCoords(context, viewKey, depth)
     this.coords = response.coords
     this.graph = response.graph
-    this.graph.remove(context)
     this.render(this.graph, {})
   }
 }

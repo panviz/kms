@@ -1,12 +1,29 @@
-.node {
-  background-color: #F1F2F7;
-  position: absolute;
-  border-bottom: 1px solid black;
-  box-sizing: border-box;
-  min-height: 20px;
-  width: 100%;
+.row {
 
-  &.selected {
+  position: absolute;
+  width: 100%;
+  cursor: grab;
+  cursor: -webkit-grab;
+  cursor: -moz-grab;
+
+  .text {
+    background-color: #F1F2F7;
+    border-bottom: 1px solid black;
+    box-sizing: border-box;
+    min-height: 20px;
+  }
+
+  &.selected .text {
     background-color: bisque;
   }
+
+  &.dragging {
+    z-index: 3;
+    pointer-events: none;
+    opacity: 0.3;
+  }
+
+  transition: transform 0.3s linear !important;
+
 }
+

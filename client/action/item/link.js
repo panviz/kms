@@ -13,6 +13,8 @@ export default class Link extends Action {
     else if (keys.length > 2) {
       const [target, ...linkKeys] = keys
       registrar.itemman.linkItems(target, linkKeys)
+    } else if (args.length === 2) {
+      registrar.itemman.linkItems(args[0], args[1])
     }
   }
 

@@ -9,7 +9,11 @@ export default class DeletePosition extends Action {
 
   _execute (registrar, args) {
     const selection = registrar.currentView.selection.getAll()
-    registrar.itemman.deleteCoords(selection, registrar.currentView.key)
+    registrar.itemman.deleteCoords(
+      selection,
+      registrar.currentView.key,
+      registrar.currentView.constructor.name
+    )
     registrar.currentView.selection.clear()
   }
 

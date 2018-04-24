@@ -13,42 +13,72 @@ import './list.scss'
 export default class List extends View {
   constructor (p) {
     super(p)
-    this.graph = {}
+    this.graph = p.graph || {}
+    this.coords = p.coords || {}
+    this.$el = p.$el || undefined
     this.children = {}
     this.name = p.name
     this.key = p.key
+
     this.actionman = p.actionman
     this.itemman = p.itemman
-    this.itemman.on('item:create', this._updateGraph.bind(this))
-    this.itemman.on('item:remove', this._reload.bind(this))
 
-    const name = this.name
-    const $html = $(template({ name }))
-    if (this.p.hidden) $html.css('display', 'none')
-    this.setElement($html)
+    this.itemman.on('item:create', this._updateGraph, this)
+    this.itemman.on('item:remove', this._reload, this)
+    const $html = $(template({ name: this.name, context: this.context }))
+
+    if (!this.transform) {
+      this.$el = $('<div>')
+      this.$el.append($html)
+      this.setElement(this.$el)
+    } else {
+      const nodes = this.$el.find(`${this.selectors.node}`)
+      nodes.detach()
+      this.$el.removeClass()
+      this.$el.empty()
+      this.setElement($html, this.$el)
+      nodes.appendTo(this.$el.find(`${this.selectors.canvas}`))
+    }
+
+    this.$el.addClass(`view list noselect ${this.name}`)
     this.canvas = d3.select(`.${this.name} ${this.selectors.canvas}`)
 
+    this.rowViewSet = {
+      actionman: this.actionman,
+      itemman: this.itemman,
+      container: this.elements.canvas,
+    }
     this._initLayouts()
     this._initViewActions()
 
     this.selection.on('add', this._onSelect.bind(this))
     this.selection.on('remove', this._onDeselect.bind(this))
-    this.canvas.on('click', this._onClick.bind(this))
+    this.$el.on('click', this._onClick.bind(this))
 
-    this._reload()
+    if (!this.transform) {
+      this._reload()
+    } else {
+      this.render(this.graph)
+    }
   }
 
   get selectors () {
     return _.extend(super.selectors, {
       canvas: '.canvas',
-      node: '.node',
+      node: '.view',
       hidden: '.hide',
       selected: '.selected',
+      transform: '.transform',
+      context: '.context',
+      reset: '.reset',
     })
   }
 
   get events () {
-    return _.extend(super.events, {})
+    return _.extend(super.events, {
+      'click transform': this._onTransform,
+      'click reset': this.resetContext,
+    })
   }
 
   _initLayouts () {
@@ -93,8 +123,7 @@ export default class List extends View {
       const item = node.__data__
       const coord = coords[items.indexOf(item)] || { x: 0, y: 0 }
       const $childNode = $(this.children[item].$el)
-      $childNode.translateX(coord.x)
-      $childNode.translateY(coord.y)
+      $childNode.translate(coord.x, coord.y)
     })
   }
 
@@ -106,8 +135,12 @@ export default class List extends View {
       .selectAll(this.selectors.node)
       .data(this._items, d => d)
 
-    // sorted rows by saved positions
-    this._sortByPosition(this._items)
+    if (this.sequence === undefined) {
+      this._sortByAlphabet(this._items)
+    } else {
+      this._items = this.sequence
+    }
+
 
     this._enterNodes()
     this._updateNodes()
@@ -117,74 +150,45 @@ export default class List extends View {
     this.layout.run()
   }
 
-  _sortByPosition (items) {
-    const sortedItems = []
+  _sortByAlphabet (items) {
     const _items = _.cloneDeep(items)
-    _.each(this.coords, (coord, key) => {
-      // TODO store plain number
-      const position = JSON.parse(coord).position
-      sortedItems[position] = key
-      const index = _items.indexOf(key)
-      if (index !== -1) {
-        _items.splice(index, 1)
-      }
-    })
-
-    sortedItems.push(..._items)
-    const diff = this._collapseItemsArr(sortedItems)
-    if (Object.keys(diff).length > 0) {
-      this.itemman.saveCoords(diff, this.key)
-    }
-  }
-
-  _collapseItemsArr (items) {
-    const _items = _.cloneDeep(items)
-    const collapsedArr = []
-    const diff = {}
-    let i = 0
-    _.each(_items, (item, index) => {
-      if (item !== undefined) {
-        collapsedArr.push(item)
-        if (i !== index) {
-          diff[item] = { position: i }
-        }
-        i++
-      }
-    })
-    this._items = collapsedArr
-    return diff
+    _items.sort()
+    this._items = _items
   }
 
   _enterNodes () {
-    const rowViewSet = {
-      actionman: this.actionman,
-      itemman: this.itemman,
-      container: this.elements.canvas,
-    }
-
-    const coords = {}
     this._enteredNodes = this._nodes.enter()
     _.each(this._enteredNodes.nodes(), (node) => {
       const key = node.__data__
       const value = this.graph.get(key)
-      this.children[key] = new Row(_.assign({ value }, rowViewSet))
+      this.children[key] = new Row(_.assign({ value: key }, this.rowViewSet))
       this.children[key].$el.get(0).__data__ = key
 
-      if (!this.coords[key]) {
-        coords[key] = { position: Object.keys(this.children).length - 1 }
-      }
+      this.children[key].$el.addClass(() => {
+        if (_.includes(this.selection.getAll(), key)) return 'selected'
+        return ''
+      })
     })
-
-    if (Object.keys(coords).length > 0) {
-      this.itemman.saveCoords(coords, this.key)
-    }
   }
 
   _updateNodes () {
     _.each(this._nodes.nodes(), (node) => {
-      const item = node.__data__
-      const value = this.graph.get(item)
-      this.children[item].render(value)
+      const key = node.__data__
+      const value = this.graph.get(key)
+      if (!this.transform) {
+        this.children[key].render(value)
+      } else {
+        this.children[key] = new Row(_.assign({
+          value: key,
+          $el: $(node),
+          transform: true,
+        }, this.rowViewSet))
+
+        this.children[key].$el.addClass(() => {
+          if (_.includes(this.selection.getAll(), key)) return 'selected'
+          return ''
+        })
+      }
     })
   }
 
@@ -212,84 +216,117 @@ export default class List extends View {
 
   _onSelect (keys) {
     _.each(keys, (key) => {
-      const node = _.find(
-        this._nodes.merge(this._enteredNodes).nodes(),
-        _node => _node.__data__ === key
-      )
-
-      if (node) {
-        this.children[node.__data__].$el.addClass(this.selectors.selected.slice(1))
+      if (this.children[key]) {
+        this.children[key].$el.addClass(this.selectors.selected.slice(1))
       }
     })
   }
 
   _onDeselect (keys) {
     _.each(keys, (key) => {
-      const node = _.find(
-        this._nodes.merge(this._enteredNodes).nodes(),
-        _node => _node.__data__ === key
-      )
-
-      if (node) {
-        this.children[node.__data__].$el.removeClass(this.selectors.selected.slice(1))
+      if (this.children[key]) {
+        this.children[key].$el.removeClass(this.selectors.selected.slice(1))
       }
     })
   }
 
   _onClick () {
-    this.emit('focus', this.name)
+    this.emit('focus', this.key)
   }
 
   _onDrop (targetNode) {
     if (!targetNode) return
-    const keys = this.selection.getAll()
-
-    const targetPosition = this._items.indexOf(targetNode[0].__data__)
-    this._changeItemsPosition(targetPosition, keys)
-  }
-
-  _onNodeMove (delta, dragged) {
-    const keys = this.selection.getAll()
-
-    const draggedPosition = JSON.parse(this.coords[dragged.__data__]).position
-    const draggedCoords = this.layout.coords[draggedPosition]
-    const targetYCoord = draggedCoords.y + delta.y
-    let targetPosition
-
-    _.each(this.layout.coords, (coords, index) => {
-      if (coords.y > targetYCoord) {
-        targetPosition = index
-        return false
-      }
+    const droppedKeys = this.selection.getAll()
+    const droppedPosition = this._items.indexOf(droppedKeys[0])
+    _.each(droppedKeys, (key) => {
+      this._items.splice(this._items.indexOf(key), 1)
     })
-    this._changeItemsPosition(targetPosition, keys)
-  }
-
-  _changeItemsPosition (targetPosition, keys) {
-    let firstPart = this._items.slice(0, targetPosition)
-    const lastPart = this._items.slice(targetPosition)
-    firstPart = firstPart.concat(keys)
-
-    _.each(keys, (key) => {
-      lastPart.splice(lastPart.indexOf(key), 1)
-    })
-
-    this._items = firstPart.concat(lastPart)
-
-    // update this.coords by this._items
-    const coordsForSave = {}
-    _.each(this._items, (item, index) => {
-      this.coords[item] = `{"position":${index}}`
-      coordsForSave[item] = { position: index }
-    })
-    this.itemman.saveCoords(coordsForSave, this.key)
+    let targetPosition = this._items.indexOf(targetNode[0].__data__)
+    if (droppedPosition === targetPosition || droppedPosition < targetPosition) {
+      targetPosition++
+    }
+    const sorted = []
+    if (targetPosition === this._items.length) {
+      sorted.push(...this._items)
+      sorted.push(...droppedKeys)
+    } else if (targetPosition === 0) {
+      sorted.push(...droppedKeys)
+      sorted.push(...this._items)
+    } else {
+      _.each(this._items, (key, index) => {
+        if (index !== targetPosition) {
+          sorted.push(key)
+        } else {
+          sorted.push(...droppedKeys)
+          sorted.push(key)
+        }
+      })
+    }
+    this.sequence = sorted
     this.render(this.graph)
   }
 
-  async _reload (context, viewKey = this.key, depth = 1) {
-    const response = await this.itemman.getGraphWithCoords(context, viewKey, depth)
-    this.coords = response.coords
-    this.graph = response.graph
+  _onNodeMove (delta, dragged) {
+    const droppedKeys = this.selection.getAll()
+
+    const draggedPosition = this._items.indexOf(dragged.__data__)
+    const draggedCoords = this.layout.coords[draggedPosition]
+    const targetYCoord = draggedCoords.y + delta.y
+    const _coords = _.cloneDeep(this.layout.coords)
+    _.each(droppedKeys, (key) => {
+      _coords.splice(this._items.indexOf(key), 1)
+      this._items.splice(this._items.indexOf(key), 1)
+    })
+
+    const sorted = []
+    if (_coords[_coords.length - 1].y < targetYCoord) {
+      sorted.push(...this._items)
+      sorted.push(...droppedKeys)
+    } else if (_coords[0].y > targetYCoord) {
+      sorted.push(...droppedKeys)
+      sorted.push(...this._items)
+    } else {
+      let targetPosition
+      _.each(_coords, (coords, index) => {
+        if (coords.y > targetYCoord) {
+          targetPosition = index
+          return false
+        }
+      })
+
+      _.each(this._items, (key, index) => {
+        if (index !== targetPosition) {
+          sorted.push(key)
+        } else {
+          sorted.push(...droppedKeys)
+          sorted.push(key)
+        }
+      })
+    }
+
+    this.sequence = sorted
+    this.render(this.graph)
+  }
+
+  _onTransform () {
+    this.emit('transform', this.key, 'Graph')
+  }
+
+  removeListeners () {
+    this.undelegateEvents()
+    this.itemman.off('item:create', this._updateGraph, this)
+    this.itemman.off('item:remove', this._reload, this)
+  }
+
+  resetContext () {
+    this.context = [this.itemman.serviceItems.visibleItem]
+    this.emit('context:change', this.key)
+    this.elements.context.empty().append(this.context)
+    this._reload()
+  }
+
+  async _reload (context = this.context, viewKey = this.key, depth = this.depth) {
+    this.graph = await this.itemman.reloadGraph(context, depth)
     this.graph.remove(context)
     this.render(this.graph)
   }

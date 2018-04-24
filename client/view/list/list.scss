@@ -10,13 +10,6 @@
   min-height: 100%;
 
   .header {
-    background-color: lemonchiffon;
-
-    h4 {
-      padding: 5px;
-      margin: 0;
-      display: none;
-    }
     .close, .size {
       &:hover {
        cursor: pointer;

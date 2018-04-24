@@ -11,6 +11,4 @@ export default class Create extends Action {
     const selected = registrar.currentView.selection.clear()
     registrar.itemman.createItem(args.sub, selected)
   }
-
-
 }

@@ -1,6 +1,7 @@
 /**
  * Client application is run in browser
  */
+import uuidBase62 from 'uuid62'
 import { Actionman } from '@graphiy/actionman'
 import Util from '../core/util'
 import Itemman from './ui/itemman'
@@ -10,9 +11,9 @@ import './style/index.scss'
 
 const _views = {
   /* eslint-disable */
-  graph: require('./view/graph/graph').default,
-  list: require('./view/list/list').default,
-  htmlList: require('./view/list/htmlList').default,
+  Graph: require('./view/graph/graph').default,
+  List: require('./view/list/list').default,
+  HtmlList: require('./view/list/htmlList').default,
   /* eslint-enable */
 }
 
@@ -31,14 +32,15 @@ const _actions = [
   require('./action/item/remove').default,
   require('./action/item/savePosition').default,
   require('./action/item/deletePosition').default,
+  require('./action/view/createView').default,
   /* eslint-enable */
 ]
 
 export default class App {
   constructor () {
     this.defaultViews = [
-      { name: 'view1', type: 'graph' },
-      { name: 'view2', type: 'list' },
+      { type: 'Graph', context: ['00xVUNkOdwLlHwgwmhVIte'], depth: 1 },
+      { type: 'List', context: ['00xVUNkOdwLlHwgwmhVIte'], depth: 1 },
     ]
     this.id = 'app'
     this.views = {}
@@ -48,6 +50,12 @@ export default class App {
     this.elements = Util.findElements('body', this.selectors)
 
     this.itemman.loadRepo()
+
+    this.viewSet = {
+      actionman: this.actionman,
+      itemman: this.itemman,
+      container: this.elements.viewContainer,
+    }
 
     this.actionsPanel = new ActionsPanel({
       container: this.elements.sidebar,
@@ -73,43 +81,50 @@ export default class App {
   }
 
   async _createViews () {
-    const graphViewSet = {
-      actionman: this.actionman,
-      itemman: this.itemman,
-      container: this.elements.viewContainer,
-    }
     let views = {}
     const graph = await this.itemman.reloadGraph(this.itemman.serviceItems.views)
 
     if (_.isEmpty(graph.getItemsMap())) {
       await Promise.all(this.defaultViews.map(async (view) => {
-        const key = await this.itemman.initViewNode(view)
+        const key = uuidBase62.v4()
+        view.name = `v_${key}`
+        await this.itemman.initViewNode(view, key)
         views[key] = view
       }))
     } else {
       views = graph.getItemsMap()
       _.each(views, (view, key) => {
+        this.itemman.viewItems.push(key)
         views[key] = JSON.parse(view)
       })
     }
 
     _.each(views, (view, key) => {
-      this._createView(_.assign({ key }, view, graphViewSet))
+      this._createView(_.assign({ key }, view, this.viewSet))
     })
   }
 
-  _createView (graphViewSet) {
-    const viewType = graphViewSet.type
+  _createView (viewSet) {
+    const viewType = viewSet.type
     const Klass = _views[viewType]
-    const newView = new Klass(graphViewSet)
-    this.views[graphViewSet.name] = newView
+    const newView = new Klass(viewSet)
+    this.views[viewSet.key] = newView
     this.currentView = newView
-    this.currentView.on('focus', this._changeCurrentView.bind(this))
-    this.currentView.selection.on('change', this.actionsPanel.update.bind(this.actionsPanel))
-    this.currentView.fixedNodes.on('change', this.actionsPanel.update.bind(this.actionsPanel))
+    this.currentView.on('focus', this._changeCurrentView, this)
+    this.currentView.on('transform', this._viewTransform, this)
+    this.currentView.on('closeView', this._viewClose, this)
+    this.currentView.on('context:change', this.updateView, this)
+
+    if (viewSet.selection === undefined) {
+      this.currentView.selection.on('change', this.actionsPanel.update.bind(this.actionsPanel))
+    }
+    if (viewSet.fixedNodes === undefined) {
+      this.currentView.fixedNodes.on('change', this.actionsPanel.update.bind(this.actionsPanel))
+    }
+
     if (_.keys(this.views).length > 1) {
       _.each(this.views, (view, key) => {
-        if (graphViewSet.name !== key) {
+        if (viewSet.name !== key && view.resize) {
           view.resize()
           // TODO view should manage its layout on its own
           // view.layout.size(view.p.width, view.p.height)
@@ -118,11 +133,81 @@ export default class App {
     }
   }
 
-  _changeCurrentView (viewName) {
-    if (this.views[viewName] && this.views[viewName] !== this.currentView) {
-      this.currentView = this.views[viewName]
+  _changeCurrentView (viewKey) {
+    if (this.views[viewKey] && this.views[viewKey] !== this.currentView) {
+      this.currentView = this.views[viewKey]
       this.actionsPanel.update.call(this.actionsPanel)
     }
   }
+
+  async _viewTransform (viewKey, newType) {
+    const viewSet = _.cloneDeep(this.viewSet)
+    viewSet.container = undefined
+    const $el = this.views[viewKey].$el
+    const graph = this.views[viewKey].graph
+    const coords = this.views[viewKey].coords
+    const key = this.views[viewKey].key
+    const selection = this.views[viewKey].selection
+    const fixedNodes = this.views[viewKey].fixedNodes
+    const context = this.views[viewKey].context
+    const depth = this.views[viewKey].depth
+    const name = this.views[viewKey].name
+
+    this.views[viewKey].off('focus', this._changeCurrentView, this)
+    this.views[viewKey].off('transform', this._viewTransform, this)
+    this.views[viewKey].off('closeView', this._viewClose, this)
+    this.views[viewKey].off('context:change', this.updateView, this)
+    delete this.views[viewKey]
+
+    await this._createView(_.assign({
+      key,
+      name,
+      type: newType,
+      $el,
+      graph,
+      coords,
+      selection,
+      fixedNodes,
+      context,
+      depth,
+      transform: true,
+    }, viewSet))
+    this.updateView()
+  }
+
+  _viewClose (viewKey) {
+    this.views[viewKey].off('focus', this._changeCurrentView, this)
+    this.views[viewKey].off('transform', this._viewTransform, this)
+    this.views[viewKey].off('closeView', this._viewClose, this)
+    this.views[viewKey].off('context:change', this.updateView, this)
+    this.views[viewKey].removeListeners()
+    this.views[viewKey].$el.remove()
+    delete this.views[viewKey]
+    this.itemman.removeItem(viewKey)
+  }
+
+  updateView () {
+    const viewKey = this.currentView.key
+    const name = this.currentView.name
+    const type = this.currentView.constructor.name
+    const context = this.currentView.context
+    const depth = this.currentView.depth
+    const value = JSON.stringify({
+      name,
+      type,
+      context,
+      depth,
+    })
+    this.itemman.saveItem(value, viewKey)
+  }
+
+  async createNewView () {
+    const view = _.cloneDeep(this.defaultViews[0])
+    const key = uuidBase62.v4()
+    view.name = `v_${key}`
+    await this.itemman.initViewNode(view, key)
+    this._createView(_.assign({ key }, view, this.viewSet))
+  }
 }
+
 window.G = new App()
