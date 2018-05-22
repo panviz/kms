@@ -7,7 +7,7 @@
  * Link is an array of key and weight
  */
 import _ from 'lodash'
-import uuidBase62 from 'uuid62'
+import uuidBase62 from '@graphiy/uuid62'
 
 function filterKeys (obj, filter) {
   const filtered = {}

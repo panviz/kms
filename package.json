@@ -6,7 +6,7 @@
     "data model",
     "graph"
   ],
-  "homepage": "",
+  "homepage": "https://github.com/graphiy/graph#readme",
   "license": "GPL-3.0+",
   "main": "build/bundle.js",
   "module": "index",
@@ -45,7 +45,7 @@
     }
   },
   "dependencies": {
-    "uuid62": "graphiy/uuid62"
+    "@graphiy/uuid62": "graphiy/uuid62"
   },
   "devDependencies": {
     "@graphiy/eslint-config": "graphiy/eslint-config",
@@ -55,13 +55,13 @@
     "jest": "^21.2.1",
     "mocha": "^3.5.0"
   },
+  "peerDependencies": {
+    "lodash": "4.x"
+  },
   "jest": {
     "testMatch": [
       "**/test/**/*.js"
     ]
-  },
-  "peerDependencies": {
-    "lodash": "4.x"
   },
   "precommit": "test"
 }
