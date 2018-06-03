@@ -45,7 +45,7 @@
     }
   },
   "dependencies": {
-    "@graphiy/graph": "graphiy/graph",
+    "@graphiy/graph": "graphiy/graph#dev",
     "fs-extra": "^4.0.2",
     "glob": "^7.1.2",
     "isbinaryfile": "^3.0.2"

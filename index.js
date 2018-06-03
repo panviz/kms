@@ -9,16 +9,14 @@ import glob from 'glob'
 import isbinaryfile from 'isbinaryfile'
 import Graph from '@graphiy/graph'
 
-const Raw = {}
-export default Raw
-Raw.linksDelimiter = '\n'
+export const linksDelimiter = '\n'
 
 /**
  * Reads from a directory with files named by their Keys
  * @param String source folder name
  * @return Graph
  */
-Raw.read = function (source) {
+export function read (source) {
   const obj = { items: {}, links: {} }
   return new Promise((resolve, reject) => {
     let counter = 0
@@ -26,7 +24,7 @@ Raw.read = function (source) {
     if (files.length === 0) resolve(new Graph)
     _.each(files, (key) => {
       const path = Path.join(source, key)
-      Raw._getFile(path)
+      _getFile(path)
         .then((data) => {
           const links = JSON.parse(data.linksString)
           obj.items[key] = data.value
@@ -39,10 +37,10 @@ Raw.read = function (source) {
 /**
  * Retrieve item
  */
-Raw.get = function (key, p) {
+export function get (key, p) {
   const path = Path.join(p.source, key)
   return new Promise((resolve, reject) => {
-    Raw._getFile(path, { getBinary: true })
+    _getFile(path, { getBinary: true })
       .then((data) => {
         resolve(data.value)
       })
@@ -51,7 +49,7 @@ Raw.get = function (key, p) {
 /**
  * Save item
  */
-Raw.set = function (key, value, links, p) {
+export function set (key, value, links, p) {
   const path = Path.join(p.repository.path, key)
   if ((_.isNil(value) || value === '') && _.isEmpty(links)) {
     try { fs.unlinkSync(path) } catch (e) {}
@@ -69,7 +67,7 @@ Raw.set = function (key, value, links, p) {
  * Start of file contains utf8 encoded string of links Array []
  * @param Graph graph
  */
-Raw.write = function (graph, p) {
+export function write (graph, p) {
   if (!p.target) {
     console.info('no path specified to write a file')
     return
@@ -84,7 +82,7 @@ Raw.write = function (graph, p) {
 /**
  * TODO return binary data on getBinary flag
  */
-Raw._getFile = function (path, p = {}) {
+function _getFile (path, p = {}) {
   let linksString = ''
   let value
 
