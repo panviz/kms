@@ -9,7 +9,7 @@ import glob from 'glob'
 import isbinaryfile from 'isbinaryfile'
 import Graph from '@graphiy/graph'
 
-export const linksDelimiter = '\n'
+const linksDelimiter = '\n'
 
 /**
  * Reads from a directory with files named by their Keys
@@ -57,7 +57,7 @@ export function set (key, value, links, p) {
   }
 
   let content = value === undefined ? '' : value
-  content = JSON.stringify(links) + Raw.linksDelimiter + content
+  content = JSON.stringify(links) + linksDelimiter + content
   try {
     fs.writeFileSync(path, content)
   } catch (e) { console.error(e) }
@@ -90,7 +90,7 @@ function _getFile (path, p = {}) {
     if (isbinaryfile.sync(path)) {
       const readStream = fs.createReadStream(path, { encoding: 'utf8' })
       readStream.on('data', (chunk) => {
-        const endLinksPosition = chunk.indexOf(Raw.linksDelimiter)
+        const endLinksPosition = chunk.indexOf(linksDelimiter)
         if (endLinksPosition > 0) {
           linksString += chunk.slice(0, endLinksPosition + 1)
           // if (p.getBinary) {}
@@ -100,7 +100,7 @@ function _getFile (path, p = {}) {
       })
     } else {
       fs.readFile(path, 'utf8', (err, str) => {
-        const endLinksPosition = str.indexOf(Raw.linksDelimiter)
+        const endLinksPosition = str.indexOf(linksDelimiter)
         linksString += str.slice(0, endLinksPosition)
         value = str.slice(endLinksPosition + 1)
         resolve({ linksString, value })
