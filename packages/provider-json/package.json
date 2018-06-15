@@ -1,0 +1,12 @@
+{
+  "name": "@graphiy/provider-json",
+  "version": "0.0.0",
+  "description": "read / write json from / to Graph",
+  "main": "index.js",
+  "author": "Graphiy team",
+  "license": "MIT",
+  "dependencies": {
+    "@graphiy/graph": "graphiy/graph#dev",
+    "lodash": "^4.17.10"
+  }
+}
