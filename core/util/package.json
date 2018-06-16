@@ -1,6 +1,6 @@
 {
   "name": "@graphiy/util",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Core utils",
   "license": "GPL-3.0+",
   "main": "index.js",
@@ -38,8 +38,6 @@
       "_": true
     }
   },
-  "dependencies": {
-  },
   "devDependencies": {
     "@graphiy/eslint-config": "^0.1.0",
     "eslint": "^4.6.0",
@@ -54,5 +52,8 @@
       "**/test/**/*.js"
     ]
   },
-  "precommit": "test"
+  "precommit": "test",
+  "publishConfig": {
+    "access": "public"
+  }
 }

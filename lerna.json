@@ -1,8 +1,10 @@
 {
   "lerna": "2.11.0",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "packages": [
-    "core/*", "app/*", "provider/*"
+    "core/*",
+    "app/*",
+    "provider/*"
   ],
   "npmClient": "yarn",
   "npmClientArgs": [

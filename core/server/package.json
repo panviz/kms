@@ -1,6 +1,6 @@
 {
   "name": "@graphiy/server",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Graphiy backend",
   "keywords": [
     "graphiy backend",
@@ -46,9 +46,9 @@
   },
   "dependencies": {
     "@graphiy/collection": "^0.1.0",
-    "@graphiy/graph": "^0.1.0",
-    "@graphiy/util": "^0.1.0",
-    "@graphiy/provider-raw": "^0.1.0",
+    "@graphiy/graph": "^0.1.1",
+    "@graphiy/provider-raw": "^0.1.1",
+    "@graphiy/util": "^0.1.1",
     "@graphiy/uuid62": "^0.1.0",
     "body-parser": "^1.17.2",
     "chalk": "^2.0.1",
@@ -72,6 +72,11 @@
     "testMatch": [
       "**/test/**/*.js"
     ],
-    "transformIgnorePatterns": ["<rootDir>/node_modules/(?!@graphiy)"]
+    "transformIgnorePatterns": [
+      "<rootDir>/node_modules/(?!@graphiy)"
+    ]
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }
