@@ -1,0 +1,58 @@
+{
+  "name": "@graphiy/util",
+  "version": "0.1.0",
+  "description": "Core utils",
+  "license": "GPL-3.0+",
+  "main": "index.js",
+  "module": "index",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Graphiy/graphiy/core/util"
+  },
+  "scripts": {
+    "lint": "eslint .",
+    "pretest": "yarn lint",
+    "test": ""
+  },
+  "babel": {
+    "presets": [
+      [
+        "env",
+        {
+          "targets": {
+            "browsers": [
+              "last 2 versions"
+            ],
+            "node": "current"
+          }
+        }
+      ]
+    ]
+  },
+  "eslintConfig": {
+    "env": {
+      "jest": true
+    },
+    "extends": "@graphiy/eslint-config",
+    "globals": {
+      "_": true
+    }
+  },
+  "dependencies": {
+  },
+  "devDependencies": {
+    "@graphiy/eslint-config": "^0.1.0",
+    "eslint": "^4.6.0",
+    "jest": "^23.1.0"
+  },
+  "peerDependencies": {
+    "jquery": "3.x",
+    "lodash": "4.x"
+  },
+  "jest": {
+    "testMatch": [
+      "**/test/**/*.js"
+    ]
+  },
+  "precommit": "test"
+}

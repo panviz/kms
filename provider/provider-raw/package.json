@@ -1,0 +1,71 @@
+{
+  "name": "@graphiy/provider-raw",
+  "version": "0.1.0",
+  "description": "Graph data storage as files",
+  "keywords": [
+    "storage",
+    "graph"
+  ],
+  "homepage": "https://github.com/graphiy/provider-raw#readme",
+  "license": "GPL-3.0+",
+  "main": "build/bundle.js",
+  "module": "index",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Graphiy/provider-raw"
+  },
+  "scripts": {
+    "build": "webpack",
+    "lint": "eslint . --ignore-path .gitignore",
+    "pretest": "yarn lint",
+    "test": "jest"
+  },
+  "babel": {
+    "presets": [
+      [
+        "env",
+        {
+          "targets": {
+            "browsers": [
+              "last 2 versions"
+            ],
+            "node": "current"
+          }
+        }
+      ]
+    ]
+  },
+  "eslintConfig": {
+    "env": {
+      "jest": true
+    },
+    "extends": "@graphiy/eslint-config",
+    "globals": {
+      "_": true
+    }
+  },
+  "dependencies": {
+    "@graphiy/graph": "0.1.0",
+    "fs-extra": "^4.0.2",
+    "glob": "^7.1.2",
+    "isbinaryfile": "^3.0.2"
+  },
+  "devDependencies": {
+    "@graphiy/eslint-config": "^0.1.0",
+    "babel-cli": "^6.24.1",
+    "babel-preset-env": "^1.6.0",
+    "eslint": "^4.8.0",
+    "jest": "^23.1.0",
+    "mocha": "^3.5.0"
+  },
+  "peerDependencies": {
+    "lodash": "4.x"
+  },
+  "jest": {
+    "testMatch": [
+      "**/test/**/*.js"
+    ],
+    "transformIgnorePatterns": ["node_modules/(?!@graphiy)/"]
+  },
+  "precommit": "test"
+}

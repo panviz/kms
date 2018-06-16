@@ -1,0 +1,24 @@
+@import "~select2/dist/css/select2.css";
+
+// Components
+@import "~material-design-lite/src/button/button";
+@import "~material-design-lite/src/card/card";
+@import "~material-design-lite/src/checkbox/checkbox";
+/* Fix for non-default image-path value in MDL */
+$checkbox-image_path: '/static/lib/material-design-lite/src/images';
+.mdl-checkbox__tick-outline {
+  mask: unquote(url("#{$checkbox-image-path}/tick-mask.svg?embed"));
+  .mdl-checkbox.is-checked & {
+    background: $checkbox-color url("#{$checkbox-image-path}/tick.svg?embed");
+  }
+  .mdl-checkbox.is-checked.is-disabled & {
+    background: $checkbox-disabled-color url("#{$checkbox-image-path}/tick.svg?embed");
+  }
+}
+@import "~material-design-lite/src/menu/menu";
+@import "~material-design-lite/src/shadow/shadow";
+@import "~material-design-lite/src/ripple/ripple";
+@import "~material-design-lite/src/textfield/textfield";
+
+@import "~font-awesome/css/font-awesome.css";
+@import "~@mdi/font/css/materialdesignicons.css";

@@ -1,7 +1,6 @@
 node_modules
-yarn-error.log
-npm-debug.log
+*-error.log
+*-debug.log
 build/*
-server/config.json
 .tags*
 .idea/*

@@ -3,8 +3,8 @@ language: node_js
 git:
   submodules: false
 node_js:
-  - 8
+  - 10
 install:
   - yarn install
 script:
-  - NODE_ENV=TEST yarn run test
+  - NODE_ENV=TEST yarn test

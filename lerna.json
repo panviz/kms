@@ -1,0 +1,12 @@
+{
+  "lerna": "2.11.0",
+  "version": "0.1.0",
+  "packages": [
+    "core/*", "app/*", "provider/*"
+  ],
+  "npmClient": "yarn",
+  "npmClientArgs": [
+    "--no-lockfile"
+  ],
+  "useWorkspaces": true
+}
