@@ -2,6 +2,7 @@
   "name": "@graphiy/kms",
   "version": "0.1.1",
   "description": "Knowledge Management System",
+  "main": "index.js",
   "keywords": [
     "cms",
     "data visualization",

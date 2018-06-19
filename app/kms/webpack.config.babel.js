@@ -36,7 +36,7 @@ export default () => (
         'material-design-lite/src/menu/menu',
         './style/libs.scss',
       ],
-      kms: './app.js',
+      bundle: './index.js',
     },
     output: {
       path: absolute('build'),
