@@ -18,14 +18,14 @@
   ],
   "author": {
     "name": "Dmitra",
-    "email": "k@dmitra.com",
-    "url": "http://dmitra.com"
+    "email": "adrian@dmitra.com"
   },
   "license": "http://graphiy.com/licence",
   "scripts": {
     "start": "static",
     "build-css": "sh bin/build-css",
-    "build-js": "sh bin/build-js",
+    "build-lib": "sh bin/build-lib",
+    "build-app": "browserify client/app.js -o client/bundle/bundle.js",
     "build-template": "sh bin/build-template",
     "watch-css": "nodemon -w client -e scss -x sh bin/build-css",
     "watch-js": "watchify client/app.js -d -v -o client/bundle/bundle.js",
@@ -44,7 +44,6 @@
     "d3": "d3"
   },
   "dependencies": {
-    "EasyTabs": "git+https://github.com/JangoSteve/jQuery-EasyTabs.git",
     "backbone-events-standalone": "^0.2.7",
     "body-parser": "^1.14.2",
     "csv": "^0.4.6",
@@ -54,26 +53,27 @@
     "font-awesome": "^4.5.0",
     "fs-extra": "^0.26.2",
     "glob": "latest",
-    "handlebars": "latest",
+    "handlebars": "4.0.5",
     "isbinaryfile": "^3.0.0",
-    "jQuery-Tags-Input": "git+https://github.com/xoxco/jQuery-Tags-Input.git",
     "jquery": "^2.2.0",
-    "jquery.easing": "^1.3.2",
+    "jquery.easing": "1.3.2",
     "js-yaml": "latest",
     "lodash": "4.3.0",
     "material-design-lite": "^1.1.1",
     "minimist": "^1.2.0",
-    "moment": "latest",
+    "moment": "2.14.0",
     "multer": "^1.1.0",
     "plusjs": "git+https://github.com/Dmitra/plusjs.git",
     "to-markdown": "^2.0.1",
-    "webcola": "git+https://github.com/tgdwyer/WebCola.git"
+    "webcola": "git+https://github.com/tgdwyer/WebCola.git#v3.1.0"
   },
   "devDependencies": {
     "browserify": "^13.0.0",
     "browserify-shim": "^3.8.12",
     "jsdom": "^8.0.4",
     "mocha": "^2.4.5",
-    "mocha-jsdom": "^1.1.0"
+    "mocha-jsdom": "^1.1.0",
+    "node-sass": "^4.13.0",
+    "watchify": "^3.7.0"
   }
 }
