@@ -61,7 +61,7 @@
     "lodash": "4.3.0",
     "material-design-lite": "^1.1.1",
     "minimist": "^1.2.0",
-    "moment": "2.14.0",
+    "moment": "2.19.3",
     "multer": "^1.1.0",
     "plusjs": "git+https://github.com/Dmitra/plusjs.git",
     "to-markdown": "^2.0.1",
