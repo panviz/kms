@@ -1,7 +1,7 @@
 /*
  * Drag behavior
  */
-var Behavior = require('../Behavior')
+var Behavior = require('../behavior')
 , Util = require('../../../core/util')
 
 /**
