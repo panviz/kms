@@ -1,11 +1,11 @@
 {
-  "name": "graphiy.kms",
+  "name": "panviz.kms",
   "version": "0.1.0",
   "description": "knowledge management system",
-  "main": "graphiy",
+  "main": "panviz",
   "repository": {
     "type": "git",
-    "url": "https://github.com/Graphiy/kms"
+    "url": "https://github.com/panviz/kms"
   },
   "homepage": "",
   "keywords": [
@@ -20,7 +20,7 @@
     "name": "Dmitra",
     "email": "adrian@dmitra.com"
   },
-  "license": "http://graphiy.com/licence",
+  "license": "http://panviz.com/licence",
   "scripts": {
     "start": "static",
     "build-css": "sh bin/build-css",
